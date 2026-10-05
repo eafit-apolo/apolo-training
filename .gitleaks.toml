@@ -1,0 +1,19 @@
+title = "apolo-training"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "red-interna-ip-privada"
+description = "IP privada (RFC 1918): el mapa de red no va en el repo"
+regex = '''(?:^|[^\d.])(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b'''
+
+[[rules]]
+id = "red-interna-ip-eafit"
+description = "IP del rango público de EAFIT (200.12.x.x): el mapa de red no va en el repo"
+regex = '''(?:^|[^\d.])200\.12\.\d{1,3}\.\d{1,3}\b'''
+
+[[rules]]
+id = "red-interna-host-local"
+description = "Nombre de host interno (*.local): el inventario va en Ansible Vault"
+regex = '''\b[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.local\b'''

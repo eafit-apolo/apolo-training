@@ -1,0 +1,46 @@
+# Dependencias y artefactos de build
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.angular/
+dist/
+build/
+coverage/
+.pytest_cache/
+.ruff_cache/
+
+# Secretos: solo en GitHub Secrets, Ansible Vault o fuera del repo
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.vault_pass
+.vault-pass*
+
+# Datos pesados o sensibles
+media/
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.mp4
+*.mov
+*.mkv
+*.webm
+
+# Ansible
+*.retry
+
+# Editor y sistema
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.log
