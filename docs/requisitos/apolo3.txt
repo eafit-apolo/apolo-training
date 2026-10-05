@@ -1,0 +1,152 @@
+
+========== 0 · Clúster y partición por defecto ==========
+2026-10-05T08:40:30-05:00
+apolo-3
+PRETTY_NAME="Rocky Linux 9.5 (Blue Onyx)"
+slurm 24.11.5
+AVISO: no hay partición por defecto marcada; uso la primera: bigmem
+P=bigmem
+PARTITION AVAIL TIMELIMIT NODES CPUS MEMORY
+bigmem up 4-00:00:00 2 64 515481
+longjobs up 6-00:00:00 2 64 386048
+accel up 3-00:00:00 1 64 257024
+   DefaultTime=02:00:00 DisableRootJobs=NO ExclusiveUser=NO ExclusiveTopo=NO GraceTime=0 Hidden=NO
+   MaxNodes=2 MaxTime=4-00:00:00 MinNodes=0 LLN=NO MaxCPUsPerNode=UNLIMITED MaxCPUsPerSocket=UNLIMITED
+   PriorityJobFactor=1000 PriorityTier=1000 RootOnly=NO ReqResv=NO OverSubscribe=NO
+   DefMemPerCPU=7500 MaxMemPerNode=UNLIMITED
+AccountingStorageType   = accounting_storage/slurmdbd
+ClusterName             = cluster
+JobAcctGatherFrequency  = 30
+JobAcctGatherType       = (null)
+PrivateData             = none
+ProctrackType           = proctrack/cgroup
+SelectTypeParameters    = CR_CORE_MEMORY
+TaskPlugin              = task/affinity
+TaskPluginParam         = (null type)
+--- cgroup.conf
+ConstrainCores=yes
+ConstrainDevices=yes
+ConstrainRAMSpace=yes
+ConstrainSwapSpace=yes
+
+========== A · Límite de memoria (pide --mem=1G, intenta usar 2G) ==========
+nodo: a3-bigmem-0  job: 20422
+0::/system.slice/a3-bigmem-0_slurmstepd.scope/job_20422/step_0/user/task_special
+usé 2G sin que me mataran -> memoria NO limitada
+código de salida srun: 0  (137 u oom_kill = memoria limitada)
+
+========== B · Núcleos visibles (pide -c 2) ==========
+nodo: a3-bigmem-1  SLURM_CPUS_PER_TASK=2
+nproc: 2   (nodo completo: 64)
+Cpus_allowed_list:	0-1
+os.cpu_count(): 64  afinidad: 2
+
+========== C · TotalCPU (20 s de CPU real) ==========
+JobAcctGatherType=(null)
+job: 20424  inicio: 2026-10-05T08:40:31 — espero 5 s antes de sacct
+JobID           JobName  Partition  AllocCPUS               Start    Elapsed   TotalCPU    UserCPU    CPUTime     MaxRSS      State ExitCode
+------------ ---------- ---------- ---------- ------------------- ---------- ---------- ---------- ---------- ---------- ---------- --------
+20424             req-C     bigmem          1 2026-10-05T08:40:31   00:00:20   00:00:00   00:00:00   00:00:20             COMPLETED      0:0
+20424.0           req-C                     1 2026-10-05T08:40:31   00:00:20   00:00:00   00:00:00   00:00:20             COMPLETED      0:0
+ESPERADO: JobAcctGatherType=(null) -> TotalCPU y MaxRSS salen vacíos; no es error del script.
+
+========== D · Python y numpy del sistema (nodo de cómputo) ==========
+nodo: a3-bigmem-0
+/usr/bin/python3 (Python 3.9.21)
+/usr/bin/python3.9 (Python 3.9.21)
+/usr/bin/python3.11 (Python 3.11.9)
+ModuleNotFoundError: No module named 'numpy'
+
+========== E · Python, numpy y conda en módulos (login) ==========
+
+Modules based on Lua: Version 8.7.59 2025-03-06 13:51 -07:00
+--- MODULEPATH
+/etc/scl/modulefiles
+/opt/ohpc/pub/modulefiles/custom
+/opt/ohpc/pub/moduledeps/gnu14-openmpi5
+/opt/ohpc/pub/moduledeps/gnu14
+/opt/ohpc/pub/moduledeps/spack
+/opt/ohpc/pub/modulefiles
+--- module avail (filtrado)
+py3-numpy/
+py3-numpy/1.26.4
+miniconda3/
+miniconda3/25.5.1
+miniconda3/25.11.1
+spack/
+spack/0.23.1
+--- module spider
+# spider python
+Lmod has detected the following error: Unable to find: "python".
+# spider python3
+Lmod has detected the following error: Unable to find: "python3".
+# spider miniconda3
+miniconda3/25.5.1
+miniconda3/25.11.1
+# spider anaconda3
+Lmod has detected the following error: Unable to find: "anaconda3".
+# spider py-numpy
+Lmod has detected the following error: Unable to find: "py-numpy".
+--- árbol moduledeps / modulefiles
+/opt/ohpc/pub/moduledeps/gnu14/py3-numpy
+/opt/ohpc/pub/moduledeps/intel/py3-numpy
+/opt/ohpc/pub/modulefiles/miniconda3
+
+========== E2 · module load miniconda3/25.5.1 ==========
+login:
+/opt/ohpc/pub/apps/miniconda3/bin/python
+conda ()
+{
+    \local cmd="${1-__missing__}";
+    case "$cmd" in
+        activate | deactivate)
+            __conda_activate "$@"
+        ;;
+        install | update | upgrade | remove | uninstall)
+            __conda_exe "$@" || \return;
+            __conda_activate reactivate
+        ;;
+        *)
+            __conda_exe "$@"
+        ;;
+    esac
+}
+Python 3.13.5
+conda 25.5.1
+ModuleNotFoundError: No module named 'numpy'
+nodo de cómputo (hereda el entorno):
+a3-bigmem-0
+/opt/ohpc/pub/apps/miniconda3/bin/python
+ModuleNotFoundError: No module named 'numpy'
+
+========== FIN ==========
+
+========== 0b · srun sin -p (¿qué pasa si el usuario no indica partición?) ==========
+srun: error: Unable to allocate resources: No partition specified or system default partition
+código de salida srun: 1
+
+========== B2 · ¿El proceso puede salirse de sus núcleos? (pide -c 2, taskset a todos) ==========
+nproc al inicio: 2
+nproc tras taskset a todos los núcleos: 64
+
+========== E3 · py3-numpy/1.26.4 ==========
+autotools
+prun/2.2
+gnu14/14.2.0
+hwloc/2.12.0
+ucx/1.18.0
+libfabric/1.18.0
+openmpi5/5.0.7
+ohpc
+openblas/0.3.29
+py3-numpy/1.26.4
+/opt/ohpc/pub/libs/gnu14/numpy/1.26.4/bin/python3 3.11.11 numpy 1.26.4
+nodo de cómputo:
+a3-bigmem-0
+/opt/ohpc/pub/libs/gnu14/numpy/1.26.4/bin/python3 numpy 1.26.4
+
+========== E4 · miniconda3/25.11.1 ==========
+Python 3.13.12
+ModuleNotFoundError: No module named 'numpy'
+
+========== FIN extra ==========

@@ -1,0 +1,132 @@
+
+========== 0 · Clúster y partición por defecto ==========
+2026-10-05T08:45:52-05:00
+apolo
+PRETTY_NAME="Rocky Linux 9.8 (Blue Onyx)"
+slurm 25.11.4
+P=longjobs
+PARTITION AVAIL TIMELIMIT NODES CPUS MEMORY
+bigmem up 14-00:00:00 2 24 386576
+accel up 14-00:00:00 1 32 64052
+accel-2 up 14-00:00:00 1 32 128113
+longjobs* up 14-00:00:00 9 32 63657+
+learning up 3-00:00:00 1 32 64052
+   DefaultTime=00:00:00 DisableRootJobs=YES ExclusiveUser=NO ExclusiveTopo=NO GraceTime=0 Hidden=NO
+   MaxNodes=3 MaxTime=14-00:00:00 MinNodes=0 LLN=NO MaxCPUsPerNode=UNLIMITED MaxCPUsPerSocket=UNLIMITED
+   PriorityJobFactor=1 PriorityTier=1 RootOnly=NO ReqResv=NO OverSubscribe=NO
+   DefMemPerCPU=1875 MaxMemPerNode=UNLIMITED
+AccountingStorageType   = accounting_storage/slurmdbd
+ClusterName             = slurm-apolo
+JobAcctGatherFrequency  = 30
+JobAcctGatherType       = jobacct_gather/linux
+PrivateData             = none
+ProctrackType           = proctrack/cgroup
+SelectTypeParameters    = CR_CORE_MEMORY
+TaskPlugin              = task/cgroup,task/affinity
+TaskPluginParam         = autobind=cores
+--- cgroup.conf
+CgroupPlugin=cgroup/v2
+ConstrainCores=yes
+ConstrainRAMSpace=yes
+ConstrainDevices=yes
+
+========== A · Límite de memoria (pide --mem=1G, intenta usar 2G) ==========
+nodo: nodo-B  job: 52072
+0::/system.slice/nodo-B_slurmstepd.scope/job_52072/step_0/user/task_0
+[2026-10-05T08:46:07.571] error: Detected 1 oom_kill event in StepId=52072.0. Some of the step tasks have been OOM Killed.
+srun: error: nodo-B: task 0: Out Of Memory
+código de salida srun: 1  (137 u oom_kill = memoria limitada)
+
+========== B · Núcleos visibles (pide -c 2) ==========
+nodo: nodo-D  SLURM_CPUS_PER_TASK=2
+nproc: 2   (nodo completo: 32)
+Cpus_allowed_list:	0,2
+os.cpu_count(): 32  afinidad: 2
+
+========== C · TotalCPU (20 s de CPU real) ==========
+JobAcctGatherType=jobacct_gather/linux
+job: 52074  inicio: 2026-10-05T08:45:53 — espero 5 s antes de sacct
+JobID           JobName  Partition  AllocCPUS               Start    Elapsed   TotalCPU    UserCPU    CPUTime     MaxRSS      State ExitCode
+------------ ---------- ---------- ---------- ------------------- ---------- ---------- ---------- ---------- ---------- ---------- --------
+52074             req-C   longjobs          1 2026-10-05T08:45:53   00:00:20  00:19.902  00:19.890   00:00:20             COMPLETED      0:0
+52074.extern     extern                     1 2026-10-05T08:45:53   00:00:20   00:00:00   00:00:00   00:00:20             COMPLETED      0:0
+52074.0           req-C                     1 2026-10-05T08:45:53   00:00:20  00:19.902  00:19.890   00:00:20       840K  COMPLETED      0:0
+
+========== D · Python y numpy del sistema (nodo de cómputo) ==========
+nodo: nodo-B
+/usr/bin/python3 (Python 3.9.25)
+/usr/bin/python3.9 (Python 3.9.25)
+/usr/bin/python3.11 (Python 3.11.13)
+ModuleNotFoundError: No module named 'numpy'
+
+========== E · Python, numpy y conda en módulos (login) ==========
+
+Modules based on Lua: Version 9.2 2026-04-06 14:48 -05:00
+--- MODULEPATH
+/opt/ohpc/pub/moduledeps/gnu15-openmpi5
+/opt/ohpc/pub/moduledeps/gnu15
+/opt/ohpc/pub/moduledeps/spack
+/opt/ohpc/pub/modulefiles
+--- module avail (filtrado)
+py3-numpy/
+py3-numpy/1.26.4
+miniconda3/
+miniconda3/25.11.1
+spack/
+spack/1.1.1
+--- module spider
+# spider python
+# spider python3
+# spider miniconda3
+miniconda3/25.11.1
+# spider anaconda3
+# spider py-numpy
+--- árbol moduledeps / modulefiles
+/opt/ohpc/pub/moduledeps/gnu15/py3-numpy
+/opt/ohpc/pub/modulefiles/miniconda3
+
+========== E2 · module load miniconda3/25.5.1 ==========
+Lmod has detected the following error: The following module(s) are unknown:
+"miniconda3/25.5.1"
+
+Please check the spelling or version number. Also try "module spider ..."
+It is also possible your cache file is out-of-date; it may help to try:
+  $ module --ignore_cache load "miniconda3/25.5.1"
+
+Also make sure that all modulefiles written in TCL start with the string #%Module
+
+
+
+miniconda3/25.5.1 no se pudo cargar en este clúster
+
+========== FIN ==========
+
+========== 0b · srun sin -p (¿qué pasa si el usuario no indica partición?) ==========
+nodo: nodo-B  partición: longjobs
+código de salida srun: 0
+
+========== B2 · ¿El proceso puede salirse de sus núcleos? (pide -c 2, taskset a todos) ==========
+nproc al inicio: 2
+nproc tras taskset a todos los núcleos: 2
+
+========== E3 · py3-numpy/1.26.4 ==========
+autotools
+prun/2.2
+gnu15/15.2.0
+hwloc/2.13.0
+ucx/1.20.1
+libfabric/1.18.0
+openmpi5/5.0.10
+ohpc
+openblas/0.3.33
+py3-numpy/1.26.4
+/opt/ohpc/pub/libs/gnu15/numpy/1.26.4/bin/python3 3.11.13 numpy 1.26.4
+nodo de cómputo:
+nodo-B
+/opt/ohpc/pub/libs/gnu15/numpy/1.26.4/bin/python3 numpy 1.26.4
+
+========== E4 · miniconda3/25.11.1 ==========
+Python 3.11.14
+ModuleNotFoundError: No module named 'numpy'
+
+========== FIN extra ==========
