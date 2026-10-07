@@ -1,0 +1,2281 @@
+openapi: 3.1.0
+info:
+  title: apolo-training API
+  version: 0.1.0
+  summary: Contrato v0 de la plataforma del curso de inducción de Apolo (A-11).
+  description: |
+    Contrato acordado antes de programar, para que el frontend (F-01 en
+    adelante) y el backend (B-01 en adelante) avancen en paralelo. Cuando la
+    API exista, FastAPI generará su propio `openapi.json`; las diferencias con
+    este archivo se corrigen en el mismo PR que las introduce.
+
+    **Sesión.** El login deja tres cookies: `at` (acceso, 15 min), `rt`
+    (refresh, 7 días, solo en `/api/auth`) y `csrf`. `at` y `rt` son
+    `HttpOnly`, `Secure` y `SameSite=Strict`. Todo lo que no sea `GET` exige
+    la cabecera `X-CSRF-Token` con el valor de la cookie `csrf`.
+
+    **Roles.** Cada operación declara en `x-roles` quién puede usarla. Un
+    usuario con `debe_cambiar_clave` solo puede usar `/auth/*` y `GET /me`.
+
+    **Idioma.** Las rutas de contenido aceptan `?lang=es|en`. Si falta la
+    traducción, responden en español con `fallback: true`.
+
+    **Errores.** Siempre `{"detail": "...", "codigo": "..."}`. La app traduce
+    el `codigo`; `detail` es solo para quien depura.
+
+    **Rutas internas.** `/internal/*` solo las usa la VM de práctica, con
+    token de servicio y desde su IP (nginx y la API lo comprueban).
+servers:
+  - url: /api
+    description: Misma URL de la plataforma, detrás de nginx
+tags:
+  - name: auth
+    description: Inicio y cierre de sesión, cambio de contraseña
+  - name: perfil
+    description: Datos y preferencias del usuario con sesión
+  - name: contenido
+    description: Cursos, módulos y lecciones
+  - name: medios
+    description: Videos y subtítulos protegidos
+  - name: progreso
+    description: Avance del usuario
+  - name: quizzes
+    description: Preguntas y calificación en el servidor
+  - name: panel
+    description: Panel de instructor (instructor y admin)
+  - name: admin
+    description: Administración de usuarios y QOS (solo admin)
+  - name: internal
+    description: Solo para la VM de práctica (token de servicio)
+  - name: salud
+    description: Estado del servicio
+
+paths:
+  /health:
+    get:
+      tags: [salud]
+      operationId: salud
+      summary: Estado de la API y de la conexión a PostgreSQL
+      security: []
+      x-roles: [publico]
+      responses:
+        "200":
+          description: La API responde y la base de datos también
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Salud"
+        "503":
+          description: La API responde pero la base de datos no
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Salud"
+
+  /auth/login:
+    post:
+      tags: [auth]
+      operationId: iniciarSesion
+      summary: Iniciar sesión con usuario y contraseña
+      description: |
+        Verifica la contraseña con argon2. Tras 5 intentos fallidos la cuenta
+        queda bloqueada 15 minutos. Además hay un límite de 10 intentos por
+        minuto por IP (B-09). No exige CSRF porque todavía no hay sesión.
+      security: []
+      x-roles: [publico]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginEntrada"
+      responses:
+        "200":
+          description: Sesión iniciada; las cookies van en las cabeceras
+          headers:
+            Set-Cookie:
+              description: Cookies `at`, `rt` y `csrf`
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginSalida"
+        "401":
+          description: "Usuario o clave incorrectos (`codigo`: `clave_incorrecta`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Cuenta bloqueada o dada de baja (`cuenta_bloqueada`, `cuenta_inactiva`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+        "429":
+          $ref: "#/components/responses/DemasiadasPeticiones"
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      operationId: renovarSesion
+      summary: Renovar el token de acceso con la cookie de refresh
+      description: Rota el refresh token (el anterior queda revocado).
+      security:
+        - cookieRefresh: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      responses:
+        "204":
+          description: Cookies renovadas
+          headers:
+            Set-Cookie:
+              description: Cookies `at`, `rt` y `csrf` nuevas
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      operationId: cerrarSesion
+      summary: Cerrar sesión
+      description: Revoca el refresh token y borra las cookies.
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      responses:
+        "204":
+          description: Sesión cerrada
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+
+  /auth/cambiar-clave:
+    post:
+      tags: [auth]
+      operationId: cambiarClave
+      summary: Cambiar la contraseña de la plataforma
+      description: |
+        Obligatorio en el primer ingreso y después de un reinicio. Solo cambia
+        la contraseña de la plataforma, no la de la VM de práctica. Revoca las
+        demás sesiones del usuario.
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CambioClave"
+      responses:
+        "204":
+          description: Contraseña cambiada
+        "400":
+          description: "La clave actual no coincide o la nueva no cumple la política (`clave_incorrecta`, `clave_debil`, `clave_repetida`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+
+  /me:
+    get:
+      tags: [perfil]
+      operationId: obtenerPerfil
+      summary: Perfil del usuario con sesión
+      description: |
+        También la usa el gateway de terminal para validar la sesión al abrir
+        el WebSocket, reenviando la cookie del usuario.
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      responses:
+        "200":
+          description: Perfil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+    patch:
+      tags: [perfil]
+      operationId: actualizarPerfil
+      summary: Cambiar el idioma preferido
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PerfilCambio"
+      responses:
+        "200":
+          description: Perfil actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+
+  /me/progreso:
+    get:
+      tags: [progreso]
+      operationId: obtenerMiProgreso
+      summary: Avance completo del usuario (pantalla Mi progreso)
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/Lang"
+      responses:
+        "200":
+          description: Avance por módulo, laboratorios, graduación y siguiente paso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiProgreso"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+
+  /me/graduacion:
+    post:
+      tags: [progreso]
+      operationId: enviarGraduacion
+      summary: Enviar el JobID y la salida del verificador de la graduación
+      description: |
+        El usuario hace la graduación en su clúster real y pega aquí el
+        resultado. Se puede reenviar mientras no esté aprobada; un reenvío
+        reemplaza el anterior y vuelve a `enviada`.
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GraduacionEntrada"
+      responses:
+        "200":
+          description: Graduación registrada para revisión
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Graduacion"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "409":
+          description: "Ya estaba aprobada (`graduacion_aprobada`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+
+  /cursos:
+    get:
+      tags: [contenido]
+      operationId: listarCursos
+      summary: Catálogo de cursos publicados con el avance del usuario
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/Lang"
+      responses:
+        "200":
+          description: Cursos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CursoResumen"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+
+  /cursos/{curso_id}:
+    get:
+      tags: [contenido]
+      operationId: obtenerCurso
+      summary: Curso con sus módulos, estado de cada uno y lección para continuar
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/CursoId"
+        - $ref: "#/components/parameters/Lang"
+      responses:
+        "200":
+          description: Curso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CursoDetalle"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /modulos/{modulo_id}:
+    get:
+      tags: [contenido]
+      operationId: obtenerModulo
+      summary: Módulo con sus lecciones
+      description: Un módulo bloqueado se puede ver (título y lecciones) pero no abrir sus lecciones.
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/ModuloId"
+        - $ref: "#/components/parameters/Lang"
+      responses:
+        "200":
+          description: Módulo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModuloDetalle"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /lecciones/{leccion_id}:
+    get:
+      tags: [contenido]
+      operationId: obtenerLeccion
+      summary: Lección completa con su progreso
+      description: |
+        Trae el Markdown, el video, el escenario de terminal quemada, el
+        laboratorio y el id del quiz, según lo que tenga la lección. Los
+        instructores y admins pueden abrir lecciones de módulos bloqueados.
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/LeccionId"
+        - $ref: "#/components/parameters/Lang"
+      responses:
+        "200":
+          description: Lección
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leccion"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          description: "Módulo bloqueado (`modulo_bloqueado`) o clave por cambiar (`debe_cambiar_clave`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /lecciones/{leccion_id}/completar:
+    post:
+      tags: [progreso]
+      operationId: completarLeccion
+      summary: Marcar como completada una lección de solo lectura o de laboratorio
+      description: |
+        Si la lección tiene video, terminal quemada o quiz, se completa sola al
+        cumplirlos; esta ruta responde 409 mientras falte alguno.
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/LeccionId"
+      responses:
+        "200":
+          description: Progreso de la lección
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgresoLeccion"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "409":
+          description: "Faltan requisitos (`requisitos_pendientes`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /progreso/video:
+    post:
+      tags: [progreso]
+      operationId: reportarVideo
+      summary: Reportar el segundo actual del video (cada 15 s)
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgresoVideoEntrada"
+      responses:
+        "200":
+          description: Progreso de la lección (puede venir completada)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgresoLeccion"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+
+  /progreso/terminal:
+    post:
+      tags: [progreso]
+      operationId: reportarTerminal
+      summary: Registrar que el escenario de terminal quemada terminó
+      description: |
+        La terminal quemada corre en el navegador, así que la API confía en
+        este reporte. Es práctica sin riesgo; lo que vale para aprobar son los
+        laboratorios de la VM y los quizzes.
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgresoTerminalEntrada"
+      responses:
+        "200":
+          description: Progreso de la lección
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgresoLeccion"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /quizzes/{quiz_id}:
+    get:
+      tags: [quizzes]
+      operationId: obtenerQuiz
+      summary: Preguntas del quiz, sin las respuestas correctas
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/QuizId"
+        - $ref: "#/components/parameters/Lang"
+      responses:
+        "200":
+          description: Quiz
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /quizzes/{quiz_id}/intentos:
+    post:
+      tags: [quizzes]
+      operationId: enviarIntento
+      summary: Enviar respuestas y calificar en el servidor
+      description: |
+        Aprueba con 80 % o más. Intentos ilimitados; cuenta el mejor. La
+        respuesta dice qué preguntas acertó y la explicación de cada una, pero
+        no cuál era la opción correcta, para que el reintento tenga sentido.
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/QuizId"
+        - $ref: "#/components/parameters/Lang"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntentoEntrada"
+      responses:
+        "201":
+          description: Intento calificado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntentoResultado"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+
+  /media/{video_id}:
+    get:
+      tags: [medios]
+      operationId: obtenerVideo
+      summary: Video MP4 (solo con sesión)
+      description: |
+        La API valida la sesión y responde con `X-Accel-Redirect`; nginx
+        entrega el archivo desde una ubicación interna, con soporte de `Range`
+        para adelantar.
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/VideoId"
+        - name: Range
+          in: header
+          required: false
+          schema:
+            type: string
+          example: bytes=0-1048575
+      responses:
+        "200":
+          description: Video completo
+          content:
+            video/mp4:
+              schema:
+                type: string
+                format: binary
+        "206":
+          description: Fragmento pedido con Range
+          content:
+            video/mp4:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /media/{video_id}/subtitulos/{idioma}:
+    get:
+      tags: [medios]
+      operationId: obtenerSubtitulos
+      summary: Subtítulos WebVTT del video
+      security:
+        - cookieAcceso: []
+      x-roles: [estudiante, instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/VideoId"
+        - $ref: "#/components/parameters/IdiomaPath"
+      responses:
+        "200":
+          description: Archivo VTT
+          content:
+            text/vtt:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /panel/resumen:
+    get:
+      tags: [panel]
+      operationId: resumenPanel
+      summary: Cifras del panel de instructor
+      security:
+        - cookieAcceso: []
+      x-roles: [instructor, admin]
+      responses:
+        "200":
+          description: Resumen
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResumenPanel"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+
+  /panel/videos:
+    get:
+      tags: [panel]
+      operationId: listarVideos
+      summary: Videos del curso con el estado de archivo y subtítulos
+      security:
+        - cookieAcceso: []
+      x-roles: [instructor, admin]
+      responses:
+        "200":
+          description: Videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VideoAdmin"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+
+  /panel/videos/{clave}:
+    put:
+      tags: [panel]
+      operationId: subirVideo
+      summary: Subir o reemplazar el MP4 de un video
+      description: |
+        Hasta 2 GB. La API verifica con ffprobe que sea H.264 + AAC y guarda la
+        duración. La clave (por ejemplo `m05-trabajos`) la crea el importador de
+        contenido a partir del front matter de la lección.
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/ClaveVideo"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [archivo]
+              properties:
+                archivo:
+                  type: string
+                  format: binary
+            encoding:
+              archivo:
+                contentType: video/mp4
+      responses:
+        "200":
+          description: Video guardado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoAdmin"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "413":
+          description: "Archivo de más de 2 GB (`archivo_muy_grande`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "415":
+          description: "No es H.264 + AAC (`video_formato_invalido`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /panel/videos/{clave}/subtitulos/{idioma}:
+    put:
+      tags: [panel]
+      operationId: subirSubtitulos
+      summary: Subir o reemplazar el VTT de un idioma
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/ClaveVideo"
+        - $ref: "#/components/parameters/IdiomaPath"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [archivo]
+              properties:
+                archivo:
+                  type: string
+                  format: binary
+            encoding:
+              archivo:
+                contentType: text/vtt
+      responses:
+        "200":
+          description: Subtítulos guardados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoAdmin"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "415":
+          description: "No es un WebVTT válido (`vtt_invalido`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /panel/graduaciones:
+    get:
+      tags: [panel]
+      operationId: listarGraduaciones
+      summary: Graduaciones enviadas, por estado
+      security:
+        - cookieAcceso: []
+      x-roles: [instructor, admin]
+      parameters:
+        - name: estado
+          in: query
+          schema:
+            $ref: "#/components/schemas/EstadoGraduacion"
+      responses:
+        "200":
+          description: Graduaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GraduacionAdmin"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+
+  /panel/graduaciones/{username}/revision:
+    post:
+      tags: [panel]
+      operationId: revisarGraduacion
+      summary: Aprobar o rechazar una graduación
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RevisionGraduacion"
+      responses:
+        "200":
+          description: Graduación revisada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GraduacionAdmin"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "409":
+          description: "No hay una graduación enviada para revisar (`sin_graduacion_pendiente`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+
+  /panel/export/progreso.csv:
+    get:
+      tags: [panel]
+      operationId: exportarProgreso
+      summary: Exportar el progreso de todos los usuarios para la medición
+      security:
+        - cookieAcceso: []
+      x-roles: [instructor, admin]
+      parameters:
+        - name: cluster
+          in: query
+          schema:
+            $ref: "#/components/schemas/Cluster"
+      responses:
+        "200":
+          description: |
+            Una fila por usuario: username, cluster, creado_en, ultimo_ingreso,
+            avance_pct, modulos_completos, labs_aprobados, graduacion_estado,
+            qos_aplicada_en.
+          content:
+            text/csv:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+
+  /admin/usuarios:
+    get:
+      tags: [admin]
+      operationId: listarUsuarios
+      summary: Usuarios con su avance, con búsqueda y filtros
+      security:
+        - cookieAcceso: []
+      x-roles: [admin]
+      parameters:
+        - name: q
+          in: query
+          description: Busca en username, nombre y correo
+          schema:
+            type: string
+            maxLength: 100
+        - name: cluster
+          in: query
+          schema:
+            $ref: "#/components/schemas/Cluster"
+        - name: rol
+          in: query
+          schema:
+            $ref: "#/components/schemas/Rol"
+        - name: estado
+          in: query
+          schema:
+            type: string
+            enum: [activo, debe_cambiar_clave, bloqueado, baja]
+        - $ref: "#/components/parameters/Pagina"
+        - $ref: "#/components/parameters/PorPagina"
+      responses:
+        "200":
+          description: Página de usuarios
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListaUsuarios"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+
+  /admin/usuarios/{username}:
+    get:
+      tags: [admin]
+      operationId: obtenerUsuario
+      summary: Detalle de un usuario con su progreso
+      security:
+        - cookieAcceso: []
+      x-roles: [admin]
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      responses:
+        "200":
+          description: Usuario
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsuarioDetalleAdmin"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+    patch:
+      tags: [admin]
+      operationId: cambiarRol
+      summary: Cambiar el rol de un usuario
+      description: |
+        Las altas y bajas no se hacen aquí sino con `apolo-training-admin` en
+        la VM de práctica, para que la cuenta exista o deje de existir en los
+        dos lados (ver docs/diseno/flujos.md).
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [admin]
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuarioCambio"
+      responses:
+        "200":
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsuarioAdmin"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "409":
+          description: "No se puede quitar el último admin (`ultimo_admin`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /admin/usuarios/{username}/reiniciar-clave:
+    post:
+      tags: [admin]
+      operationId: reiniciarClave
+      summary: Generar una clave temporal de la plataforma
+      description: |
+        Solo cambia la contraseña de la plataforma; la de la VM de práctica se
+        reinicia con `apolo-training-admin`. La clave temporal se devuelve una
+        sola vez, el usuario debe cambiarla al entrar y sus sesiones se
+        revocan.
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [admin]
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      responses:
+        "200":
+          description: Clave temporal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaveTemporal"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /admin/aprobados-pendientes:
+    get:
+      tags: [admin]
+      operationId: listarAprobadosPendientes
+      summary: Quienes aprobaron el curso y esperan su QOS normal
+      description: |
+        Usuarios con todas las lecciones completas, los cuatro laboratorios
+        aprobados y la graduación aprobada, que todavía no tienen
+        `qos_aplicada_en`.
+      security:
+        - cookieAcceso: []
+      x-roles: [admin]
+      responses:
+        "200":
+          description: Aprobados pendientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AprobadoPendiente"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+
+  /admin/aprobados-pendientes/{username}/qos-aplicada:
+    post:
+      tags: [admin]
+      operationId: marcarQosAplicada
+      summary: Registrar que ya se aplicó la QOS normal en el clúster real
+      security:
+        - cookieAcceso: []
+          csrf: []
+      x-roles: [admin]
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      responses:
+        "204":
+          description: Registrado
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "409":
+          description: "El usuario no está aprobado o ya tenía la QOS (`no_aprobado`, `qos_ya_aplicada`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /internal/usuarios:
+    post:
+      tags: [internal]
+      operationId: altaUsuario
+      summary: Crear el usuario en la plataforma (apolo-training-admin alta)
+      description: |
+        La llama `apolo-training-admin` después de crear la cuenta en la VM de
+        práctica. Si responde con error, el script revierte lo que hizo en la
+        VM.
+      security:
+        - tokenServicio: []
+      x-roles: [servicio]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AltaUsuario"
+      responses:
+        "201":
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "409":
+          description: "Ya existe un usuario con ese username (`usuario_existe`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+
+  /internal/usuarios/{username}:
+    patch:
+      tags: [internal]
+      operationId: cambiarEstadoUsuario
+      summary: Dar de baja o reactivar (apolo-training-admin baja)
+      description: Con `activo = false` se revocan todas sus sesiones.
+      security:
+        - tokenServicio: []
+      x-roles: [servicio]
+      parameters:
+        - $ref: "#/components/parameters/Username"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EstadoUsuario"
+      responses:
+        "200":
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /internal/labs:
+    post:
+      tags: [internal]
+      operationId: sincronizarLabs
+      summary: Recibir el reporte de laboratorios de la VM de práctica
+      description: |
+        Lo envía el timer de la VM de práctica cada 5 minutos. El reporte es
+        completo (no incremental): upsert por usuario y laboratorio, y un
+        `aprobado` nunca se reemplaza por `intentado`. Cada envío queda en
+        `sincronizaciones`.
+      security:
+        - tokenServicio: []
+      x-roles: [servicio]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReporteLabs"
+      responses:
+        "200":
+          description: Reporte procesado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultadoSincronizacion"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
+
+components:
+  securitySchemes:
+    cookieAcceso:
+      type: apiKey
+      in: cookie
+      name: at
+      description: Token de acceso (15 min), HttpOnly, Secure, SameSite=Strict
+    cookieRefresh:
+      type: apiKey
+      in: cookie
+      name: rt
+      description: Refresh token (7 días), solo se envía a /api/auth
+    csrf:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+      description: Valor de la cookie `csrf`; obligatorio en todo lo que no sea GET
+    tokenServicio:
+      type: http
+      scheme: bearer
+      description: Token de la VM de práctica, guardado en /etc/apolo-training/token (root, 600)
+
+  parameters:
+    Lang:
+      name: lang
+      in: query
+      description: Idioma del contenido; si falta la traducción se responde en español con `fallback = true`
+      schema:
+        $ref: "#/components/schemas/Idioma"
+    CursoId:
+      name: curso_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    ModuloId:
+      name: modulo_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    LeccionId:
+      name: leccion_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    QuizId:
+      name: quiz_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    VideoId:
+      name: video_id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    ClaveVideo:
+      name: clave
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/ClaveVideo"
+    IdiomaPath:
+      name: idioma
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Idioma"
+    Username:
+      name: username
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Username"
+    Pagina:
+      name: pagina
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PorPagina:
+      name: por_pagina
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+
+  responses:
+    NoAutenticado:
+      description: "Sin sesión o sesión vencida (`sin_sesion`, `token_vencido`, `token_invalido`)"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Prohibido:
+      description: "Sin permiso para esta acción (`sin_permiso`, `debe_cambiar_clave`, `csrf_invalido`, `ip_no_permitida`)"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NoEncontrado:
+      description: "No existe (`no_encontrado`)"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ErrorValidacion:
+      description: "Datos inválidos (`datos_invalidos`); `errores` dice qué campo falló"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    DemasiadasPeticiones:
+      description: "Demasiados intentos (`demasiadas_peticiones`)"
+      headers:
+        Retry-After:
+          description: Segundos para volver a intentar
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      required: [detail, codigo]
+      properties:
+        detail:
+          type: string
+          description: Explicación para quien depura; la interfaz no la muestra
+        codigo:
+          type: string
+          description: Código estable que la app traduce
+          examples: [clave_incorrecta]
+        errores:
+          type: array
+          description: Solo en errores de validación
+          items:
+            type: object
+            properties:
+              campo:
+                type: string
+              codigo:
+                type: string
+
+    Salud:
+      type: object
+      required: [estado, base_datos]
+      properties:
+        estado:
+          type: string
+          enum: [ok, degradado]
+        base_datos:
+          type: string
+          enum: [ok, sin_conexion]
+        version:
+          type: string
+
+    Idioma:
+      type: string
+      enum: [es, en]
+    Cluster:
+      type: string
+      enum: [apolo2, apolo3]
+    Rol:
+      type: string
+      enum: [estudiante, instructor, admin]
+    LabId:
+      type: string
+      enum: [modulos, memoria, nucleos, paralelo]
+    EstadoGraduacion:
+      type: string
+      enum: [enviada, aprobada, rechazada]
+    Username:
+      type: string
+      description: El mismo usuario de su clúster (y de la VM de práctica)
+      pattern: "^[a-z_][a-z0-9_-]{0,31}$"
+      examples: [ana]
+    ClaveVideo:
+      type: string
+      pattern: "^m[0-9]{2}-[a-z0-9-]+$"
+      examples: [m05-trabajos]
+    FechaHora:
+      type: string
+      format: date-time
+
+    LoginEntrada:
+      type: object
+      required: [username, clave]
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        clave:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 256
+    LoginSalida:
+      type: object
+      required: [usuario]
+      properties:
+        usuario:
+          $ref: "#/components/schemas/Usuario"
+    CambioClave:
+      type: object
+      required: [clave_actual, clave_nueva]
+      properties:
+        clave_actual:
+          type: string
+          format: password
+        clave_nueva:
+          type: string
+          format: password
+          minLength: 10
+          maxLength: 256
+
+    Usuario:
+      type: object
+      required:
+        - username
+        - nombre
+        - cluster
+        - rol
+        - idioma
+        - debe_cambiar_clave
+        - activo
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        nombre:
+          type: string
+        correo:
+          type: string
+          format: email
+        cluster:
+          $ref: "#/components/schemas/Cluster"
+        rol:
+          $ref: "#/components/schemas/Rol"
+        idioma:
+          $ref: "#/components/schemas/Idioma"
+        debe_cambiar_clave:
+          type: boolean
+        activo:
+          type: boolean
+    PerfilCambio:
+      type: object
+      required: [idioma]
+      properties:
+        idioma:
+          $ref: "#/components/schemas/Idioma"
+
+    Componente:
+      type: string
+      enum: [video, lectura, terminal, laboratorio, quiz]
+    EstadoModulo:
+      type: string
+      enum: [bloqueado, disponible, en_curso, completo]
+
+    CursoResumen:
+      type: object
+      required:
+        - id
+        - slug
+        - titulo
+        - avance_pct
+        - modulos_total
+        - modulos_completos
+        - fallback
+      properties:
+        id:
+          type: integer
+          format: int64
+        slug:
+          type: string
+          examples: [induccion]
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        avance_pct:
+          type: integer
+          minimum: 0
+          maximum: 100
+        modulos_total:
+          type: integer
+        modulos_completos:
+          type: integer
+        fallback:
+          type: boolean
+    CursoDetalle:
+      allOf:
+        - $ref: "#/components/schemas/CursoResumen"
+        - type: object
+          required: [modulos]
+          properties:
+            modulos:
+              type: array
+              items:
+                $ref: "#/components/schemas/ModuloResumen"
+            continuar:
+              description: Lección donde el usuario quedó; null si no ha empezado
+              oneOf:
+                - $ref: "#/components/schemas/LeccionRef"
+                - type: "null"
+
+    ModuloResumen:
+      type: object
+      required:
+        - id
+        - slug
+        - numero
+        - titulo
+        - estado
+        - lecciones_total
+        - lecciones_completas
+        - componentes
+      properties:
+        id:
+          type: integer
+          format: int64
+        slug:
+          type: string
+        numero:
+          type: integer
+          minimum: 0
+        titulo:
+          type: string
+        resumen:
+          type: string
+        duracion_min:
+          type: integer
+        estado:
+          $ref: "#/components/schemas/EstadoModulo"
+        bloqueado_por:
+          description: Módulo que hay que terminar para abrir este
+          oneOf:
+            - $ref: "#/components/schemas/ModuloRef"
+            - type: "null"
+        lecciones_total:
+          type: integer
+        lecciones_completas:
+          type: integer
+        componentes:
+          description: Qué trae el módulo, para los íconos de la tarjeta
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/Componente"
+    ModuloDetalle:
+      allOf:
+        - $ref: "#/components/schemas/ModuloResumen"
+        - type: object
+          required: [curso_id, lecciones, fallback]
+          properties:
+            curso_id:
+              type: integer
+              format: int64
+            fallback:
+              type: boolean
+            lecciones:
+              type: array
+              items:
+                $ref: "#/components/schemas/LeccionResumen"
+    ModuloRef:
+      type: object
+      required: [id, numero, titulo]
+      properties:
+        id:
+          type: integer
+          format: int64
+        numero:
+          type: integer
+        titulo:
+          type: string
+
+    LeccionResumen:
+      type: object
+      required:
+        - id
+        - slug
+        - orden
+        - titulo
+        - completada
+        - componentes
+      properties:
+        id:
+          type: integer
+          format: int64
+        slug:
+          type: string
+        orden:
+          type: integer
+        titulo:
+          type: string
+        duracion_min:
+          type: integer
+        completada:
+          type: boolean
+        componentes:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/Componente"
+    LeccionRef:
+      type: object
+      required: [id, titulo, modulo_numero]
+      properties:
+        id:
+          type: integer
+          format: int64
+        titulo:
+          type: string
+        modulo_numero:
+          type: integer
+    Leccion:
+      type: object
+      required:
+        - id
+        - slug
+        - modulo
+        - orden
+        - titulo
+        - contenido
+        - fallback
+        - componentes
+        - progreso
+      properties:
+        id:
+          type: integer
+          format: int64
+        slug:
+          type: string
+        modulo:
+          $ref: "#/components/schemas/ModuloRef"
+        orden:
+          type: integer
+        titulo:
+          type: string
+        contenido:
+          type: string
+          description: |
+            Markdown de la lección en el idioma pedido. La app lo sanitiza
+            antes de mostrarlo. Las pestañas Apolo II / Apolo III van como
+            bloques del formato que defina la C-01.
+        fallback:
+          type: boolean
+        duracion_min:
+          type: integer
+        componentes:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/Componente"
+        video:
+          oneOf:
+            - $ref: "#/components/schemas/VideoRef"
+            - type: "null"
+        escenario:
+          description: |
+            Escenario de terminal quemada con el formato de la T-01
+            (content/schema/terminal.schema.json). Trae las salidas en los dos
+            idiomas; la app usa la del idioma de la interfaz.
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: "null"
+        lab:
+          description: Laboratorio que se practica en esta lección
+          oneOf:
+            - $ref: "#/components/schemas/LabId"
+            - type: "null"
+        quiz_id:
+          type: [integer, "null"]
+          format: int64
+        anterior:
+          oneOf:
+            - $ref: "#/components/schemas/LeccionRef"
+            - type: "null"
+        siguiente:
+          oneOf:
+            - $ref: "#/components/schemas/LeccionRef"
+            - type: "null"
+        progreso:
+          $ref: "#/components/schemas/ProgresoLeccion"
+    VideoRef:
+      type: object
+      required:
+        - id
+        - clave
+        - disponible
+        - subtitulos
+      properties:
+        id:
+          type: integer
+          format: int64
+        clave:
+          $ref: "#/components/schemas/ClaveVideo"
+        disponible:
+          type: boolean
+          description: false mientras no se haya subido el MP4 («Video pendiente»)
+        duracion_seg:
+          type: [integer, "null"]
+        url:
+          type: string
+          examples: [/api/media/7]
+        subtitulos:
+          type: array
+          items:
+            type: object
+            required: [idioma, url]
+            properties:
+              idioma:
+                $ref: "#/components/schemas/Idioma"
+              url:
+                type: string
+                examples: [/api/media/7/subtitulos/en]
+
+    ProgresoLeccion:
+      type: object
+      required:
+        - leccion_id
+        - video_posicion_seg
+        - video_completo
+        - terminal_completa
+        - quiz_aprobado
+        - completada
+      properties:
+        leccion_id:
+          type: integer
+          format: int64
+        video_posicion_seg:
+          type: integer
+          minimum: 0
+        video_max_seg:
+          type: integer
+          minimum: 0
+        video_completo:
+          type: boolean
+        terminal_completa:
+          type: boolean
+        quiz_aprobado:
+          type: boolean
+        completada:
+          type: boolean
+        completada_en:
+          oneOf:
+            - $ref: "#/components/schemas/FechaHora"
+            - type: "null"
+    ProgresoVideoEntrada:
+      type: object
+      required: [leccion_id, segundo]
+      properties:
+        leccion_id:
+          type: integer
+          format: int64
+        segundo:
+          type: integer
+          minimum: 0
+    ProgresoTerminalEntrada:
+      type: object
+      required: [leccion_id]
+      properties:
+        leccion_id:
+          type: integer
+          format: int64
+
+    Quiz:
+      type: object
+      required:
+        - id
+        - leccion_id
+        - umbral
+        - es_final
+        - fallback
+        - preguntas
+      properties:
+        id:
+          type: integer
+          format: int64
+        leccion_id:
+          type: integer
+          format: int64
+        umbral:
+          type: number
+          examples: [0.8]
+        es_final:
+          type: boolean
+        fallback:
+          type: boolean
+        mejor_puntaje:
+          type: [number, "null"]
+        preguntas:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pregunta"
+    Pregunta:
+      type: object
+      required:
+        - id
+        - orden
+        - enunciado
+        - multiple
+        - opciones
+      properties:
+        id:
+          type: integer
+          format: int64
+        orden:
+          type: integer
+        enunciado:
+          type: string
+          description: Markdown corto
+        multiple:
+          type: boolean
+          description: true si se pueden marcar varias opciones
+        opciones:
+          type: array
+          minItems: 2
+          items:
+            type: object
+            required: [id, orden, texto]
+            properties:
+              id:
+                type: integer
+                format: int64
+              orden:
+                type: integer
+              texto:
+                type: string
+    IntentoEntrada:
+      type: object
+      required: [respuestas]
+      properties:
+        respuestas:
+          type: array
+          items:
+            type: object
+            required: [pregunta_id, opciones]
+            properties:
+              pregunta_id:
+                type: integer
+                format: int64
+              opciones:
+                type: array
+                items:
+                  type: integer
+                  format: int64
+    IntentoResultado:
+      type: object
+      required:
+        - id
+        - puntaje
+        - aprobado
+        - umbral
+        - mejor_puntaje
+        - preguntas
+      properties:
+        id:
+          type: integer
+          format: int64
+        puntaje:
+          type: number
+          minimum: 0
+          maximum: 100
+        aprobado:
+          type: boolean
+        umbral:
+          type: number
+        mejor_puntaje:
+          type: number
+        preguntas:
+          type: array
+          items:
+            type: object
+            required: [pregunta_id, correcta, explicacion]
+            properties:
+              pregunta_id:
+                type: integer
+                format: int64
+              correcta:
+                type: boolean
+              explicacion:
+                type: string
+        progreso:
+          $ref: "#/components/schemas/ProgresoLeccion"
+
+    LabEstadoUsuario:
+      type: object
+      required: [lab, estado]
+      properties:
+        lab:
+          $ref: "#/components/schemas/LabId"
+        estado:
+          type: string
+          enum: [sin_intentar, intentado, aprobado]
+        jobid:
+          type: [string, "null"]
+        fecha:
+          oneOf:
+            - $ref: "#/components/schemas/FechaHora"
+            - type: "null"
+        detalle:
+          type: [string, "null"]
+    Graduacion:
+      type: object
+      required:
+        - cluster
+        - jobid
+        - estado
+        - enviada_en
+      properties:
+        cluster:
+          $ref: "#/components/schemas/Cluster"
+        jobid:
+          type: string
+        salida_verificador:
+          type: string
+        estado:
+          $ref: "#/components/schemas/EstadoGraduacion"
+        enviada_en:
+          $ref: "#/components/schemas/FechaHora"
+        revisada_en:
+          oneOf:
+            - $ref: "#/components/schemas/FechaHora"
+            - type: "null"
+        comentario:
+          type: [string, "null"]
+        qos_aplicada_en:
+          oneOf:
+            - $ref: "#/components/schemas/FechaHora"
+            - type: "null"
+    GraduacionEntrada:
+      type: object
+      required: [jobid, salida]
+      properties:
+        jobid:
+          type: string
+          pattern: "^[0-9]+(_[0-9]+)?$"
+          examples: ["98765"]
+        salida:
+          type: string
+          description: Salida de `apolo-training verificar ondemand JOBID`, pegada tal cual
+          maxLength: 4000
+    MiProgreso:
+      type: object
+      required:
+        - avance_pct
+        - modulos
+        - labs
+        - sincronizacion_atrasada
+        - aprobado
+        - siguiente_paso
+      properties:
+        avance_pct:
+          type: integer
+          minimum: 0
+          maximum: 100
+        modulos:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - numero
+              - titulo
+              - estado
+              - lecciones_total
+              - lecciones_completas
+            properties:
+              id:
+                type: integer
+                format: int64
+              numero:
+                type: integer
+              titulo:
+                type: string
+              estado:
+                $ref: "#/components/schemas/EstadoModulo"
+              lecciones_total:
+                type: integer
+              lecciones_completas:
+                type: integer
+              quiz_mejor_puntaje:
+                type: [number, "null"]
+        labs:
+          description: Siempre los cuatro, aunque no se hayan intentado
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            $ref: "#/components/schemas/LabEstadoUsuario"
+        ultima_sincronizacion:
+          oneOf:
+            - $ref: "#/components/schemas/FechaHora"
+            - type: "null"
+        sincronizacion_atrasada:
+          type: boolean
+          description: true si la última sincronización tiene más de 15 minutos
+        graduacion:
+          oneOf:
+            - $ref: "#/components/schemas/Graduacion"
+            - type: "null"
+        aprobado:
+          type: boolean
+          description: Lecciones, laboratorios y graduación completos
+        siguiente_paso:
+          $ref: "#/components/schemas/SiguientePaso"
+    SiguientePaso:
+      type: object
+      required: [tipo]
+      properties:
+        tipo:
+          type: string
+          enum:
+            [
+              leccion,
+              laboratorio,
+              graduacion,
+              esperar_revision,
+              esperar_qos,
+              terminado,
+            ]
+        leccion:
+          oneOf:
+            - $ref: "#/components/schemas/LeccionRef"
+            - type: "null"
+        lab:
+          oneOf:
+            - $ref: "#/components/schemas/LabId"
+            - type: "null"
+
+    ResumenPanel:
+      type: object
+      required:
+        - estudiantes_activos
+        - sin_empezar
+        - en_curso
+        - aprobados
+        - graduaciones_por_revisar
+        - aprobados_pendientes_qos
+        - avance_por_modulo
+      properties:
+        estudiantes_activos:
+          type: integer
+        sin_empezar:
+          type: integer
+        en_curso:
+          type: integer
+        aprobados:
+          type: integer
+        graduaciones_por_revisar:
+          type: integer
+        aprobados_pendientes_qos:
+          type: integer
+        ultima_sincronizacion:
+          oneOf:
+            - $ref: "#/components/schemas/FechaHora"
+            - type: "null"
+        avance_por_modulo:
+          type: array
+          items:
+            type: object
+            required: [numero, titulo, completos]
+            properties:
+              numero:
+                type: integer
+              titulo:
+                type: string
+              completos:
+                type: integer
+                description: Estudiantes activos que completaron el módulo
+    UsuarioAdmin:
+      allOf:
+        - $ref: "#/components/schemas/Usuario"
+        - type: object
+          properties:
+            bloqueado_hasta:
+              oneOf:
+                - $ref: "#/components/schemas/FechaHora"
+                - type: "null"
+            creado_en:
+              $ref: "#/components/schemas/FechaHora"
+            ultimo_ingreso:
+              oneOf:
+                - $ref: "#/components/schemas/FechaHora"
+                - type: "null"
+            avance_pct:
+              type: integer
+            labs_aprobados:
+              type: integer
+              minimum: 0
+              maximum: 4
+            graduacion_estado:
+              oneOf:
+                - $ref: "#/components/schemas/EstadoGraduacion"
+                - type: "null"
+    UsuarioDetalleAdmin:
+      allOf:
+        - $ref: "#/components/schemas/UsuarioAdmin"
+        - type: object
+          required: [progreso]
+          properties:
+            progreso:
+              $ref: "#/components/schemas/MiProgreso"
+    ListaUsuarios:
+      type: object
+      required:
+        - total
+        - pagina
+        - por_pagina
+        - items
+      properties:
+        total:
+          type: integer
+        pagina:
+          type: integer
+        por_pagina:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UsuarioAdmin"
+    UsuarioCambio:
+      type: object
+      required: [rol]
+      properties:
+        rol:
+          $ref: "#/components/schemas/Rol"
+    ClaveTemporal:
+      type: object
+      required: [username, clave_temporal]
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        clave_temporal:
+          type: string
+          description: Se muestra una sola vez; no se guarda en claro
+    VideoAdmin:
+      type: object
+      required:
+        - id
+        - clave
+        - disponible
+        - subtitulos
+        - lecciones
+      properties:
+        id:
+          type: integer
+          format: int64
+        clave:
+          $ref: "#/components/schemas/ClaveVideo"
+        disponible:
+          type: boolean
+        duracion_seg:
+          type: [integer, "null"]
+        tamano_bytes:
+          type: [integer, "null"]
+          format: int64
+        subtitulos:
+          type: object
+          required: [es, en]
+          properties:
+            es:
+              type: boolean
+            en:
+              type: boolean
+        lecciones:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeccionRef"
+        subido_por:
+          oneOf:
+            - $ref: "#/components/schemas/Username"
+            - type: "null"
+        subido_en:
+          oneOf:
+            - $ref: "#/components/schemas/FechaHora"
+            - type: "null"
+    GraduacionAdmin:
+      allOf:
+        - $ref: "#/components/schemas/Graduacion"
+        - type: object
+          required: [username, nombre]
+          properties:
+            username:
+              $ref: "#/components/schemas/Username"
+            nombre:
+              type: string
+            revisada_por:
+              oneOf:
+                - $ref: "#/components/schemas/Username"
+                - type: "null"
+            labs_aprobados:
+              type: integer
+              minimum: 0
+              maximum: 4
+    RevisionGraduacion:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [aprobar, rechazar]
+        comentario:
+          type: string
+          maxLength: 1000
+          description: Obligatorio al rechazar; el usuario lo ve en Mi progreso
+    AprobadoPendiente:
+      type: object
+      required:
+        - username
+        - nombre
+        - cluster
+        - aprobado_en
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        nombre:
+          type: string
+        cluster:
+          $ref: "#/components/schemas/Cluster"
+        aprobado_en:
+          $ref: "#/components/schemas/FechaHora"
+
+    AltaUsuario:
+      type: object
+      required:
+        - username
+        - nombre
+        - correo
+        - cluster
+        - clave_temporal
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        nombre:
+          type: string
+          maxLength: 120
+        correo:
+          type: string
+          format: email
+        cluster:
+          $ref: "#/components/schemas/Cluster"
+        rol:
+          $ref: "#/components/schemas/Rol"
+        idioma:
+          $ref: "#/components/schemas/Idioma"
+        clave_temporal:
+          type: string
+          format: password
+          minLength: 10
+          description: La misma que se puso en la VM; la API solo guarda el hash
+    EstadoUsuario:
+      type: object
+      required: [activo]
+      properties:
+        activo:
+          type: boolean
+    ReporteLabs:
+      type: object
+      required: [generado_en, registros]
+      properties:
+        generado_en:
+          $ref: "#/components/schemas/FechaHora"
+        registros:
+          type: array
+          maxItems: 5000
+          items:
+            $ref: "#/components/schemas/RegistroLab"
+    RegistroLab:
+      type: object
+      required:
+        - usuario
+        - lab
+        - estado
+        - jobid
+        - fecha
+      properties:
+        usuario:
+          $ref: "#/components/schemas/Username"
+        lab:
+          $ref: "#/components/schemas/LabId"
+        estado:
+          type: string
+          enum: [intentado, aprobado]
+        jobid:
+          type: string
+          examples: ["1042"]
+        fecha:
+          $ref: "#/components/schemas/FechaHora"
+        detalle:
+          type: string
+          maxLength: 200
+    ResultadoSincronizacion:
+      type: object
+      required: [aceptados, ignorados]
+      properties:
+        aceptados:
+          type: integer
+        ignorados:
+          type: array
+          items:
+            type: object
+            required: [usuario, lab, motivo]
+            properties:
+              usuario:
+                type: string
+              lab:
+                type: string
+              motivo:
+                type: string
+                enum: [usuario_desconocido, usuario_inactivo, no_retrocede]
