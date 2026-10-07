@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="1200" viewBox="0 0 1280 1200" font-family="Helvetica, Arial, sans-serif" role="img">
+<title>Wireframe 06: administración de usuarios</title>
+<rect width="1280" height="1200" fill="#fff"/>
+<text x="20" y="30" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">06 · Administración de usuarios</text>
+<text x="354.40000000000003" y="30" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">/admin/usuarios · solo admin</text>
+<rect x="20" y="50" width="1240" height="1130" rx="8" fill="#fff" stroke="#222" stroke-width="1.5"/>
+<path d="M20 84 H1260" stroke="#222" stroke-width="1"/>
+<rect x="20.75" y="50.75" width="1238.5" height="33" rx="7" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<circle cx="38" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<circle cx="54" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<circle cx="70" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<rect x="94" y="57" width="1140" height="20" rx="10" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="108" y="71" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">training.apolo.eafit.edu.co/admin/usuarios</text>
+<rect x="20" y="84" width="1240" height="56" rx="0" fill="#fff" stroke="none" stroke-width="1"/>
+<line x1="20" y1="140" x2="1260" y2="140" stroke="#dcdcdc" stroke-width="1"/>
+<image x="40" y="94" width="28.1" height="36" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,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" xlink:href="data:image/png;base64,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"/>
+<text x="80.1" y="118" font-size="16" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Curso de inducción</text>
+<text x="270" y="118" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Cursos</text>
+<text x="354" y="118" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Mi progreso</text>
+<text x="478" y="118" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Panel</text>
+<text x="554" y="118" font-size="14" fill="#1f5fbf" font-weight="bold" text-anchor="start" xml:space="preserve">Administración</text>
+<line x1="554" y1="138" x2="666" y2="138" stroke="#1f5fbf" stroke-width="3"/>
+<rect x="930" y="99" width="76" height="26" rx="13" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<rect x="932" y="101" width="36" height="22" rx="11" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="950" y="116" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">ES</text>
+<text x="987" y="116" font-size="12" fill="#666" font-weight="normal" text-anchor="middle" xml:space="preserve">EN</text>
+<circle cx="1038" cy="112" r="14" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<text x="1060" y="117" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Elena · Admin  ▾</text>
+<text x="60" y="184" font-size="26" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Administración</text>
+<text x="60" y="212" font-size="14" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Cuentas, claves, roles y QOS. Separada del panel de instructor y solo para admins.</text>
+<rect x="60" y="252" width="126.8" height="34" rx="6" fill="#e3ecf9" stroke="#1f5fbf" stroke-width="1"/>
+<text x="123.4" y="274" font-size="13" fill="#1f5fbf" font-weight="bold" text-anchor="middle" xml:space="preserve">Usuarios (24)</text>
+<rect x="194.8" y="252" width="263.6" height="34" rx="6" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="326.6" y="274" font-size="13" fill="#222" font-weight="normal" text-anchor="middle" xml:space="preserve">Aprobados pendientes de QOS (1)</text>
+<line x1="60" y1="296" x2="1220" y2="296" stroke="#dcdcdc" stroke-width="1"/>
+<rect x="60" y="312" width="340" height="36" rx="5" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="74" y="335" font-size="13" fill="#9a9a9a" font-weight="normal" text-anchor="start" xml:space="preserve">Buscar por usuario, nombre o correo</text>
+<rect x="412" y="312" width="142.4" height="36" rx="5" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="424" y="335" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Clúster: todos ▾</text>
+<rect x="562.4" y="312" width="112.80000000000001" height="36" rx="5" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="574.4" y="335" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Rol: todos ▾</text>
+<rect x="683.2" y="312" width="135.0" height="36" rx="5" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="695.2" y="335" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Estado: todos ▾</text>
+<circle cx="832.2" cy="330" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="832.2" y="334.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">1</text>
+<rect x="1060" y="313" width="160" height="34" rx="6" fill="#1f5fbf" stroke="#1f5fbf" stroke-width="1"/>
+<text x="1140.0" y="334.68" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">Nuevo usuario</text>
+<circle cx="1212" cy="313" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1212" y="317.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">2</text>
+<rect x="60" y="364" width="1030" height="298" rx="6" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<rect x="60.5" y="364.5" width="1029" height="34" rx="6" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="72" y="385.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Usuario</text>
+<text x="182" y="385.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Nombre</text>
+<text x="352" y="385.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Clúster</text>
+<text x="452" y="385.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Rol</text>
+<text x="562" y="385.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Estado</text>
+<text x="762" y="385.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Avance</text>
+<text x="912" y="385.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Último ingreso</text>
+<text x="1042" y="385.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve"></text>
+<line x1="60" y1="398" x2="1090" y2="398" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="424.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">ana</text>
+<text x="182" y="424.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Ana Ejemplo</text>
+<text x="352" y="424.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Apolo III</text>
+<text x="452" y="424.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Estudiante</text>
+<rect x="562" y="410.0" width="52" height="20" rx="10.0" fill="#e3f1e4" stroke="none" stroke-width="1"/>
+<text x="588.0" y="423.0" font-size="11" fill="#2e7d32" font-weight="bold" text-anchor="middle" xml:space="preserve">Activo</text>
+<rect x="762" y="417.0" width="80" height="6" rx="3.0" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="762" y="417.0" width="41.6" height="6" rx="3.0" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="850" y="424.0" font-size="12" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">52 %</text>
+<text x="912" y="424.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">hoy 09:12</text>
+<text x="1046" y="425.0" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">⋯</text>
+<line x1="60" y1="442" x2="1090" y2="442" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="468.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">bruno</text>
+<text x="182" y="468.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Bruno Ejemplo</text>
+<text x="352" y="468.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Apolo II</text>
+<text x="452" y="468.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Instructor</text>
+<rect x="562" y="454.0" width="52" height="20" rx="10.0" fill="#e3f1e4" stroke="none" stroke-width="1"/>
+<text x="588.0" y="467.0" font-size="11" fill="#2e7d32" font-weight="bold" text-anchor="middle" xml:space="preserve">Activo</text>
+<text x="762" y="468.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">—</text>
+<text x="912" y="468.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">hoy 08:40</text>
+<text x="1046" y="469.0" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">⋯</text>
+<line x1="60" y1="486" x2="1090" y2="486" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="512.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">carla</text>
+<text x="182" y="512.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Carla Ejemplo</text>
+<text x="352" y="512.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Apolo II</text>
+<text x="452" y="512.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Estudiante</text>
+<rect x="562" y="498.0" width="52" height="20" rx="10.0" fill="#e3f1e4" stroke="none" stroke-width="1"/>
+<text x="588.0" y="511.0" font-size="11" fill="#2e7d32" font-weight="bold" text-anchor="middle" xml:space="preserve">Activo</text>
+<rect x="762" y="505.0" width="80" height="6" rx="3.0" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="762" y="505.0" width="80.0" height="6" rx="3.0" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="850" y="512.0" font-size="12" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">100 %</text>
+<text x="912" y="512.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">ayer</text>
+<text x="1046" y="513.0" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">⋯</text>
+<line x1="60" y1="530" x2="1090" y2="530" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="556.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">diego</text>
+<text x="182" y="556.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Diego Ejemplo</text>
+<text x="352" y="556.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Apolo III</text>
+<text x="452" y="556.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Estudiante</text>
+<rect x="562" y="542.0" width="146" height="20" rx="10.0" fill="#fbe4e4" stroke="none" stroke-width="1"/>
+<text x="635.0" y="555.0" font-size="11" fill="#c62828" font-weight="bold" text-anchor="middle" xml:space="preserve">Bloqueado hasta 10:45</text>
+<rect x="762" y="549.0" width="80" height="6" rx="3.0" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="762" y="549.0" width="48.8" height="6" rx="3.0" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="850" y="556.0" font-size="12" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">61 %</text>
+<text x="912" y="556.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">hoy 10:30</text>
+<text x="1046" y="557.0" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">⋯</text>
+<line x1="60" y1="574" x2="1090" y2="574" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="600.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">felipe</text>
+<text x="182" y="600.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Felipe Ejemplo</text>
+<text x="352" y="600.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Apolo III</text>
+<text x="452" y="600.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Estudiante</text>
+<rect x="562" y="586.0" width="146" height="20" rx="10.0" fill="#fbefdc" stroke="none" stroke-width="1"/>
+<text x="635.0" y="599.0" font-size="11" fill="#a35b00" font-weight="bold" text-anchor="middle" xml:space="preserve">Debe cambiar la clave</text>
+<rect x="762" y="593.0" width="80" height="6" rx="3.0" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<text x="850" y="600.0" font-size="12" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">0 %</text>
+<text x="912" y="600.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">nunca</text>
+<text x="1046" y="601.0" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">⋯</text>
+<line x1="60" y1="618" x2="1090" y2="618" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="644.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">gabriela</text>
+<text x="182" y="644.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Gabriela Ejemplo</text>
+<text x="352" y="644.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Apolo II</text>
+<text x="452" y="644.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Estudiante</text>
+<rect x="562" y="630.0" width="89" height="20" rx="10.0" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="606.5" y="643.0" font-size="11" fill="#666" font-weight="bold" text-anchor="middle" xml:space="preserve">Dada de baja</text>
+<rect x="762" y="637.0" width="80" height="6" rx="3.0" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="762" y="637.0" width="18.4" height="6" rx="3.0" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="850" y="644.0" font-size="12" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">23 %</text>
+<text x="912" y="644.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">3-nov</text>
+<text x="1046" y="645.0" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">⋯</text>
+<circle cx="620" cy="382" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="620" y="386.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">3</text>
+<rect x="880" y="430" width="250" height="172" rx="8" fill="#fff" stroke="#222" stroke-width="1.2"/>
+<text x="896" y="460" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Ver progreso</text>
+<text x="896" y="492" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Reiniciar clave de la plataforma</text>
+<text x="896" y="524" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Cambiar rol…</text>
+<line x1="880" y1="542" x2="1130" y2="542" stroke="#dcdcdc" stroke-width="1"/>
+<text x="896" y="566" font-size="13" fill="#9a9a9a" font-weight="normal" text-anchor="start" xml:space="preserve">Dar de baja</text>
+<text x="896" y="586" font-size="11" fill="#9a9a9a" font-weight="normal" text-anchor="start" font-style="italic" xml:space="preserve">se hace con apolo-training-admin</text>
+<circle cx="1142" cy="444" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1142" y="448.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">4</text>
+<rect x="60" y="702" width="560" height="250" rx="10" fill="#fff" stroke="#222" stroke-width="1.2"/>
+<text x="84" y="736" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Nuevo usuario</text>
+<text x="590" y="734" font-size="16" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">✕</text>
+<text x="84" y="764" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Las cuentas se crean en la VM de práctica, para que existan a la vez</text>
+<text x="84" y="784" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">en la VM y en la plataforma con la misma contraseña temporal.</text>
+<text x="84" y="804" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Corre esto como root en la VM de práctica:</text>
+<rect x="84" y="820" width="512" height="58" rx="6" fill="#1e1e1e" stroke="#222" stroke-width="1"/>
+<text x="98" y="844" font-size="12" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">sudo apolo-training-admin alta &lt;usuario&gt; \</text>
+<text x="98" y="862" font-size="12" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">    --cluster apolo3 --correo &lt;correo&gt;</text>
+<rect x="506" y="886" width="90" height="30" rx="6" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="551.0" y="905.32" font-size="12" fill="#222" font-weight="normal" text-anchor="middle" xml:space="preserve">Copiar</text>
+<text x="84" y="924" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">La orden muestra la clave temporal una sola vez.</text>
+<circle cx="632" cy="716" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="632" y="720.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">2</text>
+<rect x="660" y="702" width="560" height="250" rx="10" fill="#fff" stroke="#222" stroke-width="1.2"/>
+<text x="684" y="736" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Clave temporal de ana</text>
+<rect x="684" y="758" width="512" height="50" rx="6" fill="#f2f2f2" stroke="#9a9a9a" stroke-width="1"/>
+<text x="700" y="790" font-size="20" fill="#222" font-weight="bold" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">Kq7v-Rt2p-Lm9x</text>
+<rect x="1096" y="766" width="90" height="32" rx="6" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="1141.0" y="786.32" font-size="12" fill="#222" font-weight="normal" text-anchor="middle" xml:space="preserve">Copiar</text>
+<text x="684" y="836" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Se muestra una sola vez. Ana debe cambiarla al entrar y</text>
+<text x="684" y="856" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">sus sesiones abiertas se cerraron.</text>
+<text x="684" y="876" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Solo cambia la contraseña de la plataforma: la de la VM</text>
+<text x="684" y="896" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">se reinicia con apolo-training-admin.</text>
+<circle cx="1232" cy="716" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1232" y="720.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">5</text>
+<text x="60" y="992" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Pestaña «Aprobados pendientes de QOS»</text>
+<text x="460" y="992" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">· terminaron módulos, laboratorios y graduación</text>
+<rect x="60" y="1008" width="1060" height="84" rx="6" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<rect x="60.5" y="1008.5" width="1059" height="34" rx="6" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="72" y="1029.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Usuario</text>
+<text x="182" y="1029.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Clúster</text>
+<text x="282" y="1029.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Aprobó</text>
+<text x="392" y="1029.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Comando para el clúster real</text>
+<text x="912" y="1029.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve"></text>
+<line x1="60" y1="1042" x2="1120" y2="1042" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="1071.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">carla</text>
+<text x="182" y="1071.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Apolo II</text>
+<text x="282" y="1071.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">3-dic</text>
+<rect x="392" y="1054.0" width="400" height="26" rx="4" fill="#1e1e1e" stroke="none" stroke-width="1"/>
+<text x="402" y="1071.0" font-size="12" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">sacctmgr modify user carla set qos=&lt;normal&gt;</text>
+<rect x="912" y="1052.0" width="170" height="30" rx="6" fill="#2e7d32" stroke="#2e7d32" stroke-width="1"/>
+<text x="997.0" y="1071.32" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">Marcar QOS aplicada</text>
+<text x="60" y="1116" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">El nombre de la QOS normal lo define la coordinación (V-08). Marcar solo registra que ya se aplicó; la plataforma no toca el clúster.</text>
+<circle cx="1212" cy="1026" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1212" y="1030.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">6</text>
+</svg>

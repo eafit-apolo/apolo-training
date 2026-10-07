@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="1150" viewBox="0 0 1280 1150" font-family="Helvetica, Arial, sans-serif" role="img">
+<title>Wireframe 04: mi progreso</title>
+<rect width="1280" height="1150" fill="#fff"/>
+<text x="20" y="30" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">04 · Mi progreso</text>
+<text x="198.4" y="30" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">/mi-progreso · todos los roles</text>
+<rect x="20" y="50" width="1240" height="1080" rx="8" fill="#fff" stroke="#222" stroke-width="1.5"/>
+<path d="M20 84 H1260" stroke="#222" stroke-width="1"/>
+<rect x="20.75" y="50.75" width="1238.5" height="33" rx="7" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<circle cx="38" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<circle cx="54" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<circle cx="70" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<rect x="94" y="57" width="1140" height="20" rx="10" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="108" y="71" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">training.apolo.eafit.edu.co/mi-progreso</text>
+<rect x="20" y="84" width="1240" height="56" rx="0" fill="#fff" stroke="none" stroke-width="1"/>
+<line x1="20" y1="140" x2="1260" y2="140" stroke="#dcdcdc" stroke-width="1"/>
+<image x="40" y="94" width="28.1" height="36" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,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" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAACgCAMAAAAW/pPmAAAAYFBMVEUAAAACHIv4+foHDHIEFpxVZ68VLZIxR59ZYa2bpc8KI401SqAAAP96enp7fPxIW6oYU6aUoMt1irosQpx7i8O4x90AdXV6iMF0g70A//+Xn7dxgbz/AAAAf////wD/AP/8XQL8AAAAIHRSTlMA/AsDFVmmohgqaWIBAgOOD0QrzSsfAklPAReJAQIBAeWLVQAAAAr9SURBVHja7Vzplpy4DjYy3tihtk5Pkvv+b3ltjFcMBQX0/Bmf06dTHeCzdlkShdApiyME5U2gGv38ajBChGZZifCPY9e5xs4yilD1s9ggfwTL9AL060exJasFzczi6M8PgmOPbrXIDwp+VPQsWEj8kOAb+UOyaAGMinD16iTdhMbgGem76nLqlVMRWWKVL1HV1xsZZynwjEJ7rb97SrVu0thyCcYvhK/ywMBnq28LlF9p4G22sliZod/XyDtXip6tLyEdXnORsr3DzrI7pZegR3RTSlk7lwIhkvjn6Sb+EDclV8baoiAA2qXd5zYnLvD20oOKe+BEMc4RJFgv/wYYLtN6LFfdyOdjSJmetEeiHPHJ1EMTUpSjMulsS5VlXB/bh7TFS9a/VPS9NtDAgs2BSvC6a9ErtORvgakU69Ikhy87HiV4din6nwWhj4Ifxuz2ukhXY7Hq6qXL+9tdqO8rQTbjyhKvNLZyLdC0ivjLznT1m1BHlS2WFxldg8SbKKtsTurd/67JMugbdFJkVx1occz3cub0GNFHSrjAzfCI0NSRZsxyoDtf46KEgkD3ZyaK8WhJT2d9heAWpnH9Syp37PjKPLvC6DhikWNpHyqisITNyVh7LvFdJOIxheRzXdCCP9nomiq0dE5kMKtTdtBTrZDnJhk0As8EVpWaX3Gqwb408SemlxhYxHZJ3TMd7jWThopfJHQVyShwSO5sQj/P39Whaim2S5vC1hgildAyepzk76QIg6crwfr5U2R1pDyZeP/pwyiEAddeugMJ1kujq06JLeUMnASnxUjxJu97ynE69Cei1FXZLjIJH/2ld0tPOM+GQv8iE1n1SpJdTNvlwE8VOtcg85Q9yDXptN/2sN49faHzMluQaBOKhxq9g4OWLkIPp1UuX4+Ak80dPU6D78S5kS3guSlVvnpQs+VDLYPKd6IDsZX4+l2uDTb14kfcezmnfEmXfMUzgmcH0DtPlQa7jweuF3J9PtOQ7P6xx/GLBMOXDd+L1dDaKR6FEzoWLDY19dzFrOHp2YfdN3zs3i241wThK5L0PB5pjxHv5WuD0+bVwoTnlGlnefUZ+H2ucCqnaDbVVG5WCPcPYk31tJbuUf6uJlOBvQvcLfuNLrdC535whzcG5Bzznbp76t3ghmBBglMj36qq1N63O8MCS0IATt8fjxzx4DGs2ufeUULh5KcNPLS5tzvckn3+zkbLgPIVLxcU1Cai82IHy1KWHlKeiabetHV9dyk8M613UC5SlG9m4HPiOXzSnq5y8LNXz9q6amNw4t5ZdtI7vNO9iyKqQm72GlP+X7gHbO4SmhQlYvs2lZsCfQ1BerU90jVTHWaI66F8l+aUoeCls9/CuHoSejxXIBVnj7vUPSOvV72pZg+TexezKhzCe/yVTrKIn2Zu2P2kL2JWhi53Bqoxw6Tgq00cDZccRQp8Z6DQ7l4E0RE2ZZF8XgPfHyTHDLOkCwMxUIGIbvitE/LHvPpf7k8QKkUJ8Yi/+YEOEBFJ9y4SrYdPihBKir7gJfGD7w1FChyKRMn9kwPJeK7zi1lepFMGCQmhp8YL2Gd1P+W3SLnAQRkFwqu/6dy3b0hjVwMG5SntGbnczxK5R6rdRD89CGL8HdicqZ3C6An72NK/k72uz4/gMmAFAzKdpkP7gt5nEiR8++ETuEzvSTY7DOh82aEDl5aeBs/gSMUvqp7fldFJT5MF6CqhWADnh8rsOKzvjsTXGsmiD3KHC+D0YMUtatpqy7356DIc3r4Xmqujjdb55wuXkRKZymdvfG7TLoGXcvf8WMUPQlZ23cQNgw4tLLWV27EBcC/k+oz0Ig8f3YHRhN5EYrHW06aEDyXLTlrMNi8n2r/XG+qjAIgAQukZ8NxIok8U31d2TQBexzdQEh99K7gWwiAIOUkK/U5wwwLUF+egN3vBtSXkQhB6GB1/BK6F8IK+bI/RTo7snkohQEk/R/8uj9pvQcSLfbKD1+jpDhsRJXcE+y1BolddgvuMkIKyvSyQarCLkK+xzCHTmnh4QHv/PCe7/BvjsMcSiEnp5pMkuY1rAHDPi3YjK5iArUKY0NEvHLNfoLqqcNVw7J+9HlIiBb2924A0hccGIRAvow3Z7xV2Aeqmy71dQM7fSoSVAOLNNSTIgIJZmiFR1QbJCl8iQnQFaVdMQUBXbkMfc/bSr44tHZ6q6skDiQhRFIylhE2LHkTBNqBH7H9bLgBotEQq87nLvwibsZtJFoiUGpB5WRwN1Cre1mS25rm/UykRnocSUUKYGeMMXWk/mPvuOzuoVVVJieT+NkolkZvbQekbDEnWt9GDHuklSRtRzMC2xAWDlIgUyE3lNcAtC8hCaX4y/qPTOnWDA4nwoiR9D0iQli6hj68JjNp30lCulEjjJMKb8aFQMrHclBlfieGnTkrV9eSzajz+XmcsOWtiJd02fHPwl+wncPEs+lp3B4mfeelrSfv+1fVv4/+3lkVTdzmvq81X87yrU+LE5rjvlyV5WAOJcH7ZooZ30/ScuTlX3Li7nH/qRZzrH/0FCEk7TMnBm+qRCkBcXg3TJ7+qR816eX2AkvqLkPtg65by12DCFWU9GB9RTBeHnkKGLnf2py+IshruJfNuY/OcqJyeCvHLsAQ9QQWIItUHgThnJuHmWLJ/wpYK1om3dcZULI1e5fF5JYqfWbJvl8wU4anKjYm3YeWe0uh14kGu+lsFZ5nCbYstVI3Tb+sA+pVEnw9a6wrsfEbHnOJC9CBflorh3k6TB04334O6JHp4NYtholfd3I3MzJSp1Xu1Vjdt5hcjlWrP0St7TNENQRr2he0AH4sHBy163mFX63aH7hsgjt2MM0/K3ZWphTycdgjCrDKHLpjBdTbHvHk66EyTI7f7Z1Njz2uyz9E7t1f1jnZuGF2YzU0pvHkvwX6FAAum+cCiW7jR4WF0c2aUot3fq9xgGzRmzd6ZuaxbQL/F6FpG2BxA2jQ6BHpmx4hYOJ5DzK12EDREry3tImiVYUdNAr1BEEw/WPRbWKftkBV8HqKDjA0cu6cYNXpsQheBg3EjVKFygXV5j6n9xwIJMdepCSCsqi2gPwJO5ejLQ7eOTrVJ23BCxNIul6vh2/p+Zhpc+Q50bK7OAs4QN77a/sXLnpahJfRsPzp2vQJuvdKan/9aRofd6KZJI4Xt4uZ0bzLGec7rMLq1NzaOC9BgSiEd3z2tC9Hpbs7j38RkBx3nmFgNrJLobJDJ5EGt6zx0z97Uk2z4AA99ytUY4aONeLTDbnTf4tyAOmr/kau1No3jCGuzydjesfOdq+g9+o68zdJLlmR8y8h6G6yXzue/P/S0+kVRH91dPtfs2M+7DBXS6MkoEwbgKMosNQfGibJ36Pp5+Pd6jDMmrSnqwEPnC1XUMbdMo0tIc9Ff/XgvqbbodnErGNA3M7cZEqq1LXS2sIZuBS0ZVD9FMreZzQXfAKRHycGjjwYtWYSC+LeA7vYM45c/OMQugQ7WvQzy6s5mp8JlSyI3h9jOG0JdQHeCH5kpnKa6nTC7BAoG+f0PXRhWPPsgTkKztzRymxbTwo1uDuiZJ0xI0mj/6F1dOj6zOVkq3C+hQ8pLMGlbaXSc/F6O2qbG7vTk3lboFuWefg1dSD+YRk8dvAYvoropYW7dMFlBl8rbpqY+0+jNHH4MolZDK5idKNkK+jgmQwO2j2WFBXT5f8H3blGhry70Csb+SvNHNP1rqU1Q6obljRX3qRiC7RPdGpFU2b0YGwXyaqKv/j9+nmrPn8nPYQAAAABJRU5ErkJggg=="/>
+<text x="80.1" y="118" font-size="16" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Curso de inducción</text>
+<text x="270" y="118" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Cursos</text>
+<text x="354" y="118" font-size="14" fill="#1f5fbf" font-weight="bold" text-anchor="start" xml:space="preserve">Mi progreso</text>
+<line x1="354" y1="138" x2="442" y2="138" stroke="#1f5fbf" stroke-width="3"/>
+<rect x="930" y="99" width="76" height="26" rx="13" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<rect x="932" y="101" width="36" height="22" rx="11" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="950" y="116" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">ES</text>
+<text x="987" y="116" font-size="12" fill="#666" font-weight="normal" text-anchor="middle" xml:space="preserve">EN</text>
+<circle cx="1038" cy="112" r="14" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<text x="1060" y="117" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Ana · Apolo III  ▾</text>
+<text x="60" y="184" font-size="26" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Mi progreso</text>
+<text x="60" y="210" font-size="14" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Curso de inducción a Apolo · perfil Apolo III</text>
+<rect x="60.0" y="230" width="278.0" height="96" rx="8" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="78.0" y="256" font-size="11" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">AVANCE</text>
+<text x="78.0" y="292" font-size="24" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">52 %</text>
+<rect x="78.0" y="306" width="242.0" height="6" rx="3.0" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="78.0" y="306" width="125.84" height="6" rx="3.0" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<rect x="354.0" y="230" width="278.0" height="96" rx="8" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="372.0" y="256" font-size="11" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">MÓDULOS</text>
+<text x="372.0" y="292" font-size="24" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">5 de 10</text>
+<rect x="648.0" y="230" width="278.0" height="96" rx="8" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="666.0" y="256" font-size="11" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">LABORATORIOS</text>
+<text x="666.0" y="292" font-size="24" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">1 de 4</text>
+<rect x="942.0" y="230" width="278.0" height="96" rx="8" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="960.0" y="256" font-size="11" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">GRADUACIÓN</text>
+<text x="960.0" y="292" font-size="24" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Sin enviar</text>
+<circle cx="1214" cy="236" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1214" y="240.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">1</text>
+<rect x="60" y="344" width="1160" height="60" rx="8" fill="#e3ecf9" stroke="none" stroke-width="1"/>
+<text x="80" y="368" font-size="11" fill="#1f5fbf" font-weight="bold" text-anchor="start" xml:space="preserve">SIGUIENTE PASO</text>
+<text x="80" y="390" font-size="15" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Termina la lección 5.1 · Tu primer script de Slurm</text>
+<rect x="1050" y="357" width="150" height="34" rx="6" fill="#1f5fbf" stroke="#1f5fbf" stroke-width="1"/>
+<text x="1125.0" y="378.68" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">Ir a la lección</text>
+<circle cx="1034" cy="358" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1034" y="362.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">2</text>
+<text x="60" y="446" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Módulos</text>
+<rect x="60" y="462" width="690" height="414" rx="6" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<rect x="60.5" y="462.5" width="689" height="34" rx="6" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="72" y="483.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Módulo</text>
+<text x="402" y="483.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Lecciones</text>
+<text x="512" y="483.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Mejor quiz</text>
+<text x="622" y="483.5" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">Estado</text>
+<line x1="60" y1="496" x2="750" y2="496" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="519.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">0 · Bienvenida</text>
+<text x="402" y="519.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">2 / 2</text>
+<text x="512" y="519.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">100 %</text>
+<rect x="622" y="505.0" width="64" height="20" rx="10.0" fill="#e3f1e4" stroke="none" stroke-width="1"/>
+<text x="654.0" y="518.0" font-size="11" fill="#2e7d32" font-weight="bold" text-anchor="middle" xml:space="preserve">Completo</text>
+<line x1="60" y1="534" x2="750" y2="534" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="557.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">1 · Conexión</text>
+<text x="402" y="557.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">3 / 3</text>
+<text x="512" y="557.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">100 %</text>
+<rect x="622" y="543.0" width="64" height="20" rx="10.0" fill="#e3f1e4" stroke="none" stroke-width="1"/>
+<text x="654.0" y="556.0" font-size="11" fill="#2e7d32" font-weight="bold" text-anchor="middle" xml:space="preserve">Completo</text>
+<line x1="60" y1="572" x2="750" y2="572" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="595.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">2 · Terminal y Linux</text>
+<text x="402" y="595.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">4 / 4</text>
+<text x="512" y="595.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">88 %</text>
+<rect x="622" y="581.0" width="64" height="20" rx="10.0" fill="#e3f1e4" stroke="none" stroke-width="1"/>
+<text x="654.0" y="594.0" font-size="11" fill="#2e7d32" font-weight="bold" text-anchor="middle" xml:space="preserve">Completo</text>
+<line x1="60" y1="610" x2="750" y2="610" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="633.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">3 · Almacenamiento y transferencia</text>
+<text x="402" y="633.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">3 / 3</text>
+<text x="512" y="633.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">80 %</text>
+<rect x="622" y="619.0" width="64" height="20" rx="10.0" fill="#e3f1e4" stroke="none" stroke-width="1"/>
+<text x="654.0" y="632.0" font-size="11" fill="#2e7d32" font-weight="bold" text-anchor="middle" xml:space="preserve">Completo</text>
+<line x1="60" y1="648" x2="750" y2="648" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="671.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">4 · Software con módulos</text>
+<text x="402" y="671.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">3 / 3</text>
+<text x="512" y="671.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">100 %</text>
+<rect x="622" y="657.0" width="64" height="20" rx="10.0" fill="#e3f1e4" stroke="none" stroke-width="1"/>
+<text x="654.0" y="670.0" font-size="11" fill="#2e7d32" font-weight="bold" text-anchor="middle" xml:space="preserve">Completo</text>
+<line x1="60" y1="686" x2="750" y2="686" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="709.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">5 · Anatomía de un trabajo</text>
+<text x="402" y="709.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">0 / 4</text>
+<text x="512" y="709.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">—</text>
+<rect x="622" y="695.0" width="64" height="20" rx="10.0" fill="#e3ecf9" stroke="none" stroke-width="1"/>
+<text x="654.0" y="708.0" font-size="11" fill="#1f5fbf" font-weight="bold" text-anchor="middle" xml:space="preserve">En curso</text>
+<line x1="60" y1="724" x2="750" y2="724" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="747.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">6 · Núcleos y paralelismo</text>
+<text x="402" y="747.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">0 / 3</text>
+<text x="512" y="747.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">—</text>
+<rect x="622" y="733.0" width="70" height="20" rx="10.0" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="657.0" y="746.0" font-size="11" fill="#666" font-weight="bold" text-anchor="middle" xml:space="preserve">Bloqueado</text>
+<line x1="60" y1="762" x2="750" y2="762" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="785.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">7 · Open OnDemand</text>
+<text x="402" y="785.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">0 / 2</text>
+<text x="512" y="785.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">—</text>
+<rect x="622" y="771.0" width="70" height="20" rx="10.0" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="657.0" y="784.0" font-size="11" fill="#666" font-weight="bold" text-anchor="middle" xml:space="preserve">Bloqueado</text>
+<line x1="60" y1="800" x2="750" y2="800" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="823.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">8 · VS Code</text>
+<text x="402" y="823.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">0 / 2</text>
+<text x="512" y="823.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">—</text>
+<rect x="622" y="809.0" width="70" height="20" rx="10.0" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="657.0" y="822.0" font-size="11" fill="#666" font-weight="bold" text-anchor="middle" xml:space="preserve">Bloqueado</text>
+<line x1="60" y1="838" x2="750" y2="838" stroke="#dcdcdc" stroke-width="1"/>
+<text x="72" y="861.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">9 · Cierre y quiz final</text>
+<text x="402" y="861.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">0 / 1</text>
+<text x="512" y="861.5" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">—</text>
+<rect x="622" y="847.0" width="70" height="20" rx="10.0" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="657.0" y="860.0" font-size="11" fill="#666" font-weight="bold" text-anchor="middle" xml:space="preserve">Bloqueado</text>
+<circle cx="750" cy="470" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="750" y="474.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">3</text>
+<rect x="780" y="430" width="440" height="300" rx="8" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="800" y="462" font-size="16" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Laboratorios en la VM de práctica</text>
+<circle cx="806" cy="484" r="5" fill="#2e7d32" stroke="none" stroke-width="1"/>
+<text x="818" y="489" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Última sincronización: hace 3 min</text>
+<circle cx="1206" cy="484" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1206" y="488.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">4</text>
+<line x1="800" y1="504" x2="1200" y2="504" stroke="#dcdcdc" stroke-width="1"/>
+<circle cx="809.0" cy="525.0" r="9.0" fill="#2e7d32" stroke="none" stroke-width="1"/>
+<path d="M804.5 525.18 l3.42 3.6 l6.12 -7.0200000000000005" fill="none" stroke="#fff" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="830" y="524" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Módulos</text>
+<text x="830" y="543" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Aprobado · JobID 1007 · 2-dic</text>
+<line x1="800" y1="554" x2="1200" y2="554" stroke="#dcdcdc" stroke-width="1"/>
+<circle cx="809.0" cy="575.0" r="9.0" fill="#a35b00" stroke="none" stroke-width="1"/>
+<path d="M804.95 570.95 L813.05 579.05 M813.05 570.95 L804.95 579.05" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+<text x="830" y="574" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Memoria</text>
+<text x="830" y="593" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Intentado · JobID 1042 · OUT_OF_MEMORY con 1G</text>
+<line x1="800" y1="604" x2="1200" y2="604" stroke="#dcdcdc" stroke-width="1"/>
+<circle cx="809.0" cy="625.0" r="8.0" fill="#fff" stroke="#9a9a9a" stroke-width="1.6"/>
+<text x="830" y="624" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Núcleos</text>
+<text x="830" y="643" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Sin intentar · módulo 6</text>
+<line x1="800" y1="654" x2="1200" y2="654" stroke="#dcdcdc" stroke-width="1"/>
+<circle cx="809.0" cy="675.0" r="8.0" fill="#fff" stroke="#9a9a9a" stroke-width="1.6"/>
+<text x="830" y="674" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Paralelo</text>
+<text x="830" y="693" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Sin intentar · módulo 6</text>
+<rect x="800" y="706" width="400" height="0.1" rx="4" fill="none" stroke="none" stroke-width="1"/>
+<rect x="780" y="744" width="440" height="62" rx="8" fill="#fbefdc" stroke="#a35b00" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="796" y="768" font-size="12" fill="#a35b00" font-weight="bold" text-anchor="start" xml:space="preserve">Si pasan más de 15 min sin sincronizar:</text>
+<text x="796" y="790" font-size="12" fill="#a35b00" font-weight="normal" text-anchor="start" xml:space="preserve">«La VM no reporta desde las 10:05; tus labs pueden tardar.»</text>
+<circle cx="1206" cy="758" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1206" y="762.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">5</text>
+<rect x="780" y="832" width="440" height="280" rx="8" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="800" y="864" font-size="16" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Graduación en tu clúster real</text>
+<rect x="1070" y="850" width="77" height="20" rx="10.0" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="1108.5" y="863" font-size="11" fill="#666" font-weight="bold" text-anchor="middle" xml:space="preserve">Sin enviar</text>
+<text x="800" y="890" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">1. Abre y cierra una sesión de OnDemand en Apolo III.</text>
+<text x="800" y="909" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">2. En el login: apolo-training verificar ondemand JOBID</text>
+<text x="800" y="928" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">3. Pega aquí el JobID y la salida.</text>
+<text x="800" y="962" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">JOBID</text>
+<rect x="800" y="968" width="160" height="32" rx="5" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="812" y="989.0" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">98765</text>
+<text x="980" y="962" font-size="12" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">SALIDA DEL VERIFICADOR</text>
+<rect x="980" y="968" width="220" height="84" rx="5" fill="#f2f2f2" stroke="#9a9a9a" stroke-width="1"/>
+<text x="990" y="988" font-size="11" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[APROBADO] OnDemand</text>
+<text x="990" y="1005" font-size="11" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">Apolo III · job 98765</text>
+<text x="990" y="1022" font-size="11" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">22 min · cerrada</text>
+<rect x="800" y="1064" width="190" height="34" rx="6" fill="#1f5fbf" stroke="#1f5fbf" stroke-width="1"/>
+<text x="895.0" y="1085.68" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">Enviar para revisión</text>
+<text x="1002" y="1086" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Un instructor la revisa.</text>
+<circle cx="1206" cy="862" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1206" y="866.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">6</text>
+<rect x="60" y="900" width="690" height="100" rx="8" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<text x="80" y="930" font-size="15" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Cuando termines todo</text>
+<text x="80" y="954" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Con los diez módulos, los cuatro laboratorios y la graduación aprobada, el equipo</text>
+<text x="80" y="974" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">aplica tu QOS normal en Apolo III y puedes usar el clúster sin los límites del curso.</text>
+<circle cx="736" cy="914" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="736" y="918.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">7</text>
+</svg>

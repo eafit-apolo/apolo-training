@@ -1,0 +1,237 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="2690" viewBox="0 0 1280 2690" font-family="Helvetica, Arial, sans-serif" role="img">
+<title>Wireframe 03: lección y lección de laboratorio con terminal real</title>
+<rect width="1280" height="2690" fill="#fff"/>
+<text x="20" y="30" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">03 · Lección</text>
+<text x="156.8" y="30" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">A: lección con video, lectura, terminal quemada y quiz · B: laboratorio con terminal real</text>
+<rect x="20" y="50" width="1240" height="1880" rx="8" fill="#fff" stroke="#222" stroke-width="1.5"/>
+<path d="M20 84 H1260" stroke="#222" stroke-width="1"/>
+<rect x="20.75" y="50.75" width="1238.5" height="33" rx="7" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<circle cx="38" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<circle cx="54" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<circle cx="70" cy="67" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<rect x="94" y="57" width="1140" height="20" rx="10" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="108" y="71" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">training.apolo.eafit.edu.co/cursos/induccion/m05/primer-script</text>
+<rect x="20" y="84" width="1240" height="56" rx="0" fill="#fff" stroke="none" stroke-width="1"/>
+<line x1="20" y1="140" x2="1260" y2="140" stroke="#dcdcdc" stroke-width="1"/>
+<image x="40" y="94" width="28.1" height="36" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,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" xlink:href="data:image/png;base64,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"/>
+<text x="80.1" y="118" font-size="16" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Curso de inducción</text>
+<text x="270" y="118" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Cursos</text>
+<text x="354" y="118" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Mi progreso</text>
+<rect x="930" y="99" width="76" height="26" rx="13" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<rect x="932" y="101" width="36" height="22" rx="11" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="950" y="116" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">ES</text>
+<text x="987" y="116" font-size="12" fill="#666" font-weight="normal" text-anchor="middle" xml:space="preserve">EN</text>
+<circle cx="1038" cy="112" r="14" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<text x="1060" y="117" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Ana · Apolo III  ▾</text>
+<rect x="20" y="141" width="280" height="1788" rx="0" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<line x1="300" y1="141" x2="300" y2="1929" stroke="#dcdcdc" stroke-width="1"/>
+<text x="40" y="175" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Curso de inducción a Apolo</text>
+<rect x="40" y="189" width="200" height="6" rx="3.0" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="40" y="189" width="104.0" height="6" rx="3.0" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="248" y="196" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">52 %</text>
+<circle cx="47.5" cy="226.5" r="7.5" fill="#2e7d32" stroke="none" stroke-width="1"/>
+<path d="M43.75 226.65 l2.85 3.0 l5.1000000000000005 -5.8500000000000005" fill="none" stroke="#fff" stroke-width="1.6666666666666667" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="66" y="231" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">0 · Bienvenida</text>
+<circle cx="47.5" cy="256.5" r="7.5" fill="#2e7d32" stroke="none" stroke-width="1"/>
+<path d="M43.75 256.65 l2.85 3.0 l5.1000000000000005 -5.8500000000000005" fill="none" stroke="#fff" stroke-width="1.6666666666666667" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="66" y="261" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">1 · Conexión</text>
+<circle cx="47.5" cy="286.5" r="7.5" fill="#2e7d32" stroke="none" stroke-width="1"/>
+<path d="M43.75 286.65 l2.85 3.0 l5.1000000000000005 -5.8500000000000005" fill="none" stroke="#fff" stroke-width="1.6666666666666667" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="66" y="291" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">2 · Terminal y Linux</text>
+<circle cx="47.5" cy="316.5" r="7.5" fill="#2e7d32" stroke="none" stroke-width="1"/>
+<path d="M43.75 316.65 l2.85 3.0 l5.1000000000000005 -5.8500000000000005" fill="none" stroke="#fff" stroke-width="1.6666666666666667" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="66" y="321" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">3 · Almacenamiento y transferencia</text>
+<circle cx="47.5" cy="346.5" r="7.5" fill="#2e7d32" stroke="none" stroke-width="1"/>
+<path d="M43.75 346.65 l2.85 3.0 l5.1000000000000005 -5.8500000000000005" fill="none" stroke="#fff" stroke-width="1.6666666666666667" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="66" y="351" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">4 · Software con módulos</text>
+<circle cx="47.5" cy="376.5" r="6.5" fill="#fff" stroke="#1f5fbf" stroke-width="1.6"/>
+<path d="M47.5 370 A6.5 6.5 0 0 1 47.5 383 Z" fill="#1f5fbf"/>
+<text x="66" y="381" font-size="13" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">5 · Anatomía de un trabajo</text>
+<rect x="54" y="392" width="234" height="28" rx="5" fill="#fff" stroke="#1f5fbf" stroke-width="1"/>
+<text x="66" y="411" font-size="12" fill="#1f5fbf" font-weight="bold" text-anchor="start" xml:space="preserve">5.1  Tu primer script de Slurm</text>
+<text x="66" y="441" font-size="12" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">5.2  Particiones de tu clúster</text>
+<text x="66" y="471" font-size="12" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">5.3  Laboratorio de memoria</text>
+<text x="66" y="501" font-size="12" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">5.4  Quiz del módulo</text>
+<path d="M43.64 529.2 v-2.4 a3.3600000000000003 3.3600000000000003 0 0 1 6.720000000000001 0 v2.4" fill="none" stroke="#666" stroke-width="1.6"/>
+<rect x="41" y="528.75" width="12.0" height="8.25" rx="2" fill="#666" stroke="none" stroke-width="1"/>
+<text x="66" y="535" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">6 · Núcleos y paralelismo</text>
+<path d="M43.64 559.2 v-2.4 a3.3600000000000003 3.3600000000000003 0 0 1 6.720000000000001 0 v2.4" fill="none" stroke="#666" stroke-width="1.6"/>
+<rect x="41" y="558.75" width="12.0" height="8.25" rx="2" fill="#666" stroke="none" stroke-width="1"/>
+<text x="66" y="565" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">7 · Open OnDemand</text>
+<path d="M43.64 589.2 v-2.4 a3.3600000000000003 3.3600000000000003 0 0 1 6.720000000000001 0 v2.4" fill="none" stroke="#666" stroke-width="1.6"/>
+<rect x="41" y="588.75" width="12.0" height="8.25" rx="2" fill="#666" stroke="none" stroke-width="1"/>
+<text x="66" y="595" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">8 · VS Code</text>
+<path d="M43.64 619.2 v-2.4 a3.3600000000000003 3.3600000000000003 0 0 1 6.720000000000001 0 v2.4" fill="none" stroke="#666" stroke-width="1.6"/>
+<rect x="41" y="618.75" width="12.0" height="8.25" rx="2" fill="#666" stroke="none" stroke-width="1"/>
+<text x="66" y="625" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">9 · Cierre y quiz final</text>
+<circle cx="286" cy="407" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="286" y="411.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">9</text>
+<text x="340" y="176" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Cursos  ›  Curso de inducción  ›  5 · Anatomía de un trabajo</text>
+<text x="340" y="214" font-size="26" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">5.1 · Tu primer script de Slurm</text>
+<text x="340" y="240" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">12 min · video, lectura, terminal quemada y quiz</text>
+<text x="340" y="276" font-size="13" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Para completarla:</text>
+<circle cx="467.5" cy="270.5" r="7.5" fill="#2e7d32" stroke="none" stroke-width="1"/>
+<path d="M463.75 270.65 l2.85 3.0 l5.1000000000000005 -5.8500000000000005" fill="none" stroke="#fff" stroke-width="1.6666666666666667" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="480" y="276" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Video al 90 %</text>
+<circle cx="597.5" cy="270.5" r="6.5" fill="#fff" stroke="#9a9a9a" stroke-width="1.6"/>
+<text x="610" y="276" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Terminal quemada</text>
+<circle cx="747.5" cy="270.5" r="6.5" fill="#fff" stroke="#9a9a9a" stroke-width="1.6"/>
+<text x="760" y="276" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Quiz con 80 % o más</text>
+<circle cx="920" cy="271" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="920" y="275.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">1</text>
+<rect x="340" y="298" width="800" height="450" rx="6" fill="#3a3a3a" stroke="#222" stroke-width="1"/>
+<path d="M720 493 l46 30 l-46 30 z" fill="#fff" opacity="0.85"/>
+<rect x="640" y="568" width="200" height="30" rx="15" fill="#000" stroke="none" stroke-width="1"/>
+<text x="740" y="588" font-size="13" fill="#fff" font-weight="normal" text-anchor="middle" xml:space="preserve">Retomando en 02:31</text>
+<rect x="340" y="708" width="800" height="40" rx="0" fill="#000" stroke="none" stroke-width="1"/>
+<text x="358" y="733" font-size="13" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve">▶  02:31 / 05:00</text>
+<rect x="490" y="725" width="360" height="6" rx="3" fill="#666" stroke="none" stroke-width="1"/>
+<rect x="490" y="725" width="182" height="6" rx="3" fill="#fff" stroke="none" stroke-width="1"/>
+<text x="870" y="733" font-size="13" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve">CC: desactivados ▾</text>
+<text x="990" y="733" font-size="13" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve">1x ▾</text>
+<text x="1060" y="733" font-size="16" fill="#fff" font-weight="normal" text-anchor="start" xml:space="preserve">⤢</text>
+<circle cx="1152" cy="728" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1152" y="732.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">2</text>
+<text x="340" y="788" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Lectura</text>
+<rect x="340" y="808" width="800" height="6" rx="3" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="340" y="822" width="800" height="6" rx="3" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="340" y="836" width="800" height="6" rx="3" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="340" y="850" width="480.0" height="6" rx="3" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<rect x="340" y="874" width="110" height="34" rx="5" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="395" y="896" font-size="13" fill="#666" font-weight="normal" text-anchor="middle" xml:space="preserve">Apolo II</text>
+<rect x="452" y="874" width="110" height="34" rx="5" fill="#e3ecf9" stroke="#1f5fbf" stroke-width="1"/>
+<text x="507" y="896" font-size="13" fill="#1f5fbf" font-weight="bold" text-anchor="middle" xml:space="preserve">Apolo III</text>
+<circle cx="576" cy="891" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="576" y="895.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">3</text>
+<rect x="340" y="914" width="800" height="152" rx="6" fill="#f2f2f2" stroke="#dcdcdc" stroke-width="1"/>
+<text x="356" y="940" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">#!/bin/bash</text>
+<text x="356" y="961" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">#SBATCH --job-name=hola</text>
+<text x="356" y="982" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">#SBATCH --partition=longjobs   # en Apolo III no hay partición por defecto</text>
+<text x="356" y="1003" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">#SBATCH --mem=1G</text>
+<text x="356" y="1024" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">#SBATCH --time=00:05:00</text>
+<text x="356" y="1045" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">hostname</text>
+<rect x="1052" y="924" width="76" height="28" rx="6" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="1090.0" y="942.32" font-size="12" fill="#222" font-weight="normal" text-anchor="middle" xml:space="preserve">Copiar</text>
+<circle cx="1152" cy="938" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1152" y="942.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">4</text>
+<text x="340" y="1106" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Practica sin riesgo</text>
+<rect x="512" y="1091" width="83" height="20" rx="10.0" fill="#e3ecf9" stroke="none" stroke-width="1"/>
+<text x="553.5" y="1104" font-size="11" fill="#1f5fbf" font-weight="bold" text-anchor="middle" xml:space="preserve">Paso 2 de 4</text>
+<text x="608" y="1106" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Terminal simulada: no se conecta a ningún servidor.</text>
+<rect x="340" y="1122" width="800" height="214" rx="6" fill="#1e1e1e" stroke="#222" stroke-width="1"/>
+<text x="356" y="1150" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[ana@apolo-3 ~]$ sbatch hola.sh</text>
+<text x="356" y="1173" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">Submitted batch job 1042</text>
+<text x="356" y="1196" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[ana@apolo-3 ~]$ squeu</text>
+<text x="356" y="1219" font-size="13" fill="#e6a23c" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">Comando no disponible en este ejercicio.</text>
+<text x="356" y="1242" font-size="13" fill="#e6a23c" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">Pista: el comando para ver la cola es squeue.</text>
+<text x="356" y="1265" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[ana@apolo-3 ~]$ squeue -u ana</text>
+<text x="356" y="1288" font-size="13" fill="#7ec27e" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">  JOBID PARTITION  NAME  USER ST  TIME NODES</text>
+<text x="356" y="1311" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[ana@apolo-3 ~]$ █</text>
+<text x="340" y="1360" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Escribe help para ver los comandos del ejercicio · ↑ ↓ historial · Tab completa</text>
+<circle cx="1152" cy="1136" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1152" y="1140.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">5</text>
+<text x="340" y="1406" font-size="18" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Quiz · 3 preguntas</text>
+<text x="512" y="1406" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Apruebas con 80 %. Puedes repetirlo las veces que quieras.</text>
+<rect x="340" y="1422" width="800" height="250" rx="8" fill="#fff" stroke="#dcdcdc" stroke-width="1"/>
+<text x="360" y="1454" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">1. ¿Qué directiva fija la memoria del trabajo?</text>
+<circle cx="370" cy="1478" r="7" fill="#fff" stroke="#9a9a9a" stroke-width="1.5"/>
+<circle cx="370" cy="1478" r="3.5" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="386" y="1483" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">#SBATCH --mem=1G</text>
+<circle cx="370" cy="1506" r="7" fill="#fff" stroke="#9a9a9a" stroke-width="1.5"/>
+<text x="386" y="1511" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">#SBATCH --cpus-per-task=1</text>
+<circle cx="370" cy="1534" r="7" fill="#fff" stroke="#9a9a9a" stroke-width="1.5"/>
+<text x="386" y="1539" font-size="13" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">#SBATCH --time=1G</text>
+<text x="360" y="1582" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">2. ¿Qué estado tiene un trabajo que espera recursos?</text>
+<rect x="386" y="1602" width="200" height="6" rx="3" fill="#dcdcdc" stroke="none" stroke-width="1"/>
+<text x="360" y="1638" font-size="14" fill="#666" font-weight="bold" text-anchor="start" xml:space="preserve">3. …</text>
+<rect x="960" y="1628" width="160" height="34" rx="6" fill="#1f5fbf" stroke="#1f5fbf" stroke-width="1"/>
+<text x="1040.0" y="1649.68" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">Enviar respuestas</text>
+<circle cx="1152" cy="1436" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1152" y="1440.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">6</text>
+<rect x="340" y="1696" width="800" height="64" rx="8" fill="#fbefdc" stroke="#a35b00" stroke-width="1"/>
+<text x="360" y="1722" font-size="14" fill="#a35b00" font-weight="bold" text-anchor="start" xml:space="preserve">Resultado: 2 de 3 (67 %). Te falta para el 80 %.</text>
+<text x="360" y="1744" font-size="13" fill="#a35b00" font-weight="normal" text-anchor="start" xml:space="preserve">Revisa la explicación de la pregunta 2 y vuelve a intentarlo.</text>
+<rect x="980" y="1711" width="140" height="34" rx="6" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="1050.0" y="1732.68" font-size="13" fill="#222" font-weight="normal" text-anchor="middle" xml:space="preserve">Reintentar</text>
+<circle cx="1152" cy="1728" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1152" y="1732.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">7</text>
+<rect x="340" y="1786" width="800" height="44" rx="6" fill="#f2f2f2" stroke="#dcdcdc" stroke-width="1"/>
+<text x="356" y="1813" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">▸  Si algo falla</text>
+<rect x="340" y="1862" width="250" height="40" rx="6" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="465.0" y="1886.68" font-size="13" fill="#222" font-weight="normal" text-anchor="middle" xml:space="preserve">← Anterior: 4.3 Laboratorio</text>
+<rect x="860" y="1862" width="280" height="40" rx="6" fill="#1f5fbf" stroke="#1f5fbf" stroke-width="1"/>
+<text x="1000.0" y="1886.68" font-size="13" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">Siguiente: 5.2 Particiones →</text>
+<circle cx="1152" cy="1882" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1152" y="1886.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">8</text>
+<rect x="20" y="1970" width="1240" height="700" rx="8" fill="#fff" stroke="#222" stroke-width="1.5"/>
+<path d="M20 2004 H1260" stroke="#222" stroke-width="1"/>
+<rect x="20.75" y="1970.75" width="1238.5" height="33" rx="7" fill="#f2f2f2" stroke="none" stroke-width="1"/>
+<circle cx="38" cy="1987" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<circle cx="54" cy="1987" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<circle cx="70" cy="1987" r="5" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<rect x="94" y="1977" width="1140" height="20" rx="10" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="108" y="1991" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">training.apolo.eafit.edu.co/cursos/induccion/m05/laboratorio-memoria</text>
+<rect x="20" y="2004" width="1240" height="56" rx="0" fill="#fff" stroke="none" stroke-width="1"/>
+<line x1="20" y1="2060" x2="1260" y2="2060" stroke="#dcdcdc" stroke-width="1"/>
+<image x="40" y="2014" width="28.1" height="36" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAACgCAMAAAAW/pPmAAAAYFBMVEUAAAACHIv4+foHDHIEFpxVZ68VLZIxR59ZYa2bpc8KI401SqAAAP96enp7fPxIW6oYU6aUoMt1irosQpx7i8O4x90AdXV6iMF0g70A//+Xn7dxgbz/AAAAf////wD/AP/8XQL8AAAAIHRSTlMA/AsDFVmmohgqaWIBAgOOD0QrzSsfAklPAReJAQIBAeWLVQAAAAr9SURBVHja7Vzplpy4DjYy3tihtk5Pkvv+b3ltjFcMBQX0/Bmf06dTHeCzdlkShdApiyME5U2gGv38ajBChGZZifCPY9e5xs4yilD1s9ggfwTL9AL060exJasFzczi6M8PgmOPbrXIDwp+VPQsWEj8kOAb+UOyaAGMinD16iTdhMbgGem76nLqlVMRWWKVL1HV1xsZZynwjEJ7rb97SrVu0thyCcYvhK/ywMBnq28LlF9p4G22sliZod/XyDtXip6tLyEdXnORsr3DzrI7pZegR3RTSlk7lwIhkvjn6Sb+EDclV8baoiAA2qXd5zYnLvD20oOKe+BEMc4RJFgv/wYYLtN6LFfdyOdjSJmetEeiHPHJ1EMTUpSjMulsS5VlXB/bh7TFS9a/VPS9NtDAgs2BSvC6a9ErtORvgakU69Ikhy87HiV4din6nwWhj4Ifxuz2ukhXY7Hq6qXL+9tdqO8rQTbjyhKvNLZyLdC0ivjLznT1m1BHlS2WFxldg8SbKKtsTurd/67JMugbdFJkVx1occz3cub0GNFHSrjAzfCI0NSRZsxyoDtf46KEgkD3ZyaK8WhJT2d9heAWpnH9Syp37PjKPLvC6DhikWNpHyqisITNyVh7LvFdJOIxheRzXdCCP9nomiq0dE5kMKtTdtBTrZDnJhk0As8EVpWaX3Gqwb408SemlxhYxHZJ3TMd7jWThopfJHQVyShwSO5sQj/P39Whaim2S5vC1hgildAyepzk76QIg6crwfr5U2R1pDyZeP/pwyiEAddeugMJ1kujq06JLeUMnASnxUjxJu97ynE69Cei1FXZLjIJH/2ld0tPOM+GQv8iE1n1SpJdTNvlwE8VOtcg85Q9yDXptN/2sN49faHzMluQaBOKhxq9g4OWLkIPp1UuX4+Ak80dPU6D78S5kS3guSlVvnpQs+VDLYPKd6IDsZX4+l2uDTb14kfcezmnfEmXfMUzgmcH0DtPlQa7jweuF3J9PtOQ7P6xx/GLBMOXDd+L1dDaKR6FEzoWLDY19dzFrOHp2YfdN3zs3i241wThK5L0PB5pjxHv5WuD0+bVwoTnlGlnefUZ+H2ucCqnaDbVVG5WCPcPYk31tJbuUf6uJlOBvQvcLfuNLrdC535whzcG5Bzznbp76t3ghmBBglMj36qq1N63O8MCS0IATt8fjxzx4DGs2ufeUULh5KcNPLS5tzvckn3+zkbLgPIVLxcU1Cai82IHy1KWHlKeiabetHV9dyk8M613UC5SlG9m4HPiOXzSnq5y8LNXz9q6amNw4t5ZdtI7vNO9iyKqQm72GlP+X7gHbO4SmhQlYvs2lZsCfQ1BerU90jVTHWaI66F8l+aUoeCls9/CuHoSejxXIBVnj7vUPSOvV72pZg+TexezKhzCe/yVTrKIn2Zu2P2kL2JWhi53Bqoxw6Tgq00cDZccRQp8Z6DQ7l4E0RE2ZZF8XgPfHyTHDLOkCwMxUIGIbvitE/LHvPpf7k8QKkUJ8Yi/+YEOEBFJ9y4SrYdPihBKir7gJfGD7w1FChyKRMn9kwPJeK7zi1lepFMGCQmhp8YL2Gd1P+W3SLnAQRkFwqu/6dy3b0hjVwMG5SntGbnczxK5R6rdRD89CGL8HdicqZ3C6An72NK/k72uz4/gMmAFAzKdpkP7gt5nEiR8++ETuEzvSTY7DOh82aEDl5aeBs/gSMUvqp7fldFJT5MF6CqhWADnh8rsOKzvjsTXGsmiD3KHC+D0YMUtatpqy7356DIc3r4Xmqujjdb55wuXkRKZymdvfG7TLoGXcvf8WMUPQlZ23cQNgw4tLLWV27EBcC/k+oz0Ig8f3YHRhN5EYrHW06aEDyXLTlrMNi8n2r/XG+qjAIgAQukZ8NxIok8U31d2TQBexzdQEh99K7gWwiAIOUkK/U5wwwLUF+egN3vBtSXkQhB6GB1/BK6F8IK+bI/RTo7snkohQEk/R/8uj9pvQcSLfbKD1+jpDhsRJXcE+y1BolddgvuMkIKyvSyQarCLkK+xzCHTmnh4QHv/PCe7/BvjsMcSiEnp5pMkuY1rAHDPi3YjK5iArUKY0NEvHLNfoLqqcNVw7J+9HlIiBb2924A0hccGIRAvow3Z7xV2Aeqmy71dQM7fSoSVAOLNNSTIgIJZmiFR1QbJCl8iQnQFaVdMQUBXbkMfc/bSr44tHZ6q6skDiQhRFIylhE2LHkTBNqBH7H9bLgBotEQq87nLvwibsZtJFoiUGpB5WRwN1Cre1mS25rm/UykRnocSUUKYGeMMXWk/mPvuOzuoVVVJieT+NkolkZvbQekbDEnWt9GDHuklSRtRzMC2xAWDlIgUyE3lNcAtC8hCaX4y/qPTOnWDA4nwoiR9D0iQli6hj68JjNp30lCulEjjJMKb8aFQMrHclBlfieGnTkrV9eSzajz+XmcsOWtiJd02fHPwl+wncPEs+lp3B4mfeelrSfv+1fVv4/+3lkVTdzmvq81X87yrU+LE5rjvlyV5WAOJcH7ZooZ30/ScuTlX3Li7nH/qRZzrH/0FCEk7TMnBm+qRCkBcXg3TJ7+qR816eX2AkvqLkPtg65by12DCFWU9GB9RTBeHnkKGLnf2py+IshruJfNuY/OcqJyeCvHLsAQ9QQWIItUHgThnJuHmWLJ/wpYK1om3dcZULI1e5fF5JYqfWbJvl8wU4anKjYm3YeWe0uh14kGu+lsFZ5nCbYstVI3Tb+sA+pVEnw9a6wrsfEbHnOJC9CBflorh3k6TB04334O6JHp4NYtholfd3I3MzJSp1Xu1Vjdt5hcjlWrP0St7TNENQRr2he0AH4sHBy163mFX63aH7hsgjt2MM0/K3ZWphTycdgjCrDKHLpjBdTbHvHk66EyTI7f7Z1Njz2uyz9E7t1f1jnZuGF2YzU0pvHkvwX6FAAum+cCiW7jR4WF0c2aUot3fq9xgGzRmzd6ZuaxbQL/F6FpG2BxA2jQ6BHpmx4hYOJ5DzK12EDREry3tImiVYUdNAr1BEEw/WPRbWKftkBV8HqKDjA0cu6cYNXpsQheBg3EjVKFygXV5j6n9xwIJMdepCSCsqi2gPwJO5ejLQ7eOTrVJ23BCxNIul6vh2/p+Zhpc+Q50bK7OAs4QN77a/sXLnpahJfRsPzp2vQJuvdKan/9aRofd6KZJI4Xt4uZ0bzLGec7rMLq1NzaOC9BgSiEd3z2tC9Hpbs7j38RkBx3nmFgNrJLobJDJ5EGt6zx0z97Uk2z4AA99ytUY4aONeLTDbnTf4tyAOmr/kau1No3jCGuzydjesfOdq+g9+o68zdJLlmR8y8h6G6yXzue/P/S0+kVRH91dPtfs2M+7DBXS6MkoEwbgKMosNQfGibJ36Pp5+Pd6jDMmrSnqwEPnC1XUMbdMo0tIc9Ff/XgvqbbodnErGNA3M7cZEqq1LXS2sIZuBS0ZVD9FMreZzQXfAKRHycGjjwYtWYSC+LeA7vYM45c/OMQugQ7WvQzy6s5mp8JlSyI3h9jOG0JdQHeCH5kpnKa6nTC7BAoG+f0PXRhWPPsgTkKztzRymxbTwo1uDuiZJ0xI0mj/6F1dOj6zOVkq3C+hQ8pLMGlbaXSc/F6O2qbG7vTk3lboFuWefg1dSD+YRk8dvAYvoropYW7dMFlBl8rbpqY+0+jNHH4MolZDK5idKNkK+jgmQwO2j2WFBXT5f8H3blGhry70Csb+SvNHNP1rqU1Q6obljRX3qRiC7RPdGpFU2b0YGwXyaqKv/j9+nmrPn8nPYQAAAABJRU5ErkJggg==" xlink:href="data:image/png;base64,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"/>
+<text x="80.1" y="2038" font-size="16" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">Curso de inducción</text>
+<text x="270" y="2038" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Cursos</text>
+<text x="354" y="2038" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Mi progreso</text>
+<rect x="930" y="2019" width="76" height="26" rx="13" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<rect x="932" y="2021" width="36" height="22" rx="11" fill="#1f5fbf" stroke="none" stroke-width="1"/>
+<text x="950" y="2036" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">ES</text>
+<text x="987" y="2036" font-size="12" fill="#666" font-weight="normal" text-anchor="middle" xml:space="preserve">EN</text>
+<circle cx="1038" cy="2032" r="14" fill="#dcdcdc" stroke="#9a9a9a" stroke-width="1"/>
+<text x="1060" y="2037" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Ana · Apolo III  ▾</text>
+<text x="60" y="2096" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Cursos  ›  Curso de inducción  ›  5 · Anatomía de un trabajo</text>
+<text x="60" y="2132" font-size="26" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">5.3 · Laboratorio de memoria</text>
+<text x="60" y="2176" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">1.</text>
+<text x="84" y="2176" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Entra a la carpeta del laboratorio:</text>
+<rect x="84" y="2184" width="456" height="26" rx="4" fill="#f2f2f2" stroke="#dcdcdc" stroke-width="1"/>
+<text x="94" y="2202" font-size="12" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">cd ~/curso/memoria</text>
+<text x="60" y="2234" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">2.</text>
+<text x="84" y="2234" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Envía el trabajo, que pide 1G:</text>
+<rect x="84" y="2242" width="456" height="26" rx="4" fill="#f2f2f2" stroke="#dcdcdc" stroke-width="1"/>
+<text x="94" y="2260" font-size="12" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">sbatch memoria.sh</text>
+<text x="60" y="2292" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">3.</text>
+<text x="84" y="2292" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Mira por qué terminó:</text>
+<rect x="84" y="2300" width="456" height="26" rx="4" fill="#f2f2f2" stroke="#dcdcdc" stroke-width="1"/>
+<text x="94" y="2318" font-size="12" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">sacct -j JOBID -o JobID,State,MaxRSS</text>
+<text x="60" y="2350" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">4.</text>
+<text x="84" y="2350" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Cambia a --mem=4G y envíalo otra vez.</text>
+<text x="60" y="2382" font-size="14" fill="#222" font-weight="bold" text-anchor="start" xml:space="preserve">5.</text>
+<text x="84" y="2382" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Revisa el resultado:</text>
+<rect x="84" y="2390" width="456" height="26" rx="4" fill="#f2f2f2" stroke="#dcdcdc" stroke-width="1"/>
+<text x="94" y="2408" font-size="12" fill="#222" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">apolo-training verificar memoria</text>
+<rect x="60" y="2446" width="480" height="92" rx="8" fill="#fbefdc" stroke="#a35b00" stroke-width="1"/>
+<text x="76" y="2472" font-size="14" fill="#a35b00" font-weight="bold" text-anchor="start" xml:space="preserve">Laboratorio de memoria: intentado</text>
+<text x="76" y="2494" font-size="13" fill="#a35b00" font-weight="normal" text-anchor="start" xml:space="preserve">JobID 1042 · OUT_OF_MEMORY con 1G (es lo esperado)</text>
+<text x="76" y="2518" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Última sincronización hace 3 min · se actualiza cada 5 min</text>
+<circle cx="552" cy="2466" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="552" y="2470.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">10</text>
+<rect x="60" y="2558" width="260" height="36" rx="6" fill="#fff" stroke="#9a9a9a" stroke-width="1"/>
+<text x="190.0" y="2580.68" font-size="13" fill="#222" font-weight="normal" text-anchor="middle" xml:space="preserve">Ya lo hice: marcar como completada</text>
+<rect x="580" y="2156" width="660" height="470" rx="8" fill="#1e1e1e" stroke="#222" stroke-width="1"/>
+<rect x="580" y="2156" width="660" height="40" rx="8" fill="#2d2d2d" stroke="none" stroke-width="1"/>
+<circle cx="600" cy="2176" r="5" fill="#7ec27e" stroke="none" stroke-width="1"/>
+<text x="612" y="2181" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" xml:space="preserve">Conectado a la VM de práctica · perfil apolo3</text>
+<rect x="972" y="2164" width="150" height="24" rx="4" fill="#3a3a3a" stroke="#555" stroke-width="1"/>
+<text x="1047" y="2181" font-size="12" fill="#d8d8d8" font-weight="normal" text-anchor="middle" xml:space="preserve">Abrir en otra pestaña</text>
+<rect x="1130" y="2164" width="96" height="24" rx="4" fill="#3a3a3a" stroke="#555" stroke-width="1"/>
+<text x="1178" y="2181" font-size="12" fill="#d8d8d8" font-weight="normal" text-anchor="middle" xml:space="preserve">Reconectar</text>
+<text x="596" y="2222" font-size="13" fill="#e6a23c" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">Esta es la VM de práctica del curso, no Apolo III.</text>
+<text x="596" y="2244" font-size="13" fill="#e6a23c" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">Tu clúster real: apolo-3.eafit.edu.co</text>
+<text x="596" y="2266" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve"></text>
+<text x="596" y="2288" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[ana@apolo-training (apolo3) ~]$ cd ~/curso/memoria</text>
+<text x="596" y="2310" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[ana@apolo-training (apolo3) memoria]$ sbatch memoria.sh</text>
+<text x="596" y="2332" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">Submitted batch job 1042</text>
+<text x="596" y="2354" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[ana@apolo-training (apolo3) memoria]$ sacct -j 1042 -X \</text>
+<text x="596" y="2376" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">    -o JobID,State,MaxRSS</text>
+<text x="596" y="2398" font-size="13" fill="#7ec27e" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">JobID             State     MaxRSS</text>
+<text x="596" y="2420" font-size="13" fill="#7ec27e" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">------------ ---------- ----------</text>
+<text x="596" y="2442" font-size="13" fill="#7ec27e" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">1042         OUT_OF_ME+</text>
+<text x="596" y="2464" font-size="13" fill="#d8d8d8" font-weight="normal" text-anchor="start" font-family="Menlo, Consolas, monospace" xml:space="preserve">[ana@apolo-training (apolo3) memoria]$ █</text>
+<text x="580" y="2646" font-size="12" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Se cierra tras 15 min sin actividad o a las 2 h. La contraseña es la de la VM, no la de la plataforma.</text>
+<circle cx="1236" cy="2156" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
+<text x="1236" y="2160.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">11</text>
+</svg>
