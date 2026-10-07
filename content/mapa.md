@@ -60,8 +60,8 @@ que es también su ruta en la plataforma.
 **Objetivos.** Al terminar, el usuario:
 
 1. Sabe si su cuenta es de Apolo II o de Apolo III y qué cambia entre los dos.
-2. Explica por qué en el login no se corre cómputo y que los núcleo-hora solo
-   cuentan mientras el trabajo corre.
+2. Explica por qué en el login no se corre cómputo: los trabajos van por Slurm
+   a los nodos de cómputo, que se comparten entre todos.
 3. Conoce el recorrido del curso: VM de práctica, terminales, laboratorios,
    graduación y aprobación.
 
@@ -72,8 +72,8 @@ que es también su ruta en la plataforma.
 | `m00/como-funciona` | Cómo funciona este curso                   | lectura, quiz (5)    |
 
 **Quiz (5):** diferencia entre Apolo II y III, qué se hace y qué no en el
-login, cuándo se cobran núcleo-hora, qué es la VM de práctica, qué hace falta
-para aprobar.
+login, por qué los trabajos van por Slurm, qué es la VM de práctica, qué hace
+falta para aprobar.
 
 ### 1 · Conexión
 
@@ -113,18 +113,23 @@ para aprobar.
 
 1. Se mueve por el sistema de archivos con rutas absolutas y relativas.
 2. Crea, copia, mueve, borra y edita archivos sin salir de la terminal.
-3. Lee los permisos de un archivo y sigue las buenas prácticas del login.
+3. Lee los permisos de un archivo (sin cambiarlos) y sigue las buenas
+   prácticas del login.
 
 | Lección        | Título                             | Trae                      |
 | -------------- | ---------------------------------- | ------------------------- |
 | `m02/navegar`  | Moverte por el sistema de archivos | lectura, terminal quemada |
 | `m02/archivos` | Crear, copiar, mover y borrar      | lectura, terminal quemada |
-| `m02/nano`     | Editar con nano y permisos básicos | lectura, terminal quemada |
+| `m02/nano`     | Editar con nano y leer permisos    | lectura, terminal quemada |
 | `m02/practica` | Prepara tu carpeta del curso       | práctica real, quiz (8)   |
 
 - **Terminal quemada:** `pwd`, `ls`, `ls -l`, `cd` (con `~` y `..`), `mkdir`,
-  `cp`, `cp -r`, `mv`, `rm` (sin papelera), `cat`, `nano` (guardar y salir),
-  `chmod +x`.
+  `cp`, `cp -r`, `mv`, `rm` (sin papelera), `cat` y `nano` (guardar y salir).
+- **Permisos: solo leerlos.** Con `ls -l` se explica qué significa `rwx`, pero
+  no se enseña `chmod`. Los scripts de Slurm no necesitan permiso de ejecución,
+  y un `chmod` mal usado (por ejemplo `777` o `-R` sobre el home) deja los
+  archivos expuestos a otros usuarios. Quien necesite compartir archivos pide
+  ayuda al equipo.
 - **Práctica real:** en la VM, crear `~/curso` y copiar el laboratorio desde la
   carpeta compartida del curso (la ruta la fija la P-04).
 - **Quiz (8):** rutas absolutas y relativas, `~` y `..`, `cp` vs `mv`, `rm` no
@@ -150,7 +155,8 @@ para aprobar.
   límite en 200 GB. Las áreas de scratch y compartidas de cada clúster salen de
   la A-04.
 - **Terminal quemada:** `du -sh`, `quota -s`, `scp` de ida y de vuelta,
-  `rsync -av` (y qué hace la barra final en la ruta de origen).
+  `rsync -av` (y qué hace la barra final en la ruta de origen). No se enseña
+  `rsync --delete`, que borra en el destino lo que no está en el origen.
 - **Práctica real:** desde su computador,
   `scp <archivo> <usuario>@apolo-training.apolo.eafit.edu.co:~/curso/`. También se menciona el explorador de archivos de
   OnDemand, que se ve en el módulo 7.
@@ -239,8 +245,8 @@ para aprobar.
 - **Pestaña de Apolo III:** aviso de la P-05; allí `TotalCPU` sale vacío, así que
   la eficiencia solo se puede medir en la VM o en Apolo II.
 - **Quiz (6):** reservar vs usar, qué mide la eficiencia, `--cpus-per-task` vs
-  `--ntasks`, cuándo pedir más núcleos no ayuda, cómo se cobran los núcleo-hora,
-  qué hacer con una eficiencia baja.
+  `--ntasks`, cuándo pedir más núcleos no ayuda, por qué reservar de más
+  perjudica a los demás usuarios, qué hacer con una eficiencia baja.
 
 ### 7 · Open OnDemand
 
