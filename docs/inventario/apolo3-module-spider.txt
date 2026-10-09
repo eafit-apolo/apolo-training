@@ -1,0 +1,347 @@
+module spider
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+The following is a list of the modules and extensions currently available:
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+  CPLEX_Studio: CPLEX_Studio/22.2
+    IBM ILOG CPLEX Optimization Studio - LP/MIP/QP/CP solver suite
+
+  EasyBuild: EasyBuild/5.0.0
+    Software build and installation framework
+
+  OpenQuake: OpenQuake/3.24
+
+  R: R/4.3.2, R/4.5.0, R/4.5.1, R/4.6.0
+    R is a language and environment for statistical computing and graphics (S-Plus like).
+
+  adios2: adios2/2.10.1
+    The Adaptable IO System v2 (ADIOS2)
+
+  advisor: advisor/2025.1
+
+  alphafold3: alphafold3/3.0.1
+    AI model developed by Google DeepMind and Isomorphic Labs that accurately predicts the 3D structures and interactions of virtually all biomolecules,
+    including proteins, DNA, RNA, ligands, and ions.
+
+  ansys: ansys/2025R2
+    Ansys 2025 R2 multiphysics suite - Fluent, Mechanical APDL, CFX, LS-DYNA, Autodyn, Aqwa, Motion, EnSight, Electromagnetics, optiSLang
+
+  apptainer: apptainer/1.4.0
+
+  autotools: autotools
+    Developer utilities
+
+  bison: bison/3.8.2
+    GNU general-purpose parser generator
+
+  blast: blast/2.17.0
+    BLAST finds regions of similarity between biological sequences and is used to compare nucleotide or protein sequences to sequence databases.
+
+  boost: boost/1.88.0, boost/1.90.0
+    Free peer-reviewed portable C++ source libraries
+
+  ccl: ccl/2021.11.1
+
+  charliecloud: charliecloud/0.15
+    Lightweight user-defined software stacks for high-performance computing
+
+  cmake: cmake/4.0.0
+    CMake is an open-source, cross-platform family of tools designed to build, test and package software.
+
+  code-server: code-server/4.130.0
+    Visual Studio Code ejecutándose en un navegador
+
+  compiler: compiler/2023.2.1, compiler/2024.0.0, compiler/2025.1.1
+
+  compiler-intel-llvm: compiler-intel-llvm/2025.1.1
+    IntelÂ® oneAPI C/C++ and SYCL code compiler for CPUs, GPUs
+
+  compiler-rt: compiler-rt/2023.2.1, compiler-rt/2024.0.0, compiler-rt/2025.1.1
+
+  compiler-rt32: compiler-rt32/2023.2.1, compiler-rt32/2024.0.0
+
+  compiler32: compiler32/2023.2.1, compiler32/2024.0.0
+
+  cubelib: cubelib/4.9
+    CUBE Uniform Behavioral Encoding generic presentation library component
+
+  cubew: cubew/4.9
+    CUBE Uniform Behavioral Encoding generic presentation writer component
+
+  cuda: cuda/12.5
+    NVIDIA CUDA Toolkit
+
+  dal: dal/2024.0.0
+    Library for building compute-intense applications optimized for Intel CPUs and GPUs.
+
+  debugger: debugger/2023.2.0, debugger/2024.0.0
+
+  dev-utilities: dev-utilities/2021.10.0, dev-utilities/2024.0.0
+
+  dimemas: dimemas/5.4.2
+    Dimemas tool
+
+  dmtcp: dmtcp/5.0
+    Transparent, parallel checkpoint/restart for applications and MPI jobs
+
+  dnnl: dnnl/3.7.3
+    Performance library of basic building blocks for deep learning applications
+
+  dpct: dpct/2024.0.0
+    Migrate existing CUDA* code to SYCL code.
+
+  dpl: dpl/2022.3
+    Intel(R) oneAPI DPC++ Library provides an alternative for C++ developers who create heterogeneous applications and solutions. Its APIs are based on
+    familiar standards - C++ STL, Parallel STL (PSTL), Boost.Compute, and SYCL* - to maximize productivity and performance across CPUs, GPUs, and FPGAs.
+
+  extrae: extrae/3.8.3
+    Extrae tool
+
+  fftw: fftw/3.3.10
+    A Fast Fourier Transform library
+
+  flex: flex/2.6.4
+    Fast Lexical Analyzer Generator
+
+  geopm: geopm/1.1.0
+    Global Extensible Open Power Manager
+
+  gnu12: gnu12/12.2.0
+    GNU Compiler Family (C/C++/Fortran for x86_64)
+
+  gnu14: gnu14/14.2.0
+    GNU Compiler Family (C/C++/Fortran for x86_64)
+
+  gotcha: gotcha/1.0.8
+    A library for wrapping function calls to shared libraries
+
+  gromacs: gromacs/v2026.1-intel
+
+  gsl: gsl/2.8
+    GNU Scientific Library (GSL)
+
+  gurobi: gurobi/13.0.2
+    Gurobi Optimizer 13.0.2
+
+  hdf5: hdf5/1.14.6
+    A general purpose library and file format for storing scientific data
+
+  hpc_toolkit: hpc_toolkit/2025.2
+
+  hwloc: hwloc/2.12.0
+    Portable Hardware Locality
+
+  hypre: hypre/2.33.0
+    Scalable algorithms for solving linear systems of equations
+
+  icc: icc/2023.2.1
+
+  icc32: icc32/2023.2.1
+
+  ifort: ifort/2024.0.0
+
+  ifort32: ifort32/2024.0.0
+
+  imb: imb/2021.3
+    Intel MPI Benchmarks (IMB)
+
+  impi: impi/2021.11
+    Intel MPI Library (C/C++/Fortran for x86_64)
+
+  inspector: inspector/2024.2
+
+  intel: intel/2023.2.1, intel/2024.0.0, intel/2025.1.1
+    Intel(R) Compiler Family (C/C++/Fortran for x86_64)
+
+  intel_ipp_intel64: intel_ipp_intel64/2021.10
+    A library of multimedia and data processing optimized for Single Instruction, Multiple Data (SIMD) instructions.
+
+  intel_ippcp_intel64: intel_ippcp_intel64/2021.9
+
+  itac: itac/2022.0
+
+  jasper: jasper/1.900.1
+    JPEG-2000 Part-1 codec implementation
+
+  libfabric: libfabric/1.18.0
+    Development files for the libfabric library
+
+  libpng: libpng/1.2.50
+    PNG reference library for reading, writing and examining PNG files
+
+  likwid: likwid/5.4.1
+    Performance tools for the Linux console
+
+  mana: mana/mana-1.3.0
+    MPI-Agnostic Network-Agnostic transparent checkpoint/restart for MPI (built on DMTCP)
+
+  matlab: matlab/R2025b
+    A high-level programming language and a numerical computing platform for engineering and science
+
+  metis: metis/5.1.0
+    Serial Graph Partitioning and Fill-reducing Matrix Ordering
+
+  mfem: mfem/4.4
+    Lightweight, general, scalable C++ library for finite element methods
+
+  miniconda3: miniconda3/25.5.1, miniconda3/25.11.1
+    Miniconda3 with Python and the conda environment manager
+
+  mkl: mkl/2024.0, mkl/2025.2
+    Intel(R) oneAPI Math Kernel Library (oneMKL)
+
+  mkl32: mkl32/2024.0
+    Intel(R) oneAPI Math Kernel Library (oneMKL)
+
+  mpi: mpi/2021.11, mpi/2021.16
+    Intel(R) MPI Library
+
+  mpich: mpich/3.4.3-ofi, mpich/3.4.3-ucx
+    MPICH MPI implementation
+
+  mrbayes: mrbayes/3.2.7
+    Program used for Bayesian inference of phylogeny.
+
+  mumps: mumps/5.2.1
+    A MUltifrontal Massively Parallel Sparse direct Solver
+
+  mvapich2: mvapich2/2.3.7
+    OSU MVAPICH2 MPI implementation
+
+  netcdf: netcdf/4.9.0, netcdf/4.9.3
+    C Libraries for the Unidata network Common Data Form
+
+  netcdf-cxx: netcdf-cxx/4.3.1
+    C++ Libraries for the Unidata network Common Data Form
+
+  netcdf-fortran: netcdf-fortran/4.6.2
+    Fortran Libraries for the Unidata network Common Data Form
+
+  oclfpga: oclfpga/2023.2.1, oclfpga/2024.0.0
+
+  ohpc: ohpc
+
+  omb: omb/7.5
+    OSU Micro-benchmarks
+
+  opari2: opari2/2.0.9
+    An OpenMP runtime performance measurement instrumenter
+
+  openblas: openblas/0.3.29
+    An optimized BLAS library based on GotoBLAS2
+
+  opencoarrays: opencoarrays/2.10.2
+    ABI to leverage the parallel programming features of the Fortran 2018 DIS
+
+  openmpi5: openmpi5/5.0.7
+    A powerful implementation of MPI/SHMEM
+
+  os: os
+
+  otf2: otf2/3.1.1
+    Open Trace Format 2 library
+
+  papi: papi/6.0.0
+    Performance Application Programming Interface
+
+  pdtoolkit: pdtoolkit/3.25.1
+    PDT is a framework for analyzing source code
+
+  petsc: petsc/3.18.1
+    Portable Extensible Toolkit for Scientific Computation
+
+  phdf5: phdf5/1.14.0, phdf5/1.14.6
+    A general purpose library and file format for storing scientific data
+
+  plasma: plasma/24.8.7
+    Parallel Linear Algebra Software for Multicore Architectures
+
+  pmix: pmix/4.2.9
+
+  pnetcdf: pnetcdf/1.14.0
+    A Parallel NetCDF library (PnetCDF)
+
+  prun: prun/2.2
+    job launch utility for multiple MPI families
+
+  ptscotch: ptscotch/7.0.7
+    Graph, mesh and hypergraph partitioning library using MPI
+
+  py3-mpi4py: py3-mpi4py/3.1.5
+    Python bindings for the Message Passing Interface (MPI) standard.
+
+  py3-numpy: py3-numpy/1.26.4
+    NumPy array processing for numbers, strings, records and objects
+
+  py3-scipy: py3-scipy/1.5.4
+    Scientific Tools for Python
+
+  reframe: reframe/4.10.2
+    Framework for writing regression tests and benchmarks for HPC systems
+
+  scalapack: scalapack/2.2.2
+    A subset of LAPACK routines redesigned for heterogeneous computing
+
+  scalasca: scalasca/2.6.2
+    Toolset for performance analysis of large-scale parallel applications
+
+  scorep: scorep/9.0
+    Scalable Performance Measurement Infrastructure for Parallel Codes
+
+  scotch: scotch/7.0.7
+    Graph, mesh and hypergraph partitioning library
+
+  sionlib: sionlib/1.7.7
+    Scalable I/O Library for Parallel Access to Task-Local Files
+
+  slepc: slepc/3.18.0
+    A library for solving large scale sparse eigenvalue problems
+
+  spack: spack/0.23.1
+    Spack package management
+
+  superlu: superlu/7.0.0
+    A general purpose library for the direct solution of linear equations
+
+  superlu_dist: superlu_dist/6.4.0
+    A general purpose library for the direct solution of linear equations
+
+  tau: tau/2.31.1
+    Tuning and Analysis Utilities Profiling Package
+
+  tbb: tbb/2021.10.0, tbb/2021.11, tbb/2022.1
+
+  trilinos: trilinos/13.4.0
+    A collection of libraries of numerical algorithms
+
+  ucx: ucx/1.18.0, ucx/1.20.0
+    UCX is a communication library implementing high-performance messaging
+
+  umf: umf/0.10.0
+
+  valgrind: valgrind/3.24.0
+    Memory debugging utilities
+
+  vtune: vtune/2025.3
+
+  wps: wps/4.5
+
+  wrf-chem: wrf-chem/4.5.2
+
+  zlib: zlib/1.2.11
+    A Massively Spiffy Yet Delicately Unobtrusive Compression Library
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+To learn more about a package execute:
+
+   $ module spider Foo
+
+where "Foo" is the name of a module.
+
+To find detailed information about a particular package you
+must specify the version if there is more than one version:
+
+   $ module spider Foo/11.1
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------

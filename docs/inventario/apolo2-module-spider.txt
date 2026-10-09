@@ -1,0 +1,233 @@
+module spider
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+The following is a list of the modules and extensions currently available:
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+  EasyBuild: EasyBuild/5.3.0
+    Software build and installation framework
+
+  R: R/4.6.0
+    R is a language and environment for statistical computing and graphics (S-Plus like).
+
+  adios2: adios2/2.12.1
+    The Adaptable IO System v2 (ADIOS2)
+
+  apptainer: apptainer/1.5.2
+    Application containers for Linux / HPC
+
+  autotools: autotools
+    Developer utilities
+
+  boost: boost/1.90.0
+    Free peer-reviewed portable C++ source libraries
+
+  cmake: cmake/4.3.2
+    CMake is an open-source, cross-platform family of tools designed to build, test and package software.
+
+  cuda: cuda/12.9
+    NVIDIA CUDA Toolkit (compatible con Volta / V100)
+
+  cvx: cvx/2.2.2
+    CVX - MATLAB software for disciplined convex programming
+
+  fftw: fftw/3.3.11
+    A Fast Fourier Transform library
+
+  gnu14: gnu14/14.3.0
+    GNU Compiler Family (C/C++/Fortran for x86_64)
+
+  gnu15: gnu15/15.2.0
+    GNU Compiler Family (C/C++/Fortran for x86_64)
+
+  go: go/1.26.5
+    The Go programming language toolchain
+
+  gsl: gsl/2.8
+    GNU Scientific Library (GSL)
+
+  gurobi: gurobi/13.0.2
+    Gurobi Optimizer 13.0.2
+
+  hdf5: hdf5/2.1.1
+    A general purpose library and file format for storing scientific data
+
+  hwloc: hwloc/2.13.0
+    Portable Hardware Locality
+
+  hypre: hypre/3.1.0
+    Scalable algorithms for solving linear systems of equations
+
+  libfabric: libfabric/1.18.0
+    Development files for the libfabric library
+
+  matlab: matlab/R2025b
+    A high-level programming language and a numerical computing platform for engineering and science
+
+  maxima: maxima/5.43.2
+    A symbolic computation program
+
+  metis: metis/5.1.0
+    Serial Graph Partitioning and Fill-reducing Matrix Ordering
+
+  mfem: mfem/4.9
+    Lightweight, general, scalable C++ library for finite element methods
+
+  miniconda3: miniconda3/25.11.1
+    Miniconda3 with Python and the conda environment manager
+
+  mpich: mpich/5.0.1-ofi
+    MPICH MPI implementation
+
+  mumps: mumps/5.9.0
+    A MUltifrontal Massively Parallel Sparse direct Solver
+
+  mvapich2: mvapich2/4.1
+    OSU MVAPICH2 MPI implementation
+
+  netcdf: netcdf/4.10.0
+    C Libraries for the Unidata network Common Data Form
+
+  netcdf-cxx: netcdf-cxx/4.3.1
+    C++ Libraries for the Unidata network Common Data Form
+
+  netcdf-fortran: netcdf-fortran/4.6.2
+    Fortran Libraries for the Unidata network Common Data Form
+
+  ohpc: ohpc
+
+  oneapi/ccl: oneapi/ccl/latest, oneapi/ccl/2022.1.0
+    Supports message passing interfaces (MPI) and libfabrics over a variety of interconnects.
+
+  oneapi/compiler: oneapi/compiler/latest, oneapi/compiler/2026.1.0
+    Intel(R) oneAPI C/C++ and SYCL code compiler for CPUs, GPUs
+
+  oneapi/compiler-intel-llvm: oneapi/compiler-intel-llvm/latest, oneapi/compiler-intel-llvm/2026.1.0
+    Intel(R) oneAPI C/C++ and SYCL code compiler for CPUs, GPUs
+
+  oneapi/compiler-rt: oneapi/compiler-rt/latest, oneapi/compiler-rt/2026.1.0
+    oneAPI Compiler redistributable libraries
+
+  oneapi/debugger: oneapi/debugger/latest, oneapi/debugger/2026.1.0
+    Intel(R) oneAPI Application Debugger (gdb-oneapi)
+
+  oneapi/dev-utilities: oneapi/dev-utilities/latest, oneapi/dev-utilities/2025.3.0
+    Sample headers and CLI sample browser (oneapi-cli).
+
+  oneapi/dnnl: oneapi/dnnl/latest, oneapi/dnnl/3.11.2
+    Performance library of basic building blocks for deep learning applications
+
+  oneapi/dpl: oneapi/dpl/latest, oneapi/dpl/2022.13
+    Intel(R) oneAPI DPC++ Library provides an alternative for C++ developers who create heterogeneous applications and solutions. Its APIs are based on
+    familiar standards - C++ STL, Parallel STL (PSTL), Boost.Compute, and SYCL* - to maximize productivity and performance across CPUs, GPUs, and FPGAs.
+
+  oneapi/intel_ipp_intel64: oneapi/intel_ipp_intel64/latest, oneapi/intel_ipp_intel64/2026.0
+    A library of multimedia and data processing optimized for Single Instruction, Multiple Data (SIMD) instructions.
+
+  oneapi/intel_ippcp_intel64: oneapi/intel_ippcp_intel64/latest, oneapi/intel_ippcp_intel64/2026.0
+
+  oneapi/mkl: oneapi/mkl/latest, oneapi/mkl/2026.1
+    Intel(R) oneAPI Math Kernel Library (oneMKL)
+
+  oneapi/mpi: oneapi/mpi/latest, oneapi/mpi/2021.18
+    Intel(R) MPI Library
+
+  oneapi/tbb: oneapi/tbb/latest, oneapi/tbb/2023.1
+    Flexible threading library for adding parallelism to complex applications across accelerated architectures.
+
+  oneapi/tcm: oneapi/tcm/latest, oneapi/tcm/1.5
+    Coordinates CPU usage by threading libraries to avoid CPU oversubscription.
+
+  oneapi/umf: oneapi/umf/latest, oneapi/umf/1.1.0
+
+  oneapi/vtune: oneapi/vtune/latest, oneapi/vtune/2026.2
+
+  openblas: openblas/0.3.33
+    An optimized BLAS library based on GotoBLAS2
+
+  openfoam: openfoam/v2606
+
+  openmpi5: openmpi5/5.0.10
+    A powerful implementation of MPI/SHMEM
+
+  os: os
+
+  parallel: parallel/20260522
+    Shell tool for executing jobs in parallel
+
+  petsc: petsc/3.25.1
+    Portable Extensible Toolkit for Scientific Computation
+
+  phdf5: phdf5/2.1.1
+    A general purpose library and file format for storing scientific data (parallel version)
+
+  plasma: plasma/25.5.27
+    Parallel Linear Algebra Software for Multicore Architectures
+
+  pmix: pmix/4.2.9
+
+  pnetcdf: pnetcdf/1.14.1
+    A Parallel NetCDF library (PnetCDF)
+
+  prun: prun/2.2
+    job launch utility for multiple MPI families
+
+  ptscotch: ptscotch/7.0.11
+    Graph, mesh and hypergraph partitioning library using MPI
+
+  py3-mpi4py: py3-mpi4py/4.1.1
+    Python bindings for the Message Passing Interface (MPI) standard.
+
+  py3-numpy: py3-numpy/1.26.4
+    NumPy array processing for numbers, strings, records and objects
+
+  racket: racket/9.2_gcc-15.2.0
+
+  raspa2: raspa2/2.0.47
+
+  reframe: reframe/4.10.2
+    Framework for writing regression tests and benchmarks for HPC systems
+
+  sbcl: sbcl/2.4.0
+    Steel Bank Common Lisp compiler and runtime
+
+  scalapack: scalapack/2.2.3
+    A subset of LAPACK routines redesigned for heterogeneous computing
+
+  scotch: scotch/7.0.11
+    Graph, mesh and hypergraph partitioning library
+
+  slepc: slepc/3.25.1
+    A library for solving large scale sparse eigenvalue problems
+
+  spack: spack/1.1.1
+    Spack package management
+
+  superlu: superlu/7.0.0
+    A general purpose library for the direct solution of linear equations
+
+  superlu_dist: superlu_dist/9.2.1
+    A general purpose library for the direct solution of linear equations
+
+  trilinos: trilinos/17.0.0
+    A collection of libraries of numerical algorithms
+
+  ucx: ucx/1.20.1
+    UCX is a communication library implementing high-performance messaging
+
+  valgrind: valgrind/3.27.0
+    Memory debugging utilities
+
+  yade: yade/2022.01a
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+To learn more about a package execute:
+
+   $ module spider Foo
+
+where "Foo" is the name of a module.
+
+To find detailed information about a particular package you
+must specify the version if there is more than one version:
+
+   $ module spider Foo/11.1
