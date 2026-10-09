@@ -1,0 +1,35 @@
+module avail
+
+----------------------------------------------------------- /opt/ohpc/pub/moduledeps/gnu14-openmpi5 -----------------------------------------------------------
+   adios2/2.10.1        fftw/3.3.10      mumps/5.2.1                 opencoarrays/2.10.2    ptscotch/7.0.7      scorep/9.0            trilinos/13.4.0
+   boost/1.88.0         hypre/2.33.0     netcdf-cxx/4.3.1     (D)    otf2/3.1.1             py3-mpi4py/3.1.5    sionlib/1.7.7         wps/4.5
+   boost/1.90.0  (D)    imb/2021.3       netcdf-fortran/4.6.2 (D)    petsc/3.18.1           py3-scipy/1.5.4     slepc/3.18.0          wrf-chem/4.5.2
+   dimemas/5.4.2        mfem/4.4         netcdf/4.9.3         (D)    phdf5/1.14.6           scalapack/2.2.2     superlu_dist/6.4.0
+   extrae/3.8.3         mrbayes/3.2.7    omb/7.5                     pnetcdf/1.14.0         scalasca/2.6.2      tau/2.31.1
+
+--------------------------------------------------------------- /opt/ohpc/pub/moduledeps/gnu14 ----------------------------------------------------------------
+   R/4.3.2        bison/3.8.2    gotcha/1.0.8    jasper/1.900.1    mpich/3.4.3-ofi         netcdf-fortran/4.6.2    openmpi5/5.0.7   (L)    scotch/7.0.7
+   R/4.5.0        cubelib/4.9    gsl/2.8         libpng/1.2.50     mpich/3.4.3-ucx  (D)    netcdf/4.9.3            pdtoolkit/3.25.1        superlu/7.0.0
+   R/4.5.1        cubew/4.9      hdf5/1.14.6     likwid/5.4.1      mvapich2/2.3.7          opari2/2.0.9            plasma/24.8.7           zlib/1.2.11
+   R/4.6.0 (D)    flex/2.6.4     impi/2021.11    metis/5.1.0       netcdf-cxx/4.3.1        openblas/0.3.29         py3-numpy/1.26.4
+
+------------------------------------------------------------------ /opt/ohpc/pub/modulefiles ------------------------------------------------------------------
+   CPLEX_Studio/22.2        charliecloud/0.15          gromacs/v2026.1-intel        libfabric/1.18.0   (L)    ohpc           (L)    ucx/1.18.0      (L,D)
+   EasyBuild/5.0.0          cmake/4.0.0                gurobi/13.0.2                mana/mana-1.3.0           os                    ucx/1.20.0
+   OpenQuake/3.24           code-server/4.130.0        hpc_toolkit/2025.2           matlab/R2025b             papi/6.0.0            valgrind/3.24.0
+   ansys/2025R2             cuda/12.5                  hwloc/2.12.0          (L)    miniconda3/25.5.1  (D)    pmix/4.2.9
+   apptainer/1.4.0          dmtcp/5.0                  intel/2023.2.1               miniconda3/25.11.1        prun/2.2       (L)
+   autotools         (L)    gnu12/12.2.0               intel/2024.0.0        (D)    mkl/2025.2                reframe/4.10.2
+   blast/2.17.0             gnu14/14.2.0        (L)    intel/2025.1.1               mpi/2021.16               spack/0.23.1
+
+  Where:
+   D:  Default Module
+   L:  Module is loaded
+
+If the avail list is too long consider trying:
+
+"module --default avail" or "ml -d av" to just list the default modules.
+"module overview" or "ml ov" to display the number of modules for each name.
+
+Use "module spider" to find all possible modules and extensions.
+Use "module keyword key1 key2 ..." to search for all possible modules matching any of the "keys".

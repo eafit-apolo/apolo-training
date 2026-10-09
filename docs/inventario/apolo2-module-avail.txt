@@ -1,0 +1,37 @@
+module avail
+
+----------------------------------------------------------- /opt/ohpc/pub/moduledeps/gnu15-openmpi5 -----------------------------------------------------------
+   adios2/2.12.1    hypre/3.1.0    netcdf-cxx/4.3.1     (D)    petsc/3.25.1      ptscotch/7.0.11     slepc/3.25.1
+   boost/1.90.0     mfem/4.9       netcdf-fortran/4.6.2 (D)    phdf5/2.1.1       py3-mpi4py/4.1.1    superlu_dist/9.2.1
+   fftw/3.3.11      mumps/5.9.0    netcdf/4.10.0        (D)    pnetcdf/1.14.1    scalapack/2.2.3     trilinos/17.0.0
+
+--------------------------------------------------------------- /opt/ohpc/pub/moduledeps/gnu15 ----------------------------------------------------------------
+   R/4.6.0       metis/5.1.0        netcdf-cxx/4.3.1        openblas/0.3.33          plasma/25.5.27           raspa2/2.0.47
+   gsl/2.8       mpich/5.0.1-ofi    netcdf-fortran/4.6.2    openmpi5/5.0.10   (L)    py3-numpy/1.26.4         scotch/7.0.11
+   hdf5/2.1.1    mvapich2/4.1       netcdf/4.10.0           parallel/20260522        racket/9.2_gcc-15.2.0    superlu/7.0.0
+
+------------------------------------------------------------------ /opt/ohpc/pub/modulefiles ------------------------------------------------------------------
+   EasyBuild/5.3.0         matlab/R2025b                              oneapi/debugger/latest                   oneapi/mkl/latest          openfoam/v2606
+   apptainer/1.5.2         maxima/5.43.2                              oneapi/debugger/2026.1.0          (D)    oneapi/mkl/2026.1   (D)    os
+   autotools        (L)    miniconda3/25.11.1                         oneapi/dev-utilities/latest              oneapi/mpi/latest          pmix/4.2.9
+   cmake/4.3.2             ohpc                                (L)    oneapi/dev-utilities/2025.3.0     (D)    oneapi/mpi/2021.18  (D)    prun/2.2        (L)
+   cuda/12.9               oneapi/ccl/latest                          oneapi/dnnl/latest                       oneapi/tbb/latest          reframe/4.10.2
+   cvx/2.2.2               oneapi/ccl/2022.1.0                 (D)    oneapi/dnnl/3.11.2                (D)    oneapi/tbb/2023.1   (D)    sbcl/2.4.0
+   gnu14/14.3.0            oneapi/compiler-intel-llvm/latest          oneapi/dpl/latest                        oneapi/tcm/latest          spack/1.1.1
+   gnu15/15.2.0     (L)    oneapi/compiler-intel-llvm/2026.1.0 (D)    oneapi/dpl/2022.13                (D)    oneapi/tcm/1.5      (D)    ucx/1.20.1      (L)
+   go/1.26.5               oneapi/compiler-rt/latest                  oneapi/intel_ipp_intel64/latest          oneapi/umf/latest          valgrind/3.27.0
+   gurobi/13.0.2           oneapi/compiler-rt/2026.1.0         (D)    oneapi/intel_ipp_intel64/2026.0   (D)    oneapi/umf/1.1.0    (D)    yade/2022.01a
+   hwloc/2.13.0     (L)    oneapi/compiler/latest                     oneapi/intel_ippcp_intel64/latest        oneapi/vtune/latest
+   libfabric/1.18.0 (L)    oneapi/compiler/2026.1.0            (D)    oneapi/intel_ippcp_intel64/2026.0 (D)    oneapi/vtune/2026.2 (D)
+
+  Where:
+   D:  Default Module
+   L:  Module is loaded
+
+If the avail list is too long consider trying:
+
+"module --default avail" or "ml -d av" to just list the default modules.
+"module overview" or "ml ov" to display the number of modules for each name.
+
+Use "module spider" to find all possible modules and extensions.
+Use "module keyword key1 key2 ..." to search for all possible modules matching any of the "keys".
