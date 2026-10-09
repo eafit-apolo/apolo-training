@@ -1,0 +1,71 @@
+# CI mínimo (V-02): pre-commit y gitleaks en cada PR.
+# Los dos jobs son checks obligatorios de main, así que no llevan filtros de
+# rutas: un check obligatorio que no corre deja el PR bloqueado para siempre.
+name: Calidad
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calidad-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pre-commit:
+    name: pre-commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Instalar pre-commit
+        run: python -m pip install pre-commit==4.6.2
+
+      - name: Correr los hooks en todo el repo
+        # gitleaks va en su propio job: su hook revisa solo lo que está en
+        # staged, y en CI no hay nada en staged, así que pasaría sin revisar.
+        env:
+          SKIP: gitleaks
+        run: pre-commit run --all-files --show-diff-on-failure --color=always
+
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GITLEAKS_VERSION: "8.30.0" # la misma del .pre-commit-config.yaml
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Instalar gitleaks (verificando su checksum)
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          sumas="gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          cd "$RUNNER_TEMP"
+          curl -sSfLO "$base/$tarball"
+          curl -sSfLO "$base/$sumas"
+          sha256sum --check --ignore-missing "$sumas"
+          tar -xzf "$tarball" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      - name: Revisar los commits del PR
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: gitleaks git --config .gitleaks.toml --log-opts="$BASE..$HEAD" --redact --verbose .
+
+      - name: Revisar todo el historial (ejecución manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: gitleaks git --config .gitleaks.toml --redact --verbose .
