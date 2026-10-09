@@ -25,7 +25,7 @@ Affine.
 | Scratch                     | `/scratch` existe, pero hay que pedírselo a un administrador                      | `/scratch/<usuario>`, el usuario puede escribir                                   |
 | Software compartido         | `/share/apps` (solo lectura)                                                      | `/share` (solo lectura)                                                           |
 | Mensaje de bienvenida       | `/etc/motd` estático                                                              | Sin `/etc/motd`; script que lista los paquetes de módulos                         |
-| OnDemand                    | Pendiente                                                                         | Pendiente                                                                         |
+| OnDemand                    | No tiene                                                                          | Sí                                                                                |
 
 ## Particiones
 
@@ -154,18 +154,20 @@ las versiones:
   `module spider`, porque parte del software no aparece en `module avail`.
 - **Módulo 5:** confirma que en Apolo III no hay partición por defecto; los
   ejemplos llevan `-p`. El tiempo por defecto es 2 h en Apolo III.
+- **Módulo 7:** OnDemand solo existe en Apolo III. La graduación con OnDemand
+  (V-07) no aplica tal cual a los usuarios de Apolo II; hay que definir su
+  alternativa en el mapa.
 
 ## Pendientes
 
 | Falta                                                      | Afecta   |
 | ---------------------------------------------------------- | -------- |
-| Qué OnDemand atiende a cada clúster                        | Módulo 7 |
 | Si `/scratch/<usuario>` se crea solo en Apolo III          | Módulo 3 |
 | Qué límite real recibe un trabajo sin `--time` en Apolo II | Módulo 5 |
 
 ## Aprobación
 
 - [x] Partición por defecto de Apolo III confirmada (`scontrol show partition`).
-- [ ] Tipo y límites de cuota de Apolo II confirmados por un administrador.
-- [ ] Tabla sin pendientes.
+- [x] Tipo y límites de cuota de Apolo II confirmados por un administrador.
+- [x] Tabla sin pendientes.
 - [ ] Revisado por Juan.
