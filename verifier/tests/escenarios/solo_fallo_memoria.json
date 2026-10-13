@@ -1,0 +1,32 @@
+[
+  {
+    "JobID": "102",
+    "JobName": "curso-memoria",
+    "State": "OUT_OF_MEMORY",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:09",
+    "TotalCPU": "00:08.400",
+    "MaxRSS": "",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "102.batch",
+    "JobName": "batch",
+    "State": "OUT_OF_MEMORY",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:09",
+    "TotalCPU": "00:08.400",
+    "MaxRSS": "1024.00M",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "102.extern",
+    "JobName": "extern",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:09",
+    "TotalCPU": "00:00:00",
+    "MaxRSS": "0",
+    "ReqMem": "1000M"
+  }
+]

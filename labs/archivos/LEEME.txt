@@ -1,0 +1,25 @@
+Práctica: archivos
+
+En esta carpeta está ida.txt, con un código que es solo tuyo.
+
+1. Descarga ida.txt a tu computador (con scp o con el programa que viste
+   en la lección).
+2. En tu computador, cámbiale el nombre a vuelta.txt.
+3. Sube vuelta.txt a esta misma carpeta: ~/apolo-training/archivos/
+4. Verifica: apolo-training verificar archivos
+
+Si ida.txt no está, corre: apolo-training preparar
+
+---
+
+Practice: file transfer
+
+This folder has ida.txt, with a code that is only yours.
+
+1. Download ida.txt to your computer (with scp or with the program shown in
+   the lesson).
+2. On your computer, rename it to vuelta.txt.
+3. Upload vuelta.txt to this same folder: ~/apolo-training/archivos/
+4. Check it: apolo-training verificar archivos --lang en
+
+If ida.txt is missing, run: apolo-training preparar

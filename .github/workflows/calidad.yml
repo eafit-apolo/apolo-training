@@ -1,6 +1,6 @@
-# CI mínimo (V-02): pre-commit y gitleaks en cada PR.
-# Los dos jobs son checks obligatorios de main, así que no llevan filtros de
-# rutas: un check obligatorio que no corre deja el PR bloqueado para siempre.
+# CI (V-02): pre-commit, gitleaks y las pruebas del verificador en cada PR.
+# Todos los jobs son (o serán) checks obligatorios de main, así que no llevan
+# filtros de rutas: un check obligatorio que no corre deja el PR bloqueado.
 name: Calidad
 
 on:
@@ -69,3 +69,36 @@ jobs:
       - name: Revisar todo el historial (ejecución manual)
         if: github.event_name == 'workflow_dispatch'
         run: gitleaks git --config .gitleaks.toml --redact --verbose .
+
+  verificador-py312:
+    name: verificador (3.12)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Instalar las dependencias de prueba
+        run: python -m pip install -r verifier/requirements-dev.txt
+
+      - name: Correr pytest
+        run: python -m pytest verifier
+
+  verificador-py36:
+    name: verificador (3.6)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # setup-python ya no ofrece 3.6 en ubuntu-24.04, así que se usa la imagen
+    # oficial. La etiqueta no cambia: 3.6 dejó de recibir versiones en 2021.
+    container: python:3.6-slim-bullseye
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Instalar las dependencias de prueba
+        run: python -m pip install -r verifier/requirements-dev.txt
+
+      - name: Correr pytest
+        run: python -m pytest verifier

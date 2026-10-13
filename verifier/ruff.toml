@@ -1,0 +1,13 @@
+# El verificador corre con el Python 3.6 de los clústeres. ruff no acepta 3.6
+# como objetivo, así que se usa 3.7 y se apagan las reglas que propondrían
+# argumentos que solo existen desde 3.7. El job verificador (3.6) lo comprueba.
+target-version = "py37"
+
+[lint]
+ignore = [
+  "UP021", # text= es de 3.7; en 3.6 se usa universal_newlines=True
+  "UP022", # capture_output= es de 3.7
+]
+
+[lint.isort]
+known-first-party = ["apolo_training", "conftest"]
