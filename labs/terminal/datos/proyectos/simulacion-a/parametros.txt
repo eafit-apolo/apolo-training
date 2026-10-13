@@ -1,0 +1,4 @@
+proyecto: simulacion-a
+puntos: 50000000
+procesos: 1
+particion: <particion-curso>

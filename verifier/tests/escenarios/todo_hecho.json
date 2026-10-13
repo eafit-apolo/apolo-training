@@ -1,0 +1,162 @@
+[
+  {
+    "JobID": "101",
+    "JobName": "curso-modulos",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:05",
+    "TotalCPU": "00:04.120",
+    "MaxRSS": "",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "101.batch",
+    "JobName": "batch",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:05",
+    "TotalCPU": "00:04.120",
+    "MaxRSS": "48.20M",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "101.extern",
+    "JobName": "extern",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:05",
+    "TotalCPU": "00:00:00",
+    "MaxRSS": "0",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "102",
+    "JobName": "curso-memoria",
+    "State": "OUT_OF_MEMORY",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:09",
+    "TotalCPU": "00:08.400",
+    "MaxRSS": "",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "102.batch",
+    "JobName": "batch",
+    "State": "OUT_OF_MEMORY",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:09",
+    "TotalCPU": "00:08.400",
+    "MaxRSS": "1024.00M",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "102.extern",
+    "JobName": "extern",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:09",
+    "TotalCPU": "00:00:00",
+    "MaxRSS": "0",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "103",
+    "JobName": "curso-memoria",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:21",
+    "TotalCPU": "00:20.300",
+    "MaxRSS": "",
+    "ReqMem": "4000M"
+  },
+  {
+    "JobID": "103.batch",
+    "JobName": "batch",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:21",
+    "TotalCPU": "00:20.300",
+    "MaxRSS": "2580.50M",
+    "ReqMem": "4000M"
+  },
+  {
+    "JobID": "103.extern",
+    "JobName": "extern",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:21",
+    "TotalCPU": "00:00:00",
+    "MaxRSS": "0",
+    "ReqMem": "4000M"
+  },
+  {
+    "JobID": "104",
+    "JobName": "curso-nucleos",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:01:00",
+    "TotalCPU": "01:00.000",
+    "MaxRSS": "",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "104.batch",
+    "JobName": "batch",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:01:00",
+    "TotalCPU": "01:00.000",
+    "MaxRSS": "210.50M",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "104.extern",
+    "JobName": "extern",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:01:00",
+    "TotalCPU": "00:00:00",
+    "MaxRSS": "0",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "105",
+    "JobName": "curso-paralelo",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:00:20",
+    "TotalCPU": "01:15.000",
+    "MaxRSS": "",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "105.batch",
+    "JobName": "batch",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:00:20",
+    "TotalCPU": "01:15.000",
+    "MaxRSS": "812.00M",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "105.extern",
+    "JobName": "extern",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:00:20",
+    "TotalCPU": "00:00:00",
+    "MaxRSS": "0",
+    "ReqMem": "1000M"
+  },
+  {
+    "JobID": "106",
+    "JobName": "curso-paralelo",
+    "State": "RUNNING",
+    "AllocCPUS": "4",
+    "Elapsed": "00:00:10",
+    "TotalCPU": "00:00:00",
+    "MaxRSS": "",
+    "ReqMem": "1000M"
+  }
+]

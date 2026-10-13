@@ -4,7 +4,8 @@ Flujos de GitHub Actions (CI y publicación de imágenes).
 
 ## `calidad.yml`
 
-Corre en cada PR. Sus dos jobs son checks obligatorios de `main`.
+Corre en cada PR. Sus jobs son checks obligatorios de `main` (los dos del
+verificador se agregan después de su primer merge).
 
 - **pre-commit:** los hooks de `.pre-commit-config.yaml` sobre todo el repo,
   con `SKIP=gitleaks`. Si un hook cambiaría algo, el job falla y muestra el
@@ -13,6 +14,10 @@ Corre en cada PR. Sus dos jobs son checks obligatorios de `main`.
 - **gitleaks:** gitleaks con `.gitleaks.toml` sobre los commits del PR, no
   solo sobre el estado final. El binario se baja del release oficial y se
   verifica su checksum.
+- **verificador (3.12)** y **verificador (3.6):** las pruebas de `verifier/`
+  con pytest. El de 3.6 corre en el contenedor `python:3.6-slim-bullseye`,
+  porque `setup-python` ya no ofrece esa versión en `ubuntu-24.04`. Tardan
+  menos de un minuto, así que corren en todos los PR, sin filtros de rutas.
 
 Si se lanza a mano desde la pestaña Actions (_Run workflow_), gitleaks revisa
 todo el historial del repo.
@@ -34,6 +39,9 @@ era un secreto real, además hay que rotarlo.
 
 La versión de gitleaks (`GITLEAKS_VERSION`) tiene que ser la misma de
 `.pre-commit-config.yaml`. Al subirla, se cambia en los dos lugares.
+
+Las versiones de pytest están en `verifier/requirements-dev.txt`: 7.0.1 es la
+última que funciona con Python 3.6.
 
 ## Reglas para los workflows nuevos
 

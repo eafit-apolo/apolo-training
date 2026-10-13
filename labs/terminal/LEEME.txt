@@ -1,0 +1,21 @@
+Práctica: terminal
+
+1. Entra a esta carpeta: cd ~/apolo-training/terminal
+2. Recorre datos/ con cd, ls y cat.
+3. En uno de los archivos hay una línea con la clave del curso, que empieza
+   por TRN-. Con grep -r puedes buscarla sin abrir archivo por archivo.
+4. Guarda la clave en ~/apolo-training/terminal/respuesta.txt, por ejemplo:
+   echo TRN-XXXX-XXXX > respuesta.txt
+5. Verifica: apolo-training verificar terminal
+
+---
+
+Practice: terminal
+
+1. Go into this folder: cd ~/apolo-training/terminal
+2. Explore datos/ with cd, ls and cat.
+3. One of the files has a line with the course code, which starts with TRN-.
+   grep -r lets you search for it without opening every file.
+4. Save the code in ~/apolo-training/terminal/respuesta.txt, for example:
+   echo TRN-XXXX-XXXX > respuesta.txt
+5. Check it: apolo-training verificar terminal --lang en

@@ -1,0 +1,3 @@
+# Pruebas del verificador: Python 3.6 (como los clústeres) y 3.12 (CI).
+pytest==7.0.1; python_version < "3.7"
+pytest==9.1.1; python_version >= "3.9"

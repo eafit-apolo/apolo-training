@@ -1,0 +1,6 @@
+Notas del equipo / Team notes
+
+- Los resultados de cada mes están en resultados/.
+  Each month's results are in resultados/.
+- La clave no está en este archivo.
+  The course code is not in this file.
