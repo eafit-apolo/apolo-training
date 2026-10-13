@@ -1,0 +1,5 @@
+# Pruebas de la API. ruff no va aquí: lo corre pre-commit con su versión fijada.
+-r requirements.txt
+pytest==9.1.1
+pytest-asyncio==1.4.0
+httpx==0.28.1

@@ -1,0 +1,10 @@
+# Dependencias de la API en ejecución (imagen y desarrollo). Versiones fijadas
+# el 13-oct-2026; se suben a mano y en un PR propio.
+fastapi==0.143.0
+pydantic-settings==2.15.0
+sqlalchemy[asyncio]==2.1.4
+asyncpg==0.32.0
+alembic==1.20.0
+gunicorn==26.2.0
+uvicorn==0.54.0
+uvicorn-worker==0.4.0

@@ -1,0 +1,17 @@
+# Solo entran requirements.txt, alembic.ini, migrations/ y app/.
+**/__pycache__
+**/*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+tests/
+Dockerfile
+.dockerignore
+compose.yaml
+README.md
+openapi.yaml
+pytest.ini
+ruff.toml
+requirements-dev.txt
