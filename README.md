@@ -16,7 +16,7 @@ web, terminales de práctica y verificador de laboratorios.
 | `verifier/`          | Verificador `apolo-training` (CLI) y pruebas            |
 | `admin/`             | `apolo-training-admin` y timer de sincronización        |
 | `modulefiles/`       | Modulefile de Lmod                                      |
-| `deploy/`            | Dockerfiles, `compose.yaml`, `nginx.conf`               |
+| `deploy/`            | `compose.yaml` y `nginx.conf` (Dockerfile en cada app)  |
 | `ansible/`           | Roles de la VM de práctica y de la plataforma           |
 | `docs/`              | Documentación pública del proyecto                      |
 | `.github/workflows/` | CI y publicación de imágenes                            |
