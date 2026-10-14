@@ -35,13 +35,18 @@ En la imagen además: `WEB_CONCURRENCY` (workers de gunicorn, 2 por defecto) y
 
 ## Correrla en tu equipo
 
-Necesitas Python 3.12 y Docker. Todo se corre desde `api/`:
+Necesitas Python 3.12 y Docker. Todo se corre desde `api/`.
+
+Si tu sistema no trae Python 3.12 (Arch, por ejemplo, va en una versión más
+nueva), crea el entorno con [uv](https://docs.astral.sh/uv/): baja un 3.12 a
+tu carpeta de usuario sin tocar el del sistema. Un entorno de uv no trae
+`pip`, así que se instala con `uv pip`:
 
 ```bash
 cd api
-python3.12 -m venv .venv
+uv venv -p 3.12 .venv
 source .venv/bin/activate
-pip install -r requirements-dev.txt
+uv pip install -r requirements-dev.txt
 
 docker compose up -d db
 export API_DATABASE_URL=postgresql+asyncpg://apolo:apolo@localhost:5432/apolo_training
@@ -53,6 +58,11 @@ API_DOCS=true uvicorn --factory app.main:create_app --reload
 La API queda en <http://localhost:8000/api/health> y la documentación en
 <http://localhost:8000/api/docs>. Si el puerto 5432 ya está ocupado, levanta la
 base con `API_DB_PUERTO=5433 docker compose up -d db` y cambia el puerto en la URL.
+
+Si ya tienes Python 3.12, sirve igual `python3.12 -m venv .venv` y
+`pip install -r requirements-dev.txt`. En Arch, `pip install` fuera de un
+entorno virtual falla a propósito (PEP 668): si ves ese error, el entorno no
+quedó activado.
 
 Para probar la imagen como en producción (base + API):
 
@@ -74,13 +84,56 @@ En CI, el job `api` de `.github/workflows/calidad.yml` levanta PostgreSQL 16,
 aplica las migraciones, corre `alembic check` y pytest. ruff lo corre el job
 `pre-commit`.
 
+## Reglas de ruff
+
+`api/ruff.toml` lista las reglas con `select` en vez de usar las de por
+defecto, por dos razones:
+
+- ruff 0.16 activa por defecto muchas más reglas que antes, así que sin
+  `select` cada actualización de ruff podría cambiar qué se revisa.
+- Una configuración anidada (`api/ruff.toml`) no hereda la de la raíz, y el
+  repo no tiene una en la raíz. Lo que no esté aquí no se revisa en `api/`.
+
+| Código  | Qué revisa                                                            |
+| ------- | --------------------------------------------------------------------- |
+| `E`/`W` | Estilo de pycodestyle (`E501`, el largo de línea, se deja al formato) |
+| `F`     | Errores de Pyflakes: nombres sin definir, imports sin usar            |
+| `I`     | Orden de los imports (`app` cuenta como código propio)                |
+| `UP`    | Sintaxis moderna para Python 3.12                                     |
+| `B`     | Errores probables (bugbear)                                           |
+| `ASYNC` | Llamadas que bloquean dentro de código async                          |
+| `FAST`  | Buenas prácticas de FastAPI (por ejemplo, `Annotated`)                |
+| `S`     | Seguridad (bandit)                                                    |
+| `DTZ`   | Fechas sin zona horaria                                               |
+| `C4`    | Comprensiones innecesarias                                            |
+| `SIM`   | Código que se puede simplificar                                       |
+| `PT`    | Estilo de pytest                                                      |
+| `T20`   | `print()` olvidados                                                   |
+| `RUF`   | Reglas propias de ruff                                                |
+
+En `tests/` se permiten `S101` (`assert`), `S105` y `S106` (claves de prueba
+escritas en el código). Para agregar una regla, se suma su código a `select` en
+el mismo PR que arregla lo que encuentre.
+
 ## Convenciones
 
 - **Errores:** siempre `{"detail": "...", "codigo": "..."}`. Para un error
   esperado se lanza `ErrorApi(status, "codigo_estable", "detalle")`; la app
   traduce el `codigo`.
 - **Dependencias con `Annotated`:** `sesion: SesionDep`, no
-  `sesion = Depends(...)` (ruff lo exige con `FAST002`).
+  `sesion = Depends(...)` (ruff lo exige con `FAST002`). `EngineDep` y
+  `SesionDep` están en `app/core/db.py`:
+
+  ```python
+  from app.core.db import SesionDep
+
+
+  @router.get("/cursos")
+  async def listar_cursos(sesion: SesionDep) -> list[Curso]: ...
+  ```
+
+  Así la firma dice qué recibe la ruta y la dependencia se escribe una sola vez.
+
 - **Migraciones:** `alembic revision --autogenerate -m "..."` y revisarla a
   mano antes del commit. Los nombres de índices y restricciones salen de
   `app/models/base.py`.

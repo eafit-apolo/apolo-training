@@ -4,14 +4,16 @@ Flujos de GitHub Actions (CI y publicación de imágenes).
 
 ## `calidad.yml`
 
-Corre en cada PR. Sus jobs son checks obligatorios de `main` (el de `api` se
-agrega después de su primer merge).
+Corre en cada PR. Todos sus jobs son checks obligatorios de `main`; un job
+nuevo se vuelve obligatorio después de su primer merge (ver
+[Cómo agregar un check obligatorio](#cómo-agregar-un-check-obligatorio)).
 
 - **pre-commit:** los hooks de `.pre-commit-config.yaml` sobre todo el repo,
   con `SKIP=gitleaks`. Si un hook cambiaría algo, el job falla y muestra el
   diff. Para arreglarlo, corre `pre-commit run --all-files` en local, haz
   commit y vuelve a subir. También es el que corre ruff sobre `api/` (con
-  `api/ruff.toml`) y `verifier/` (con `verifier/ruff.toml`).
+  `api/ruff.toml`) y `verifier/` (con `verifier/ruff.toml`), y prettier sobre
+  `web/` (con `web/.prettierrc.json`).
 - **gitleaks:** gitleaks con `.gitleaks.toml` sobre los commits del PR, no
   solo sobre el estado final. El binario se baja del release oficial y se
   verifica su checksum.
@@ -24,6 +26,10 @@ agrega después de su primer merge).
   migraciones coinciden (`alembic check`) y corre pytest. También corre en
   todos los PR, sin filtros de rutas. La clave de esa base es de prueba y
   la base desaparece al terminar el job.
+- **web:** desde `web/`, con Node 24: `npm ci`, ESLint (`ng lint`), las pruebas
+  con Vitest (`ng test --watch=false`) y el build de producción. `ng build` no
+  falla por una advertencia (presupuesto, CSS, imports), así que el paso busca
+  `WARNING` en la salida y falla si la encuentra. Tarda menos de un minuto.
 
 Si se lanza a mano desde la pestaña Actions (_Run workflow_), gitleaks revisa
 todo el historial del repo.
@@ -41,6 +47,37 @@ anterior y el job sigue fallando. Hay que sacarlo del historial de la rama
 (`git rebase -i` o `git reset`) y subirla con `git push --force-with-lease`. Si
 era un secreto real, además hay que rotarlo.
 
+### Por qué los checks obligatorios no llevan filtros de rutas
+
+Con un filtro (`paths: [api/**]`), el job solo corre si el PR toca esa
+carpeta. Si el check es obligatorio y el PR no la toca, GitHub lo deja en
+«Expected — Waiting for status to be reported» para siempre: el job nunca se
+lanza, nunca informa y el PR no se puede fusionar. Pasa, por ejemplo, con un PR
+que solo cambia un `.md` de `docs/`.
+
+Todos los jobs de `calidad.yml` tardan alrededor de un minuto, así que es más
+simple correrlos siempre que mantener excepciones.
+
+### Cómo agregar un check obligatorio
+
+1. Se crea el job en un PR y se fusiona. Antes del merge no conviene hacerlo
+   obligatorio: los PR abiertos sobre el `main` viejo no tienen ese job y
+   quedarían bloqueados.
+2. En _Settings → Branches_, en la regla de `main`, se agrega el check con su
+   `name:` (por ejemplo `web`). Solo aparece en la lista si corrió en la última
+   semana.
+3. Se hace en la web, no con un `PUT` a la API de protección de ramas: ese
+   `PUT` reescribe toda la protección y es fácil borrar otra regla sin querer.
+4. Se comprueba la lista:
+
+   ```bash
+   gh api repos/<dueño>/apolo-training/branches/main/protection/required_status_checks \
+     --jq '.checks[].context'
+   ```
+
+«Require branches to be up to date» queda apagado (`strict: false`): con dos
+personas fusionando, obligaría a actualizar cada PR después de cada merge.
+
 ### Si falla `alembic check` en el job api
 
 Un modelo cambió y falta su migración. Genérala en local con
@@ -56,6 +93,11 @@ Las versiones de pytest están en `verifier/requirements-dev.txt`: 7.0.1 es la
 última que funciona con Python 3.6. Las de la API están en
 `api/requirements.txt` y `api/requirements-dev.txt`; ruff no va ahí, porque lo
 fija `.pre-commit-config.yaml`.
+
+Las de la web están fijadas exactas en `web/package.json` y
+`web/package-lock.json`. prettier va con la misma versión que en
+`.pre-commit-config.yaml`; al subirla, se cambia en los dos lugares. El job usa
+Node 24, que cumple el rango de `engines` de `web/package.json`.
 
 ## Reglas para los workflows nuevos
 
