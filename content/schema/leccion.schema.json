@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "leccion.schema.json",
+  "title": "Front matter de una lección",
+  "description": "Datos de una lección de content/<idioma>/mNN/<slug>.md (C-01). Lo valida el importador (B-04) antes de cargar la lección.",
+  "type": "object",
+  "required": ["id", "titulo", "orden", "duracion"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "mNN/slug: el número del módulo y el nombre de la lección. Es también la ruta del archivo (content/<idioma>/mNN/slug.md) y la de la plataforma.",
+      "type": "string",
+      "pattern": "^m[0-9]{2}/[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "titulo": {
+      "description": "Título de la lección en el idioma de la carpeta.",
+      "type": "string",
+      "minLength": 1
+    },
+    "orden": {
+      "description": "Posición de la lección dentro del módulo, desde 1.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "duracion": {
+      "description": "Minutos que toma la lección completa: video, práctica y quiz.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "video": {
+      "description": "Clave del video (el nombre del archivo sin el idioma). En la lección de VPN, una clave por sistema operativo.",
+      "oneOf": [
+        { "$ref": "#/$defs/claveVideo" },
+        {
+          "type": "object",
+          "propertyNames": { "enum": ["windows", "macos", "linux"] },
+          "additionalProperties": { "$ref": "#/$defs/claveVideo" },
+          "minProperties": 2
+        }
+      ]
+    },
+    "practicas": {
+      "description": "Prácticas de la VM que se hacen en esta lección, con el nombre que usa el verificador (apolo-training verificar <práctica>).",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "conexion",
+          "terminal",
+          "archivos",
+          "modulos",
+          "memoria",
+          "nucleos",
+          "paralelo"
+        ]
+      }
+    },
+    "quiz": {
+      "description": "Preguntas del quiz de la lección. La plataforma lo muestra al final.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/pregunta" }
+    },
+    "quiz_final": {
+      "description": "true solo en el quiz final del curso (m08).",
+      "type": "boolean"
+    }
+  },
+  "dependentRequired": {
+    "quiz_final": ["quiz"]
+  },
+  "$defs": {
+    "claveVideo": {
+      "description": "Igual que ClaveVideo en api/openapi.yaml.",
+      "type": "string",
+      "pattern": "^m[0-9]{2}-[a-z0-9-]+$"
+    },
+    "pregunta": {
+      "type": "object",
+      "required": ["clave", "enunciado", "opciones", "explicacion"],
+      "additionalProperties": false,
+      "properties": {
+        "clave": {
+          "description": "Identificador estable de la pregunta: mNN- y un nombre corto. No se cambia aunque cambie el texto.",
+          "type": "string",
+          "pattern": "^m[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "enunciado": {
+          "description": "La pregunta, en Markdown corto.",
+          "type": "string",
+          "minLength": 1
+        },
+        "opciones": {
+          "description": "Entre 2 y 5 opciones, al menos una correcta. Si hay más de una correcta, la pregunta es de selección múltiple.",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/opcion" },
+          "contains": {
+            "type": "object",
+            "required": ["correcta"],
+            "properties": { "correcta": { "const": true } }
+          }
+        },
+        "explicacion": {
+          "description": "Por qué la respuesta correcta lo es. Se muestra después de responder, sin decir cuál opción era.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "opcion": {
+      "type": "object",
+      "required": ["texto"],
+      "additionalProperties": false,
+      "properties": {
+        "texto": {
+          "type": "string",
+          "minLength": 1
+        },
+        "correcta": {
+          "description": "Solo en las correctas; si falta, la opción es incorrecta.",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
