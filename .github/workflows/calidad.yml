@@ -1,5 +1,5 @@
-# CI (V-02): pre-commit, gitleaks y las pruebas del verificador y de la API en
-# cada PR.
+# CI (V-02): pre-commit, gitleaks y las pruebas del verificador, de la API y de
+# la web en cada PR.
 # Todos los jobs son (o serán) checks obligatorios de main, así que no llevan
 # filtros de rutas: un check obligatorio que no corre deja el PR bloqueado.
 name: Calidad
@@ -149,3 +149,43 @@ jobs:
 
       - name: Correr pytest
         run: python -m pytest
+
+  web:
+    name: web
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # prettier de web/ ya lo corre el job pre-commit (con web/.prettierrc.json);
+    # aquí van ESLint, las pruebas y el build de producción.
+    env:
+      NG_CLI_ANALYTICS: "false"
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Instalar las dependencias
+        run: npm ci
+
+      - name: ESLint
+        run: npx ng lint
+
+      - name: Pruebas
+        run: npx ng test --watch=false
+
+      - name: Build de producción sin advertencias
+        # ng build no falla por una advertencia (presupuesto, CSS, imports),
+        # así que se busca en la salida.
+        run: |
+          set -o pipefail
+          npx ng build 2>&1 | tee "$RUNNER_TEMP/build.log"
+          if grep -q "WARNING" "$RUNNER_TEMP/build.log"; then
+            echo "::error::ng build dejó advertencias"
+            exit 1
+          fi

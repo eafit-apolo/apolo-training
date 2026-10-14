@@ -1,0 +1,38 @@
+{
+  "app": {
+    "nombre": "Apolo induction course",
+    "curso": "Induction course"
+  },
+  "shell": {
+    "menu": "Main menu",
+    "saltar": "Skip to content"
+  },
+  "nav": {
+    "cursos": "Courses",
+    "miProgreso": "My progress",
+    "panel": "Panel",
+    "admin": "Administration"
+  },
+  "idioma": {
+    "etiqueta": "Interface language"
+  },
+  "paginas": {
+    "ingresar": "Sign in",
+    "cambiarClave": "Create your password",
+    "catalogo": "Courses",
+    "leccion": "Lesson",
+    "miProgreso": "My progress",
+    "panel": "Course panel",
+    "graduaciones": "Graduations",
+    "videos": "Videos",
+    "usuarios": "Users",
+    "qos": "Approved users pending QOS",
+    "noEncontrada": "Page not found"
+  },
+  "pendiente": {
+    "mensaje": "This screen is still under construction."
+  },
+  "noEncontrada": {
+    "mensaje": "This address does not exist. Check the link or go back to Courses."
+  }
+}
