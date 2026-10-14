@@ -1,0 +1,167 @@
+# Imágenes (V-02): construye las imágenes de api/ y web/ en cada PR, sin
+# publicarlas, y al llegar a main (o con un tag vX.Y.Z) las publica en GHCR.
+# No es un check obligatorio de main, así que sí lleva filtros de rutas.
+# El dueño de las imágenes va en la variable IMAGE_PREFIX del repo.
+name: Imágenes
+
+on:
+  pull_request:
+    paths:
+      - "api/**"
+      - "web/**"
+      - ".github/workflows/imagenes.yml"
+  push:
+    branches: [main]
+    # GitHub no aplica los filtros de rutas a los tags: un tag siempre
+    # construye las dos imágenes.
+    tags: ["v*.*.*"]
+    paths:
+      - "api/**"
+      - "web/**"
+      - ".github/workflows/imagenes.yml"
+  # Para republicar a mano (por ejemplo, tras cambiar IMAGE_PREFIX en la A-16).
+  # Solo publica si se lanza sobre main o sobre un tag vX.Y.Z.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: imagenes-${{ github.event.pull_request.number || github.ref }}
+  # En un PR, la corrida nueva reemplaza a la vieja. En main cada merge
+  # publica su propio sha, así que no se cancela.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  construir:
+    name: construir (${{ matrix.imagen }})
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        imagen: [api, web]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Construir sin publicar
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.imagen }}
+          platforms: linux/amd64
+          push: false
+          build-args: VERSION=pr-${{ github.event.pull_request.number }}
+          cache-from: type=gha,scope=${{ matrix.imagen }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.imagen }}
+
+  publicar:
+    name: publicar (${{ matrix.imagen }})
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # Solo este job puede escribir en GHCR; los PR nunca reciben este permiso.
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        imagen: [api, web]
+    env:
+      IMAGE_PREFIX: ${{ vars.IMAGE_PREFIX }}
+      IMAGEN: apolo-training-${{ matrix.imagen }}
+    steps:
+      - name: Comprobar IMAGE_PREFIX
+        # GITHUB_TOKEN solo puede publicar en el espacio del dueño del repo, y
+        # Docker no acepta mayúsculas en el nombre de una imagen.
+        env:
+          DUENO: ${{ github.repository_owner }}
+        run: |
+          esperado="ghcr.io/${DUENO,,}"
+          if [ -z "$IMAGE_PREFIX" ]; then
+            echo "::error::Falta la variable IMAGE_PREFIX del repo (Settings → Secrets and variables → Actions → Variables). Debe valer $esperado."
+            exit 1
+          fi
+          if [ "$IMAGE_PREFIX" != "$esperado" ]; then
+            echo "::error::IMAGE_PREFIX vale '$IMAGE_PREFIX', pero GITHUB_TOKEN solo puede publicar en '$esperado' (el dueño del repo, en minúsculas)."
+            exit 1
+          fi
+
+      - name: Calcular la versión
+        # Con un tag vX.Y.Z, la versión es X.Y.Z; si no, sha- y 7 caracteres,
+        # igual que la etiqueta que pone metadata-action.
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="sha-${GITHUB_SHA::7}"
+          fi
+          echo "valor=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Etiquetas y metadatos
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/${{ env.IMAGEN }}
+          # sha-xxxxxxx siempre; main al fusionar; X.Y.Z, X.Y y latest con un
+          # tag vX.Y.Z. latest nunca sale de main.
+          flavor: latest=false
+          tags: |
+            type=sha
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+          # Sin esto, el título sería el nombre del repo y pisaría el del
+          # Dockerfile de la web.
+          labels: |
+            org.opencontainers.image.title=${{ env.IMAGEN }}
+            org.opencontainers.image.version=${{ steps.version.outputs.valor }}
+
+      - name: Construir y publicar
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.imagen }}
+          platforms: linux/amd64
+          push: true
+          build-args: VERSION=${{ steps.version.outputs.valor }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.imagen }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.imagen }}
+
+      - name: Resumen
+        env:
+          ETIQUETAS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          {
+            echo "### $IMAGEN"
+            echo
+            echo "Digest: \`$DIGEST\`"
+            echo
+            while read -r etiqueta; do
+              echo "- \`$etiqueta\`"
+            done <<< "$ETIQUETAS"
+          } >> "$GITHUB_STEP_SUMMARY"
