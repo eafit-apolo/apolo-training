@@ -99,11 +99,98 @@ Las de la web están fijadas exactas en `web/package.json` y
 `.pre-commit-config.yaml`; al subirla, se cambia en los dos lugares. El job usa
 Node 24, que cumple el rango de `engines` de `web/package.json`.
 
+## `imagenes.yml`
+
+Construye las imágenes de `api/` y `web/` con sus `Dockerfile` (cada carpeta
+es su propio contexto) y las publica en GHCR. Tiene dos jobs con la misma
+matriz (`api` y `web`):
+
+- **construir (api)** y **construir (web)**, en cada PR que toque `api/`,
+  `web/` o este workflow: construyen la imagen para comprobar que el
+  `Dockerfile` sigue funcionando y la descartan. No publican nada y solo tienen
+  permiso de lectura.
+- **publicar (api)** y **publicar (web)**, al fusionar en `main` (si el merge
+  toca `api/`, `web/` o este workflow) o al subir un tag `vX.Y.Z`: construyen
+  la imagen y la suben a GHCR. Es el único job con `packages: write`, así que
+  un PR nunca recibe permiso para escribir en GHCR.
+
+Las dos imágenes se llaman `${IMAGE_PREFIX}/apolo-training-api` y
+`${IMAGE_PREFIX}/apolo-training-web`. Siempre se construyen las dos juntas,
+para que la API y la web de un mismo merge tengan la misma etiqueta.
+
+### Por qué este workflow sí lleva filtros de rutas
+
+No es un check obligatorio de `main`, así que si no corre no bloquea nada. Un
+PR que solo cambia documentación o contenido no necesita reconstruir las
+imágenes. Por la misma razón, si `construir` falla, el PR no queda bloqueado:
+hay que revisarlo antes de aprobar.
+
+GitHub no aplica los filtros de rutas a los tags: un tag `vX.Y.Z` siempre
+construye y publica las dos imágenes.
+
+### Etiquetas
+
+| Evento         | Etiquetas en GHCR                       | `VERSION`     |
+| -------------- | --------------------------------------- | ------------- |
+| merge a `main` | `sha-abc1234`, `main`                   | `sha-abc1234` |
+| tag `v0.3.1`   | `0.3.1`, `0.3`, `sha-abc1234`, `latest` | `0.3.1`       |
+| PR             | ninguna (no se publica)                 | `pr-<número>` |
+
+- `sha-abc1234` son los 7 primeros caracteres del commit. Es la etiqueta que
+  se despliega: no cambia nunca.
+- `main` apunta a lo último que se fusionó, y `latest`, al último tag. Las dos
+  se mueven, así que el despliegue nunca las usa.
+- `VERSION` llega a los dos `Dockerfile` como _build-arg_: en la API es
+  `API_VERSION` (la versión que devuelve `GET /api/health`) y en las dos queda
+  en la etiqueta OCI `org.opencontainers.image.version`.
+- `metadata-action` agrega también `org.opencontainers.image.source`, que
+  enlaza el paquete de GHCR con este repo.
+
+### `IMAGE_PREFIX`
+
+Es una variable del repo (no un secreto): _Settings → Secrets and variables →
+Actions → Variables_. Vale `ghcr.io/<dueño del repo en minúsculas>`. Docker no
+acepta mayúsculas en el nombre de una imagen, y `GITHUB_TOKEN` solo puede
+publicar en el espacio del dueño del repo. El job `publicar` lo comprueba antes
+de construir y falla con un mensaje claro si la variable falta o no coincide.
+
+```bash
+gh variable set IMAGE_PREFIX --body "ghcr.io/<dueño>" -R <dueño>/apolo-training
+gh variable list -R <dueño>/apolo-training
+```
+
+### Visibilidad de los paquetes
+
+Un paquete nuevo en GHCR nace privado y hereda el acceso del repo enlazado.
+Cuando el repo se haga público, los paquetes siguen privados hasta que alguien
+cambie su visibilidad en _Package settings_; un paquete público no se puede
+volver privado. Mientras sean privados, la máquina que haga `docker pull`
+necesita un token con `read:packages`.
+
+### Al transferir el repo (A-16)
+
+Los paquetes de GHCR no se mueven con el repo: quedan en la cuenta del dueño
+anterior.
+
+1. Cambiar `IMAGE_PREFIX` al dueño nuevo (por ejemplo `ghcr.io/eafit-apolo`).
+2. Lanzar el workflow a mano sobre `main` (_Actions → Imágenes → Run
+   workflow_) para publicar las dos imágenes en el espacio nuevo.
+3. Cambiar `IMAGE_PREFIX` donde se use al desplegar (Ansible).
+4. Borrar los paquetes viejos de la cuenta anterior.
+
+### Caché
+
+Cada imagen usa la caché de GitHub Actions con su propio `scope` (`api` o
+`web`), para que una no pise a la otra. Los PR pueden leer la caché de `main`,
+así que un `Dockerfile` sin cambios se construye en segundos.
+
 ## Reglas para los workflows nuevos
 
 - Un check obligatorio de `main` no lleva filtros de rutas: si no corre, el PR
   queda bloqueado.
-- Cada workflow declara sus permisos mínimos con `permissions:`.
+- Cada workflow declara sus permisos mínimos con `permissions:`. Un permiso
+  de escritura (como `packages: write`) va solo en el job que lo necesita, y
+  ese job no corre en los PR.
 - Las herramientas van con versión fija.
 - El dueño de las imágenes va en la variable `IMAGE_PREFIX`, nunca escrito
   fijo.
