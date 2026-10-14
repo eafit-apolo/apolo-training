@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "modulo.schema.json",
+  "title": "Front matter de un módulo",
+  "description": "Datos de un módulo, en content/<idioma>/mNN/_modulo.md (C-01). Lo valida el importador (B-04).",
+  "type": "object",
+  "required": ["id", "titulo", "resumen", "duracion"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "mNN: el número del módulo con dos cifras. Es también el nombre de la carpeta.",
+      "type": "string",
+      "pattern": "^m[0-9]{2}$"
+    },
+    "titulo": {
+      "description": "Título del módulo en el idioma de la carpeta, sin el número.",
+      "type": "string",
+      "minLength": 1
+    },
+    "resumen": {
+      "description": "Una o dos frases para la tarjeta del catálogo.",
+      "type": "string",
+      "minLength": 1
+    },
+    "duracion": {
+      "description": "Minutos del módulo completo, como en content/mapa.md.",
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}
