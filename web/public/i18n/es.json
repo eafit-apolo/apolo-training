@@ -1,0 +1,38 @@
+{
+  "app": {
+    "nombre": "Curso de inducción Apolo",
+    "curso": "Curso de inducción"
+  },
+  "shell": {
+    "menu": "Menú principal",
+    "saltar": "Saltar al contenido"
+  },
+  "nav": {
+    "cursos": "Cursos",
+    "miProgreso": "Mi progreso",
+    "panel": "Panel",
+    "admin": "Administración"
+  },
+  "idioma": {
+    "etiqueta": "Idioma de la interfaz"
+  },
+  "paginas": {
+    "ingresar": "Ingresar",
+    "cambiarClave": "Crea tu contraseña",
+    "catalogo": "Cursos",
+    "leccion": "Lección",
+    "miProgreso": "Mi progreso",
+    "panel": "Panel del curso",
+    "graduaciones": "Graduaciones",
+    "videos": "Videos",
+    "usuarios": "Usuarios",
+    "qos": "Aprobados pendientes de QOS",
+    "noEncontrada": "Página no encontrada"
+  },
+  "pendiente": {
+    "mensaje": "Esta pantalla todavía está en construcción."
+  },
+  "noEncontrada": {
+    "mensaje": "Esta dirección no existe. Revisa el enlace o vuelve a Cursos."
+  }
+}

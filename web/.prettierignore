@@ -1,0 +1,5 @@
+# Para `npm run format` dentro de web/. En el pre-commit, lo mismo lo hace su `exclude`.
+package-lock.json
+dist/
+.angular/
+coverage/
