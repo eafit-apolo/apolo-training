@@ -13,6 +13,19 @@ ENV PATH=/opt/venv/bin:$PATH
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# Etapa de desarrollo (deploy/compose.dev.yaml): las mismas dependencias más
+# las de prueba. El código no se copia: se monta desde api/. No entra a la
+# imagen que se publica, que es la última etapa.
+FROM dependencias AS dev
+COPY requirements-dev.txt .
+RUN pip install -r requirements-dev.txt
+WORKDIR /app
+EXPOSE 8000
+# --reload-dir: vigila solo el código, no un .venv/ que tengas en api/.
+CMD ["uvicorn", "app.main:create_app", "--factory", \
+     "--host", "0.0.0.0", "--port", "8000", \
+     "--reload", "--reload-dir", "app", "--reload-dir", "migrations"]
+
 # Etapa 2: la imagen final, sin pip cache ni herramientas de build.
 FROM base
 ARG VERSION=dev

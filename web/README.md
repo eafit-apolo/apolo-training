@@ -9,7 +9,12 @@ textos en español e inglés. Las pantallas y sus rutas salen de
 
 - Node `^22.22.3`, `^24.15.0` o `>=26` (el CI y la imagen usan Node 24). La
   versión menor importa: con Node 22.22.0, el CLI de Angular no arranca.
-- Docker, solo para probar la imagen.
+- Docker, para el entorno completo (web, API y base) y para probar la imagen.
+
+Lo más simple es el entorno de desarrollo de `deploy/compose.dev.yaml`, que
+corre `ng serve` junto a la API y la base, sin instalar Node en tu equipo (ver
+[deploy/README.md](../deploy/README.md)). Desde la raíz del repo:
+`docker compose -f deploy/compose.dev.yaml up --build`.
 
 ## Comandos
 
@@ -26,6 +31,10 @@ npm run format    # prettier sobre web/ (el pre-commit hace lo mismo)
 
 `.npmrc` fija versiones exactas al instalar algo nuevo (`save-exact`) y exige
 la versión de Node de `engines` (`engine-strict`).
+
+`ng serve` envía `/api` a la API (`proxy.conf.mjs`), así la web y la API
+comparten origen como en producción. Con `npm start` en tu equipo apunta a
+`http://localhost:8000`; para otra dirección, `API_URL=http://localhost:8001 npm start`.
 
 ## Estructura
 
@@ -66,17 +75,19 @@ perfil (`GET /api/me`) mandará sobre los demás.
 
 ## Imagen
 
-```bash
-docker compose up -d --build     # http://127.0.0.1:8080 (otro puerto: WEB_PUERTO=8081)
-docker compose ps                # health: starting y luego healthy
-docker compose down
-```
+El `Dockerfile` tiene una etapa `dev` (la de `deploy/compose.dev.yaml`, con
+`ng serve`) y la imagen que se publica: compila con `node:24-alpine` y sirve el
+resultado con `nginxinc/nginx-unprivileged` (sin root, puerto 8080).
+`nginx.conf` solo sirve la app; TLS, cabeceras de seguridad y `/api` van en el
+nginx de borde de `deploy/`.
 
-El `Dockerfile` compila con `node:24-alpine` y sirve el resultado con
-`nginxinc/nginx-unprivileged` (sin root, puerto 8080). `nginx.conf` solo sirve
-la app; TLS, cabeceras de seguridad y `/api` van en el nginx de borde de
-`deploy/`. `compose.yaml` es solo para probar la imagen: la Q-02 lo lleva a
-`deploy/compose.dev.yaml`.
+Para probar la imagen publicada en local, desde la raíz del repo:
+
+```bash
+docker compose -f deploy/compose.dev.yaml up -d --build web-imagen   # http://127.0.0.1:8080
+docker compose -f deploy/compose.dev.yaml ps                          # health: starting y luego healthy
+docker compose -f deploy/compose.dev.yaml --profile imagenes down
+```
 
 ## Convenciones
 

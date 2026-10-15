@@ -17,7 +17,6 @@ se corrige el contrato en el mismo PR.
 | `app/schemas/`  | Esquemas pydantic de entrada y salida                          |
 | `migrations/`   | Migraciones de Alembic                                         |
 | `tests/`        | Pruebas (pytest + httpx, contra PostgreSQL real)               |
-| `compose.yaml`  | PostgreSQL y la API para desarrollar en tu equipo              |
 
 ## Variables de entorno
 
@@ -35,47 +34,63 @@ En la imagen además: `WEB_CONCURRENCY` (workers de gunicorn, 2 por defecto) y
 
 ## Correrla en tu equipo
 
-Necesitas Python 3.12 y Docker. Todo se corre desde `api/`.
-
-Si tu sistema no trae Python 3.12 (Arch, por ejemplo, va en una versión más
-nueva), crea el entorno con [uv](https://docs.astral.sh/uv/): baja un 3.12 a
-tu carpeta de usuario sin tocar el del sistema. Un entorno de uv no trae
-`pip`, así que se instala con `uv pip`:
+Lo más simple es el entorno de desarrollo de `deploy/compose.dev.yaml`, que
+levanta la base, aplica las migraciones y corre la API con recarga automática
+(ver [deploy/README.md](../deploy/README.md)). Desde la raíz del repo:
 
 ```bash
+docker compose -f deploy/compose.dev.yaml up --build
+```
+
+La API queda en <http://localhost:8000/api/health> y la documentación en
+<http://localhost:8000/api/docs>.
+
+### Sin Docker para la API
+
+Si prefieres correr la API con tu propio Python (para el depurador del editor,
+por ejemplo), levanta solo la base con Docker. Necesitas Python 3.12; si tu
+sistema no lo trae (Arch, por ejemplo, va en una versión más nueva), crea el
+entorno con [uv](https://docs.astral.sh/uv/), que baja un 3.12 a tu carpeta de
+usuario sin tocar el del sistema. Un entorno de uv no trae `pip`, así que se
+instala con `uv pip`:
+
+```bash
+docker compose -f deploy/compose.dev.yaml up -d db   # desde la raíz del repo
+
 cd api
 uv venv -p 3.12 .venv
 source .venv/bin/activate
 uv pip install -r requirements-dev.txt
-
-docker compose up -d db
-export API_DATABASE_URL=postgresql+asyncpg://apolo:apolo@localhost:5432/apolo_training
+export API_DATABASE_URL=postgresql+asyncpg://apolo:apolo@localhost:5433/apolo_training
 
 alembic upgrade head
 API_DOCS=true uvicorn --factory app.main:create_app --reload
 ```
 
-La API queda en <http://localhost:8000/api/health> y la documentación en
-<http://localhost:8000/api/docs>. Si el puerto 5432 ya está ocupado, levanta la
-base con `API_DB_PUERTO=5433 docker compose up -d db` y cambia el puerto en la URL.
+La base queda en el puerto 5433 de tu equipo. Si está ocupado, levántala con
+`API_DB_PUERTO=5434` y cambia el puerto en la URL.
 
 Si ya tienes Python 3.12, sirve igual `python3.12 -m venv .venv` y
 `pip install -r requirements-dev.txt`. En Arch, `pip install` fuera de un
 entorno virtual falla a propósito (PEP 668): si ves ese error, el entorno no
 quedó activado.
 
-Para probar la imagen como en producción (base + API):
-
-```bash
-docker compose up -d --build
-curl -s localhost:8000/api/health   # {"estado":"ok","base_datos":"ok","version":"local"}
-docker compose down
-```
+La imagen de producción (gunicorn sin root) se prueba con el perfil `imagenes`
+de `deploy/compose.dev.yaml` (ver [deploy/README.md](../deploy/README.md)).
 
 ## Pruebas y calidad
 
+Con Docker, desde la raíz del repo (lo mismo que el job `api` del CI, contra
+una base aparte):
+
 ```bash
-python -m pytest               # necesita API_DATABASE_URL y la base arriba
+docker compose -f deploy/compose.dev.yaml run --rm pruebas
+```
+
+Con tu propio Python, desde `api/` y con la base arriba:
+
+```bash
+python -m pytest               # necesita API_DATABASE_URL
 alembic check                  # los modelos y las migraciones coinciden
 pre-commit run --all-files     # ruff (con api/ruff.toml), prettier y demás
 ```
@@ -134,8 +149,9 @@ el mismo PR que arregla lo que encuentre.
 
   Así la firma dice qué recibe la ruta y la dependencia se escribe una sola vez.
 
-- **Migraciones:** `alembic revision --autogenerate -m "..."` y revisarla a
-  mano antes del commit. Los nombres de índices y restricciones salen de
+- **Migraciones:** `alembic revision --autogenerate -m "..."` (con Docker:
+  `docker compose -f deploy/compose.dev.yaml run --rm api alembic revision --autogenerate -m "..."`)
+  y revisarla a mano antes del commit. Los nombres de índices y restricciones salen de
   `app/models/base.py`.
 - **Sin `print()`** (ruff `T20`): se usa `logging`, y nunca se registra la URL
   de la base ni claves.
