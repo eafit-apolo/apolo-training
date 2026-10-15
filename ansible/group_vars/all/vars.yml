@@ -1,0 +1,3 @@
+base_admins: "{{ vault_admins }}"
+base_ntp_servidores: "{{ vault_ntp_servidores }}"
+base_dns_servidores: "{{ vault_dns_servidores }}"

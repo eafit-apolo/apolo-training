@@ -1,0 +1,5 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/base
+base_admins: []
+base_grupos_password: [apolo2, apolo3]

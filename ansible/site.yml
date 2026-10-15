@@ -1,0 +1,5 @@
+- name: VM de práctica
+  hosts: practica
+  become: true
+  roles:
+    - base
