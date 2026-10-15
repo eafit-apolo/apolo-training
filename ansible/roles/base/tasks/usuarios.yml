@@ -1,0 +1,28 @@
+- name: Verificar que hay al menos un administrador
+  ansible.builtin.assert:
+    that: base_admins | length > 0
+    fail_msg: base_admins está vacío; sin admin, quitar root te deja sin acceso.
+
+- name: Grupos con contraseña permitida por SSH
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ base_grupos_password }}"
+
+- name: Usuarios administradores en wheel
+  ansible.builtin.user:
+    name: "{{ item.nombre }}"
+    groups: wheel
+    append: true
+  loop: "{{ base_admins }}"
+  loop_control:
+    label: "{{ item.nombre }}"
+
+- name: Llaves de los administradores
+  ansible.posix.authorized_key:
+    user: "{{ item.nombre }}"
+    key: "{{ item.llaves | join('\n') }}"
+    exclusive: true
+  loop: "{{ base_admins }}"
+  loop_control:
+    label: "{{ item.nombre }}"

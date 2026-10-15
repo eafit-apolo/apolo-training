@@ -1,0 +1,3 @@
+# Archivos cifrados con Ansible Vault: prettier los reformatearía y dejarían de
+# descifrarse.
+ansible/**/vault.yml
