@@ -6,20 +6,32 @@ web, terminales de práctica y verificador de laboratorios.
 
 ## Estructura
 
-| Carpeta              | Qué contiene                                            |
-| -------------------- | ------------------------------------------------------- |
-| `web/`               | App Angular 21, Transloco ES/EN, xterm.js               |
-| `api/`               | FastAPI, SQLAlchemy 2, Alembic, pytest                  |
-| `terminal/`          | Gateway WebSocket ↔ SSH (asyncssh)                      |
-| `content/`           | Lecciones, quizzes y escenarios de terminal (es/ y en/) |
-| `labs/`              | Laboratorios de práctica                                |
-| `verifier/`          | Verificador `apolo-training` (CLI) y pruebas            |
-| `admin/`             | `apolo-training-admin` y timer de sincronización        |
-| `modulefiles/`       | Modulefile de Lmod                                      |
-| `deploy/`            | `compose.yaml` y `nginx.conf` (Dockerfile en cada app)  |
-| `ansible/`           | Roles de la VM de práctica y de la plataforma           |
-| `docs/`              | Documentación pública del proyecto                      |
-| `.github/workflows/` | CI y publicación de imágenes                            |
+| Carpeta              | Qué contiene                                          |
+| -------------------- | ----------------------------------------------------- |
+| `web/`               | App Angular 22, Transloco ES/EN, xterm.js             |
+| `api/`               | FastAPI, SQLAlchemy 2, Alembic, pytest                |
+| `terminal/`          | Gateway WebSocket ↔ SSH (asyncssh)                    |
+| `content/`           | Lecciones y quizzes en Markdown (es/ y en/), esquemas |
+| `labs/`              | Laboratorios de práctica                              |
+| `verifier/`          | Verificador `apolo-training` (CLI) y pruebas          |
+| `admin/`             | `apolo-training-admin` y timer de sincronización      |
+| `modulefiles/`       | Modulefile de Lmod                                    |
+| `deploy/`            | Compose de desarrollo y de la 117, `nginx.conf`       |
+| `ansible/`           | Roles de la VM de práctica y de la plataforma         |
+| `docs/`              | Documentación pública del proyecto                    |
+| `.github/workflows/` | CI y publicación de imágenes                          |
+
+## Desarrollo local
+
+Con Docker, desde la raíz del repo:
+
+```bash
+docker compose -f deploy/compose.dev.yaml up --build
+```
+
+Levanta PostgreSQL, la API con recarga automática y la web en
+<http://localhost:4200>. Pruebas, migraciones, puertos y problemas comunes en
+[deploy/README.md](deploy/README.md).
 
 ## Cómo trabajamos
 

@@ -1,8 +1,9 @@
 """Fixtures comunes.
 
 Las pruebas que tocan PostgreSQL usan API_DATABASE_URL (en CI la pone el job
-`api`; en local, `api/compose.yaml`). Si falta, esas pruebas fallan con un
-mensaje claro en vez de saltarse: así nadie cree que pasaron.
+`api`; en local, el servicio `pruebas` de deploy/compose.dev.yaml). Si falta,
+esas pruebas fallan con un mensaje claro en vez de saltarse: así nadie cree
+que pasaron.
 """
 
 import os
@@ -23,8 +24,9 @@ URL_SIN_BASE = "postgresql+asyncpg://nadie@localhost:1/nada"
 def settings_con_base() -> Settings:
     if not os.environ.get("API_DATABASE_URL"):
         pytest.fail(
-            "Falta API_DATABASE_URL. Levanta la base con "
-            "`docker compose up -d db` en api/ (ver api/README.md)."
+            "Falta API_DATABASE_URL. Corre las pruebas con "
+            "`docker compose -f deploy/compose.dev.yaml run --rm pruebas` "
+            "desde la raíz del repo (ver deploy/README.md)."
         )
     return Settings(version="pruebas")
 

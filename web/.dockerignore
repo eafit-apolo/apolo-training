@@ -4,5 +4,4 @@ dist
 coverage
 Dockerfile
 .dockerignore
-compose.yaml
 *.md

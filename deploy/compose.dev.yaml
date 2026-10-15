@@ -1,0 +1,126 @@
+# Entorno de desarrollo local (Q-02): PostgreSQL 16, la API con recarga
+# automática y la web con ng serve, con el código montado desde api/ y web/.
+# Todo escucha solo en 127.0.0.1 y la clave de la base es local y de prueba
+# (no se usa en la 117). Se corre desde la raíz del repo; ver deploy/README.md.
+#
+#   docker compose -f deploy/compose.dev.yaml up --build     # http://localhost:4200
+#   docker compose -f deploy/compose.dev.yaml run --rm pruebas
+#   docker compose -f deploy/compose.dev.yaml down           # con -v borra la base
+name: apolo-training-dev
+
+# Lo común de los servicios que usan la imagen de desarrollo de la API.
+x-api-dev: &api-dev
+  build:
+    context: ../api
+    target: dev
+  # Con tu uid, para que lo que se cree dentro (migraciones, cachés) sea tuyo y
+  # no de root. Si tu uid no es 1000: export UID_LOCAL=$(id -u) GID_LOCAL=$(id -g)
+  user: "${UID_LOCAL:-1000}:${GID_LOCAL:-1000}"
+  volumes:
+    # :z solo actúa en sistemas con SELinux (le da al montaje la etiqueta que
+    # Docker necesita); en los demás no hace nada.
+    - ../api:/app:z
+  environment:
+    API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training
+    API_DOCS: "true"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: apolo
+      POSTGRES_PASSWORD: apolo
+      POSTGRES_DB: apolo_training
+    volumes:
+      - db:/var/lib/postgresql/data
+      # Solo corre con el volumen vacío: crea la base de pruebas.
+      - ./dev/initdb:/docker-entrypoint-initdb.d:ro,z
+    ports:
+      # 5433 en tu equipo, para no chocar con otro PostgreSQL local en el 5432.
+      # Dentro de la red de Docker, la API sigue usando db:5432.
+      - "127.0.0.1:${API_DB_PUERTO:-5433}:5432"
+    healthcheck:
+      # Por TCP a propósito: mientras se inicializa, PostgreSQL solo escucha en
+      # el socket, así que el chequeo no da «listo» antes de tiempo.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U apolo -d apolo_training"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrar:
+    <<: *api-dev
+    # Aplica las migraciones y termina. Aquí se engancha la carga de datos de
+    # ejemplo cuando existan las tablas (B-02) y el importador de contenido (B-04).
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    <<: *api-dev
+    ports:
+      - "127.0.0.1:${API_PUERTO:-8000}:8000"
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: ../web
+      target: dev
+    user: "${UID_LOCAL:-1000}:${GID_LOCAL:-1000}"
+    environment:
+      # ng serve envía /api a la API (mismo origen, como en producción).
+      API_URL: http://api:8000
+    volumes:
+      - ../web:/app:z
+      # node_modules sale de la imagen (compilado para Alpine), no de tu equipo.
+      - /app/node_modules
+    ports:
+      - "127.0.0.1:${WEB_PUERTO:-4200}:4200"
+    depends_on:
+      - api
+
+  # Lo mismo que el job `api` del CI, contra una base aparte para no tocar tus
+  # datos: docker compose -f deploy/compose.dev.yaml run --rm pruebas
+  pruebas:
+    <<: *api-dev
+    profiles: [pruebas]
+    environment:
+      API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training_test
+    command:
+      - sh
+      - -c
+      - alembic upgrade head && alembic check && python -m pytest
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Las imágenes de producción (gunicorn sin root y nginx), para probarlas antes
+  # de un PR que cambie un Dockerfile. Ver deploy/README.md.
+  api-imagen:
+    profiles: [imagenes]
+    build:
+      context: ../api
+      args:
+        VERSION: local
+    environment:
+      API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training
+      API_DOCS: "true"
+    ports:
+      - "127.0.0.1:${API_IMAGEN_PUERTO:-8001}:8000"
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+
+  web-imagen:
+    profiles: [imagenes]
+    build:
+      context: ../web
+      args:
+        VERSION: local
+    ports:
+      - "127.0.0.1:${WEB_IMAGEN_PUERTO:-8080}:8080"
+
+volumes:
+  db:

@@ -1,4 +1,5 @@
-# Solo entran requirements.txt, alembic.ini, migrations/ y app/.
+# Solo entran requirements*.txt, alembic.ini, migrations/ y app/.
+# requirements-dev.txt lo usa solo la etapa dev (deploy/compose.dev.yaml).
 **/__pycache__
 **/*.pyc
 .venv/
@@ -9,9 +10,7 @@
 tests/
 Dockerfile
 .dockerignore
-compose.yaml
 README.md
 openapi.yaml
 pytest.ini
 ruff.toml
-requirements-dev.txt
