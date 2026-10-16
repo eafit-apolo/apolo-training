@@ -18,8 +18,9 @@ archivo, la API se reinicia sola y el navegador se actualiza. No hace falta la
 
 ### Requisitos
 
-- Linux con Docker Engine y el plugin `docker compose` (v2 o más nuevo), y tu
-  usuario en el grupo `docker`.
+- Linux con Docker Engine, el servicio de Docker activo, el plugin
+  `docker compose` (v2 o más nuevo) y tu usuario en el grupo `docker` (en Arch,
+  ver «Docker en Arch Linux»).
 - Si tu uid no es 1000 (`id -u`), exporta antes `UID_LOCAL` y `GID_LOCAL`
   (puedes dejarlo en tu `~/.bashrc`):
 
@@ -29,6 +30,41 @@ archivo, la API se reinicia sola y el navegador se actualiza. No hace falta la
 
   Los contenedores corren con tu usuario, así que lo que se crea dentro
   (migraciones, cachés de Angular y pytest) queda a tu nombre y no de root.
+
+### Docker en Arch Linux
+
+En Arch, instalar Docker no lo deja listo: el servicio no arranca solo y tu
+usuario todavía no puede usarlo. Se hace una sola vez:
+
+```bash
+sudo pacman -S --needed docker docker-compose docker-buildx
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+```
+
+Después **cierra la sesión y vuelve a entrar** (o, solo en esa terminal,
+`newgrp docker`) y comprueba:
+
+```bash
+id -nG | grep -w docker              # debe aparecer docker
+docker info --format '{{.ServerVersion}}'
+docker compose version
+```
+
+Por qué cada paso:
+
+- `docker-compose` trae el plugin `docker compose` y `docker-buildx` el
+  constructor que usa `--build`.
+- `systemctl enable --now` arranca el servicio ahora y en cada encendido. Sin
+  él, el socket `/var/run/docker.sock` no existe.
+- El socket es de root y del grupo `docker` (`srw-rw----`), por eso hace falta
+  el grupo. Los grupos se leen al iniciar sesión: hasta que vuelvas a entrar,
+  la terminal sigue sin el grupo nuevo.
+- Estar en el grupo `docker` equivale a ser root en tu equipo; está bien en tu
+  PC de desarrollo, no en un servidor compartido.
+- No uses `sudo docker compose` en lugar del grupo: `sudo` no pasa tus
+  variables (`UID_LOCAL`, los puertos) y lo que Docker cree en el repo puede
+  quedar de root.
 
 ### Levantarlo
 
@@ -133,6 +169,13 @@ que no está en este entorno. Puertos: `API_IMAGEN_PUERTO` (8001) y
 
 ### Si algo falla
 
+- **`Cannot connect to the Docker daemon` o `no such file or directory` en
+  `/var/run/docker.sock`**: el servicio de Docker no está corriendo. Arráncalo
+  con `sudo systemctl enable --now docker` (ver «Docker en Arch Linux»).
+- **`permission denied while trying to connect to the Docker daemon socket`**:
+  tu usuario no está en el grupo `docker`, o lo está pero la sesión es anterior.
+  Revisa con `id -nG`; si no aparece `docker`, agrégalo y vuelve a entrar a la
+  sesión (o `newgrp docker`).
 - **`port is already allocated` o `address already in use`**: otro programa
   usa ese puerto. Cambia la variable del puerto (ver arriba) o detén lo que lo
   ocupa. Después, levanta el entorno con `--force-recreate`: un contenedor que
