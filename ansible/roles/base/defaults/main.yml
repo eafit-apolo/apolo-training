@@ -3,3 +3,9 @@
 # defaults file for roles/base
 base_admins: []
 base_grupos_password: [apolo2, apolo3]
+base_ntp_servidores: []
+base_dns_servidores: []
+base_ssh_permitido: []
+base_salida_bloqueada: []
+base_salida_https: []
+base_internet_hasta: ""

@@ -5,3 +5,7 @@
   ansible.builtin.service:
     name: sshd
     state: reloaded
+- name: Recargar nftables
+  ansible.builtin.service:
+    name: nftables
+    state: reloaded

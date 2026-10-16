@@ -1,0 +1,18 @@
+# F1: orígenes que pueden entrar por SSH; el resto se rechaza (F2)
+base_ssh_permitido:
+  - "{{ vault_red_vpn }}" # usuarios y administradores por la VPN
+  - "{{ vault_ip_web }}" # gateway de terminal de la 117
+
+# F3, F4 y F5: destinos rechazados antes que cualquier permiso
+base_salida_bloqueada:
+  - "{{ vault_ip_freeipa_apolo2 }}" # F3
+  - "{{ vault_ip_freeipa_apolo3 }}" # F3
+  - "{{ vault_ip_hipervisor }}" # F4
+  - "{{ vault_red_servicios }}" # F5
+
+# HTTPS interno permitido: sincronización de laboratorios con la 117
+base_salida_https:
+  - "{{ vault_ip_web }}"
+
+# S4: último día con salida a Internet por 80/443
+base_internet_hasta: "2026-11-27"
