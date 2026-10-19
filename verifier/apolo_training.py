@@ -22,6 +22,8 @@ VENTANA = "now-30days"
 IDIOMAS = ("es", "en")
 VARIABLE_IDIOMA = "APOLO_TRAINING_LANG"
 VARIABLE_BASE = "APOLO_TRAINING"
+VARIABLE_CLUSTER = "APOLO_TRAINING_CLUSTER"
+CLUSTERS = ("apolo2", "apolo3")
 CARPETA = "apolo-training"
 NO_COPIAR = ("README.md",)  # documentación del repositorio, no del curso
 PATRON_CLAVE = re.compile(r"TRN-[A-Z0-9]{4}-[A-Z0-9]{4}")
@@ -138,6 +140,11 @@ MENSAJES = {
             "Este clúster no está guardando el uso real de CPU, así que no puedo"
             " medir la eficiencia. Avísale al equipo de Apolo."
         ),
+        "sin_datos_apolo3": (
+            "No hay datos del uso real de CPU de tu trabajo. Si estás en Apolo III,"
+            " es normal: hoy no lo registra, así que este laboratorio se hace en la"
+            " VM de práctica. Si estás en la VM, avísale al equipo de Apolo."
+        ),
         "modulos_ok": "Tu programa encontró numpy: cargaste bien el módulo.",
         "modulos_no": (
             "No veo un trabajo 'curso-modulos' completado."
@@ -151,6 +158,12 @@ MENSAJES = {
             "Tu trabajo terminó sin que Slurm lo detuviera. Si lo enviaste con"
             " --mem=1G, este clúster no está limitando la memoria: avísale al"
             " equipo de Apolo."
+        ),
+        "memoria_sin_limite_apolo3": (
+            "Tu trabajo terminó sin que Slurm lo detuviera. Si estás en Apolo III,"
+            " es normal: hoy no limita la memoria, así que este laboratorio se hace"
+            " en la VM de práctica. Si estás en la VM, envíalo primero con"
+            " --mem=1G y deja que falle."
         ),
         "memoria_no": "Primero envía 'curso-memoria' con --mem=1G y deja que falle.",
         "nucleos_ok": (
@@ -175,6 +188,15 @@ MENSAJES = {
         "efi_trabajo": "Trabajo {jobid} ({nombre}): {estado}",
         "efi_reserva": "Núcleos reservados: {cpus} | Duración: {duracion}",
         "efi_espera": "Espera a que termine para ver su eficiencia.",
+        "efi_corto": (
+            "El trabajo no llegó a correr o duró menos de 2 segundos: es muy poco"
+            " para medir su eficiencia."
+        ),
+        "efi_sin_datos_apolo3": (
+            "No hay datos del uso real de CPU ni de memoria de este trabajo. Si"
+            " estás en Apolo III, es normal: hoy no los registra, así que no puedo"
+            " medir su eficiencia. Si estás en la VM, avísale al equipo de Apolo."
+        ),
         "efi_nucleos": (
             "Eficiencia de núcleos: {eficiencia:.0%}"
             " (usó el equivalente a {usados:.1f} de {cpus} núcleos)"
@@ -276,6 +298,12 @@ MENSAJES = {
             "This cluster is not recording real CPU usage, so efficiency cannot"
             " be measured. Tell the Apolo team."
         ),
+        "sin_datos_apolo3": (
+            "There is no data on your job's real CPU usage. If you are on Apolo III,"
+            " this is expected: it does not record it yet, so this lab is done on"
+            " the practice machine. If you are on the practice machine, tell the"
+            " Apolo team."
+        ),
         "modulos_ok": "Your program found numpy: you loaded the module correctly.",
         "modulos_no": (
             "No completed 'curso-modulos' job found."
@@ -289,6 +317,12 @@ MENSAJES = {
             "Your job finished without Slurm stopping it. If you submitted it"
             " with --mem=1G, this cluster is not limiting memory: tell the"
             " Apolo team."
+        ),
+        "memoria_sin_limite_apolo3": (
+            "Your job finished without Slurm stopping it. If you are on Apolo III,"
+            " this is expected: it does not limit memory yet, so this lab is done on"
+            " the practice machine. If you are on the practice machine, first submit"
+            " it with --mem=1G and let it fail."
         ),
         "memoria_no": "First submit 'curso-memoria' with --mem=1G and let it fail.",
         "nucleos_ok": (
@@ -310,6 +344,16 @@ MENSAJES = {
         "efi_trabajo": "Job {jobid} ({nombre}): {estado}",
         "efi_reserva": "Reserved cores: {cpus} | Duration: {duracion}",
         "efi_espera": "Wait for it to finish to see its efficiency.",
+        "efi_corto": (
+            "The job did not run or lasted less than 2 seconds: too short to"
+            " measure its efficiency."
+        ),
+        "efi_sin_datos_apolo3": (
+            "There is no data on this job's real CPU or memory usage. If you are on"
+            " Apolo III, this is expected: it does not record them yet, so its"
+            " efficiency cannot be measured. If you are on the practice machine,"
+            " tell the Apolo team."
+        ),
         "efi_nucleos": (
             "Core efficiency: {eficiencia:.0%}"
             " (it used the equivalent of {usados:.1f} of {cpus} cores)"
@@ -341,13 +385,27 @@ def ruta_base(entorno):
 
 
 class Contexto:
-    """De quién se verifican las prácticas y dónde está el material."""
+    """De quién se verifican las prácticas y dónde está el material.
 
-    def __init__(self, usuario=None, home=None, base=None, entorno=None):
+    cluster es el perfil del usuario (apolo2 o apolo3, o None si no se sabe).
+    Solo elige el texto de algunos mensajes; nunca cambia si una práctica se
+    aprueba. Por defecto sale de APOLO_TRAINING_CLUSTER; quien verifica como
+    root a otro usuario (el reporte de la V-05) debe pasarlo explícito.
+    """
+
+    def __init__(self, usuario=None, home=None, base=None, entorno=None, cluster=None):
         self.entorno = os.environ if entorno is None else entorno
         self.usuario = usuario or getpass.getuser()
         self.home = home or os.path.expanduser("~")
         self.base = base or ruta_base(self.entorno)
+        if cluster is None:
+            cluster = self.entorno.get(VARIABLE_CLUSTER, "")
+        cluster = cluster.strip().lower()
+        self.cluster = cluster if cluster in CLUSTERS else None
+
+    @property
+    def apolo3(self):
+        return self.cluster == "apolo3"
 
     @property
     def material(self):
@@ -445,7 +503,8 @@ def eficiencia(t):
 
 
 def sin_datos(t):
-    """Corrió unos segundos y no registró CPU: el clúster no mide el uso."""
+    """Terminó bien, corrió unos segundos y no registró CPU: el clúster no mide
+    el uso (hoy pasa en Apolo III, P-05)."""
     return t["estado"] == "COMPLETED" and t["elapsed"] >= 2 and uso_cpu(t) == 0
 
 
@@ -531,8 +590,17 @@ def practica_memoria(ctx):
     if fallo:
         return False, "memoria_fallo", {}
     if arreglo:
+        # En Apolo III es lo esperado (no limita la memoria); en la VM o en
+        # Apolo II, o el usuario se saltó el --mem=1G o algo se rompió.
+        if ctx.apolo3:
+            return False, "memoria_sin_limite_apolo3", {}
         return False, "memoria_sin_limite", {}
     return False, "memoria_no", {}
+
+
+def clave_sin_datos(ctx):
+    """En Apolo III es lo esperado; en la VM o en Apolo II, algo se rompió."""
+    return "sin_datos_apolo3" if ctx.apolo3 else "sin_datos"
 
 
 def practica_nucleos(ctx):
@@ -544,7 +612,7 @@ def practica_nucleos(ctx):
     if any(uso_cpu(t) > 0 and eficiencia(t) < 0.5 for t in ts):
         return True, "nucleos_ok", {}
     if any(sin_datos(t) for t in ts):
-        return False, "sin_datos", {}
+        return False, clave_sin_datos(ctx), {}
     return False, "nucleos_no", {}
 
 
@@ -558,7 +626,7 @@ def practica_paralelo(ctx):
     if mejor >= 0.5:
         return True, "paralelo_ok", {"mejor": mejor}
     if ts and all(sin_datos(t) for t in ts):
-        return False, "sin_datos", {}
+        return False, clave_sin_datos(ctx), {}
     return False, "paralelo_no", {"mejor": mejor}
 
 
@@ -658,8 +726,13 @@ def reporte_eficiencia(ctx, idioma, jobid):
     print(texto(idioma, "efi_reserva", cpus=t["cpus"], duracion=elapsed))
     if t["estado"] in ("RUNNING", "PENDING"):
         print(texto(idioma, "efi_espera"))
-    elif sin_datos(t):
-        print(texto(idioma, "sin_datos"))
+    elif t["elapsed"] < 2:
+        print(texto(idioma, "efi_corto"))
+    elif uso_cpu(t) == 0 and memoria == 0:
+        # Sin CPU ni MaxRSS en ningún paso, termine como termine: el clúster no
+        # registra el uso. Un trabajo de Apolo II que casi no usó CPU sí trae MaxRSS.
+        clave = "efi_sin_datos_apolo3" if ctx.apolo3 else "sin_datos"
+        print(texto(idioma, clave))
     else:
         usados = uso_cpu(t) / t["elapsed"] if t["elapsed"] else 0.0
         print(

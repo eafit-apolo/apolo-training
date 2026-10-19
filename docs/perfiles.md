@@ -33,8 +33,8 @@ los clústeres).
 | Partición por defecto                             | `longjobs`                                                                    | Ninguna: sin `-p` el trabajo no entra                                            | Se imita (ver «Partición por defecto»)                                                               |
 | Tiempo máximo y por defecto                       | 14 días (`learning`, 3); por defecto `00:00:00`                               | 4, 6 y 3 días; por defecto 2 h                                                   | Solo texto: en la VM, 15 minutos para todos (QOS `curso`)                                            |
 | Memoria por defecto (`DefMemPerCPU`)              | 1875 MB en `longjobs`, 8000 en `bigmem`, 1900 en `learning`                   | 7500 MB en `bigmem`, 5700 en `longjobs`, 4000 en `accel`                         | Solo texto: la VM es un solo nodo pequeño                                                            |
-| Límite de memoria y de núcleos                    | Sí                                                                            | No                                                                               | La VM limita los dos en los dos perfiles; la diferencia la explica la P-05                           |
-| Uso real de CPU en `sacct` (`TotalCPU`, `MaxRSS`) | Sí                                                                            | No                                                                               | La VM lo registra en los dos perfiles; la diferencia la explica la P-05                              |
+| Límite de memoria y de núcleos                    | Sí                                                                            | No                                                                               | La VM limita los dos en los dos perfiles; ver «Aviso de Apolo III (P-05)»                            |
+| Uso real de CPU en `sacct` (`TotalCPU`, `MaxRSS`) | Sí                                                                            | No                                                                               | La VM lo registra en los dos perfiles; ver «Aviso de Apolo III (P-05)»                               |
 | Toolchain al entrar                               | `gnu15/15.2.0` + `openmpi5/5.0.10`                                            | `gnu14/14.2.0` + `openmpi5/5.0.7`                                                | Se imita (I-06); si OpenHPC no tiene la versión exacta, la más cercana, anotada en la I-06           |
 | `MODULEPATH` al entrar                            | `/opt/ohpc/pub/modulefiles`, `moduledeps/gnu15` y `moduledeps/gnu15-openmpi5` | `/opt/ohpc/pub/modulefiles`, `moduledeps/gnu14` y `moduledeps/gnu14-openmpi5`    | Se imita: lo arma el toolchain cargado                                                               |
 | Software que pide `module use`                    | No                                                                            | Parte del árbol solo aparece con `module use /opt/ohpc/pub/moduledeps/<paquete>` | Solo texto: ninguna práctica lo necesita                                                             |
@@ -89,11 +89,11 @@ usuario, que lee de `APOLO_TRAINING_CLUSTER`.
 | Perfil del usuario | `/etc/apolo-training/usuarios/<usuario>`: una línea, `apolo2` o `apolo3`; dueño `root`, modo 644 | `apolo-training-admin alta` (V-04) | `/etc/profile.d/apolo-training.sh` |
 | Script de entrada  | `/etc/profile.d/apolo-training.sh`                                                               | Rol `profiles` de Ansible (P-03)   | Cada sesión de shell               |
 
-| Variable                 | Valor                     | Quién la pone                                                                                                                                           | Para qué                                                                                                                    |
-| ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `APOLO_TRAINING_CLUSTER` | `apolo2` o `apolo3`       | En la VM, `apolo-training.sh`; en Apolo II y Apolo III, el modulefile `apolo-training/1.0` que instala la V-06 en cada clúster (el de la VM no la pone) | Partición de la graduación y avisos de la P-05 en el verificador; laboratorio por perfil (P-04); toolchain al entrar (I-06) |
-| `APOLO_TRAINING`         | Carpeta de instalación    | Modulefile `apolo-training/1.0` (ya existe)                                                                                                             | El verificador encuentra `labs/`                                                                                            |
-| `APOLO_TRAINING_LANG`    | `es` (por defecto) o `en` | El usuario (ya existe)                                                                                                                                  | Idioma del verificador y del mensaje de bienvenida                                                                          |
+| Variable                 | Valor                     | Quién la pone                                                                                                                                           | Para qué                                                                                                                             |
+| ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `APOLO_TRAINING_CLUSTER` | `apolo2` o `apolo3`       | En la VM, `apolo-training.sh`; en Apolo II y Apolo III, el modulefile `apolo-training/1.0` que instala la V-06 en cada clúster (el de la VM no la pone) | Partición de la graduación y mensajes de Apolo III del verificador (P-05); laboratorio por perfil (P-04); toolchain al entrar (I-06) |
+| `APOLO_TRAINING`         | Carpeta de instalación    | Modulefile `apolo-training/1.0` (ya existe)                                                                                                             | El verificador encuentra `labs/`                                                                                                     |
+| `APOLO_TRAINING_LANG`    | `es` (por defecto) o `en` | El usuario (ya existe)                                                                                                                                  | Idioma del verificador y del mensaje de bienvenida                                                                                   |
 
 - **Prompt:** `[\u@\h \W (apolo3)]\$ `, el de Rocky con el perfil al final; por
   ejemplo, `[ana@apolo-training ~ (apolo3)]$`.
@@ -123,13 +123,89 @@ usuario, que lee de `APOLO_TRAINING_CLUSTER`.
 
 ## Dónde se explica lo que no se imita
 
-| Diferencia                                                | Lección                            |
-| --------------------------------------------------------- | ---------------------------------- |
-| Home, cuotas y scratch                                    | `m03/archivos`                     |
-| `module use` y el árbol escondido de Apolo III            | `m04/modulos`                      |
-| Partición, tiempo y memoria por defecto                   | `m05/trabajos`                     |
-| Apolo III sin límite de memoria ni registro de uso (P-05) | `m05/trabajos` y `m06/paralelismo` |
-| OnDemand                                                  | `m07/vscode`                       |
+| Diferencia                                                | Lección                                                                         |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Home, cuotas y scratch                                    | `m03/archivos`                                                                  |
+| `module use` y el árbol escondido de Apolo III            | `m04/modulos`                                                                   |
+| Partición, tiempo y memoria por defecto                   | `m05/trabajos`                                                                  |
+| Apolo III sin límite de memoria ni registro de uso (P-05) | `m05/trabajos` y `m06/paralelismo`, con el texto de «Aviso de Apolo III (P-05)» |
+| OnDemand                                                  | `m07/vscode`                                                                    |
+
+## Aviso de Apolo III (P-05)
+
+Apolo III hoy no limita la memoria ni los núcleos de un trabajo y no registra
+su uso real: tiene solo `task/affinity` y no tiene `JobAcctGatherType`, así que
+`TotalCPU` y `MaxRSS` salen vacíos en `sacct` (pruebas de la A-03 en
+[`requisitos/`](requisitos/README.md)). La VM sí lo hace en los dos perfiles,
+como Apolo II. Mientras siga así, la pestaña Apolo III de dos lecciones lo
+explica y el verificador lo detecta.
+
+### Texto para las lecciones
+
+Va dentro del bloque `::: apolo3` de cada lección, después del resto de esa
+pestaña. Sin comentarios HTML: el renderizador de la plataforma (F-04) podría
+mostrarlos como texto.
+
+`m05/trabajos` (C-07):
+
+```markdown
+**Diferencia con la VM:** hoy Apolo III no hace cumplir la memoria que pides ni
+registra cuánta usó tu trabajo.
+
+- El `OUT_OF_MEMORY` que viste en el laboratorio `memoria` pasa igual en
+  Apolo II, pero no en Apolo III: si tu programa usa más de lo que pediste con
+  `--mem`, Slurm no lo detiene.
+- `--mem` sí cuenta para repartir los nodos. Pide una memoria cercana a la que
+  usas: si te pasas, le quitas memoria a los otros trabajos del nodo, y si el
+  nodo se queda sin memoria, el sistema puede terminar tu trabajo o el de otra
+  persona.
+- En `sacct`, `MaxRSS` y `TotalCPU` salen vacíos o en cero. `Elapsed` sí sirve,
+  y `CPUTime` es lo reservado (duración × núcleos), no lo usado.
+```
+
+`m06/paralelismo` (C-08):
+
+```markdown
+**Diferencia con la VM:** hoy Apolo III no registra cuánto CPU usó tu trabajo,
+así que ahí `apolo-training eficiencia JOBID` no puede calcular la eficiencia:
+te avisa que no hay datos. Lo que comprobaste en los laboratorios `nucleos` y
+`paralelo` vale igual para Apolo III.
+
+- Slurm pone tu trabajo en los núcleos que reservaste, pero no lo encierra ahí:
+  un programa que cambie su afinidad (por ejemplo, con `taskset`) puede usar
+  núcleos de otros trabajos. Reserva con `--cpus-per-task` los núcleos que tu
+  programa usa de verdad.
+- `CPUTime` en `sacct` es lo reservado (duración × núcleos), no lo usado: no
+  sirve para medir la eficiencia.
+```
+
+### Qué dice el verificador
+
+El perfil (`APOLO_TRAINING_CLUSTER`, o el `cluster` que recibe el `Contexto`)
+solo elige el texto del mensaje: nunca cambia si una práctica se aprueba. Los
+textos de `apolo3` cubren la VM y Apolo III, porque un usuario `apolo3` usa los
+dos.
+
+| Qué ve el verificador                                             | Cuándo pasa                                                                                                   | Perfil `apolo3`                                                        | Perfil `apolo2` o sin perfil                    |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------- |
+| `verificar memoria`: terminó bien y nunca hubo `OUT_OF_MEMORY`    | En Apolo III, siempre. En la VM o en Apolo II, si no se envió primero con `--mem=1G` o si el límite se rompió | `memoria_sin_limite_apolo3`: normal en Apolo III; en la VM, `--mem=1G` | `memoria_sin_limite`: avisar al equipo de Apolo |
+| `verificar nucleos` o `paralelo`: terminó bien sin CPU registrado | En Apolo III, siempre. En la VM o en Apolo II, solo si el registro de uso se rompió                           | `sin_datos_apolo3`: normal en Apolo III; en la VM, avisar al equipo    | `sin_datos`: avisar al equipo de Apolo          |
+| `eficiencia JOBID`: sin CPU ni `MaxRSS`, termine como termine     | Igual que la fila anterior                                                                                    | `efi_sin_datos_apolo3`                                                 | `sin_datos`                                     |
+| `eficiencia JOBID`: no llegó a correr o duró menos de 2 s         | En cualquier clúster                                                                                          | `efi_corto`                                                            | `efi_corto`                                     |
+
+- La variable la pone el script de entrada en la VM (P-03) y el modulefile en
+  Apolo II y Apolo III (V-06). Mientras la V-06 no la ponga, en Apolo III salen
+  los mensajes de `apolo2`.
+- El reporte de la V-05 corre como root, con su propio entorno: le pasa al
+  `Contexto` el perfil leído de `/etc/apolo-training/usuarios/<usuario>`.
+
+### Cuándo se quita
+
+Si Apolo III empieza a limitar la memoria y los núcleos (`task/cgroup`) y a
+registrar el uso (`jobacct_gather`), se repiten las pruebas A, B2 y C de la
+A-03 y se quita el aviso de las dos lecciones. El verificador no necesita
+cambios: detecta la diferencia por los datos de `sacct`, no por el nombre del
+clúster, así que sus mensajes de Apolo III dejan de salir solos.
 
 ## Pendientes
 
@@ -143,4 +219,4 @@ usuario, que lee de `APOLO_TRAINING_CLUSTER`.
 ## Aprobación
 
 - [x] Revisado por Juan.
-- [ ] Revisado por Byron.
+- [x] Revisado por Byron.
