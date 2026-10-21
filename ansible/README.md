@@ -47,3 +47,26 @@ perimetral no ve el tráfico dentro de la misma subred.
 
 Si una regla deja sin acceso, desde la consola de Proxmox:
 `sudo systemctl stop nftables` (vacía las reglas).
+
+### SELinux, hora y actualizaciones
+
+| Qué           | Cómo queda                                                     | Por qué                                                                    |
+| ------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| SELinux       | `enforcing`, política `targeted`                               | Limita lo que puede hacer un servicio comprometido, aunque corra como root |
+| chrony        | Solo el NTP institucional (`base_ntp_servidores`), sin `pool`  | munge y Slurm fallan si la hora se desfasa                                 |
+| dnf-automatic | `upgrade_type = security`, `apply_updates = yes`, timer diario | Parches de seguridad sin romper Slurm ni OpenHPC con otras actualizaciones |
+
+- El rol instala `python3-libselinux`, que necesita el módulo de SELinux.
+- Si SELinux estaba en `disabled`, el playbook se detiene: hay que reiniciar
+  la VM y volver a correrlo.
+- dnf-automatic necesita salida web (S4). Cuando S4 se cierre, deja de
+  actualizar hasta que haya un espejo interno o un permiso solo hacia los
+  repositorios de Rocky.
+
+Verificación en la VM:
+
+```bash
+getenforce                                    # Enforcing
+chronyc -n sources                            # ^* en el NTP institucional
+systemctl list-timers dnf-automatic.timer     # próxima ejecución
+```
