@@ -23,3 +23,27 @@ ansible-playbook site.yml --check --diff   # simular
 ansible-playbook site.yml --diff           # aplicar (la segunda vez: changed=0)
 ansible-vault edit group_vars/all/vault.yml   # agregar admins o llaves
 ```
+
+### Firewall (nftables)
+
+firewalld queda enmascarado y el firewall de la VM es un solo archivo,
+`/etc/sysconfig/nftables.conf` (tabla `inet apolo_training`). Entrada y salida
+son "todo prohibido salvo lo permitido"; lo rechazado recibe respuesta
+inmediata (`reject`), así que `curl` o `ping` fallan al instante.
+
+| Regla  | Dirección | Qué hace                                                                          |
+| ------ | --------- | --------------------------------------------------------------------------------- |
+| F1     | Entrada   | SSH y ping solo desde la VPN y la plataforma (117)                                |
+| F2     | Entrada   | Rechaza todo lo demás                                                             |
+| F3–F5  | Salida    | Rechaza FreeIPA, el hipervisor y la red de servicios, antes que cualquier permiso |
+| S1, S2 | Salida    | DNS y NTP institucionales                                                         |
+| —      | Salida    | HTTPS a la 117 (sincronización de laboratorios)                                   |
+| S4     | Salida    | Web (80/443) hasta `base_internet_hasta`; después se cierra sola                  |
+| D      | Salida    | Rechaza todo lo demás                                                             |
+
+Las IPs están en el Vault y las listas en `group_vars/practica/vars.yml`. Los
+códigos son los de la solicitud de firewall. Las reglas F existen porque el
+perimetral no ve el tráfico dentro de la misma subred.
+
+Si una regla deja sin acceso, desde la consola de Proxmox:
+`sudo systemctl stop nftables` (vacía las reglas).
