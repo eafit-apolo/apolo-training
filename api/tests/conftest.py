@@ -12,8 +12,10 @@ from collections.abc import AsyncIterator, Callable
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
+from app.core.db import crear_engine
 from app.main import create_app
 
 # Puerto 1 en localhost: nadie escucha ahí, así que la conexión falla al momento.
@@ -66,3 +68,26 @@ def cliente(crear_cliente, settings_con_base: Settings) -> AsyncClient:
 @pytest.fixture
 def cliente_sin_base(crear_cliente, settings_sin_base: Settings) -> AsyncClient:
     return crear_cliente(create_app(settings_sin_base))
+
+
+@pytest.fixture
+async def sesion_bd(settings_con_base: Settings) -> AsyncIterator[AsyncSession]:
+    """Sesión dentro de una transacción que se deshace al final de la prueba.
+
+    Lo que la prueba escriba (incluso con commit) no queda en la base: el
+    commit de la sesión solo cierra un savepoint dentro de esa transacción.
+    """
+    engine = crear_engine(settings_con_base)
+    async with engine.connect() as conexion:
+        transaccion = await conexion.begin()
+        sesion = AsyncSession(
+            bind=conexion,
+            join_transaction_mode="create_savepoint",
+            expire_on_commit=False,
+        )
+        try:
+            yield sesion
+        finally:
+            await sesion.close()
+            await transaccion.rollback()
+    await engine.dispose()

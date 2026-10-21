@@ -144,6 +144,12 @@ jobs:
       - name: Aplicar las migraciones
         run: alembic upgrade head
 
+      - name: Deshacer las migraciones y volver a aplicarlas
+        # Toda migración debe poder deshacerse (DoD de la B-02).
+        run: |
+          alembic downgrade base
+          alembic upgrade head
+
       - name: Comprobar que los modelos y las migraciones coinciden
         run: alembic check
 

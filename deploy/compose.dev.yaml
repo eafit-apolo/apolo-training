@@ -49,9 +49,16 @@ services:
 
   migrar:
     <<: *api-dev
-    # Aplica las migraciones y termina. Aquí se engancha la carga de datos de
-    # ejemplo cuando existan las tablas (B-02) y el importador de contenido (B-04).
-    command: ["alembic", "upgrade", "head"]
+    # Aplica las migraciones, carga los usuarios de ejemplo (B-02) y termina.
+    # Aquí se enganchará también el importador de contenido (B-04).
+    environment:
+      API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training
+      # Solo aquí: sin esta variable, app.datos_ejemplo no carga nada.
+      API_DATOS_EJEMPLO: "true"
+    command:
+      - sh
+      - -c
+      - alembic upgrade head && python -m app.datos_ejemplo
     depends_on:
       db:
         condition: service_healthy
@@ -86,12 +93,21 @@ services:
   pruebas:
     <<: *api-dev
     profiles: [pruebas]
+    volumes:
+      - ../api:/app:z
+      # Para test_diagrama.py, que compara docs/diseno/modelo-datos.md con los
+      # modelos.
+      - ../docs:/docs:ro,z
     environment:
       API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training_test
+    # Migraciones de ida, de vuelta y de ida otra vez (DoD de la B-02), y luego
+    # alembic check y pytest, como el job `api` del CI.
     command:
       - sh
       - -c
-      - alembic upgrade head && alembic check && python -m pytest
+      - >-
+        alembic upgrade head && alembic downgrade base && alembic upgrade head
+        && alembic check && python -m pytest
     depends_on:
       db:
         condition: service_healthy
