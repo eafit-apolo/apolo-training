@@ -9,3 +9,7 @@
   ansible.builtin.service:
     name: nftables
     state: reloaded
+- name: Reiniciar chronyd
+  ansible.builtin.service:
+    name: chronyd
+    state: restarted

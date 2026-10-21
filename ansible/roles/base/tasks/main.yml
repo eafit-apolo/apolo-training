@@ -9,3 +9,13 @@
 
 - name: Firewall
   ansible.builtin.import_tasks: firewall.yml
+
+- name: SELinux
+  ansible.builtin.import_tasks: selinux.yml
+
+- name: Hora
+  ansible.builtin.import_tasks: chrony.yml
+
+# Al final: es lo único que descarga de Internet.
+- name: Actualizaciones automáticas
+  ansible.builtin.import_tasks: actualizaciones.yml
