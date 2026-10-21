@@ -1,0 +1,26 @@
+- name: Librería de Python para manejar SELinux
+  ansible.builtin.dnf:
+    name: python3-libselinux
+    state: present
+
+- name: SELinux en enforcing
+  ansible.posix.selinux:
+    policy: targeted
+    state: enforcing
+  register: base_selinux
+
+- name: Avisar si hace falta reiniciar
+  ansible.builtin.fail:
+    msg: SELinux estaba desactivado. Reinicia la VM y vuelve a correr el playbook.
+  when: base_selinux.reboot_required | default(false)
+
+- name: SELinux en enforcing
+  ansible.posix.selinux:
+    policy: targeted
+    state: enforcing
+  register: base_selinux
+
+- name: Avisar si hace falta reiniciar
+  ansible.builtin.fail:
+    msg: SELinux estaba desactivado. Reinicia la VM y vuelve a correr el playbook.
+  when: base_selinux.reboot_required | default(false)

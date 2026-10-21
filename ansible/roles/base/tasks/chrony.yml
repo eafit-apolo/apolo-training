@@ -1,0 +1,17 @@
+- name: Paquete chrony
+  ansible.builtin.dnf:
+    name: chrony
+    state: present
+
+- name: Configuración de chrony
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    mode: "0644"
+  notify: Reiniciar chronyd
+
+- name: chronyd activo
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
