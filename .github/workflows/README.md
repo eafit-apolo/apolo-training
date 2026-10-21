@@ -22,7 +22,7 @@ nuevo se vuelve obligatorio después de su primer merge (ver
   porque `setup-python` ya no ofrece esa versión en `ubuntu-24.04`. Tardan
   menos de un minuto, así que corren en todos los PR, sin filtros de rutas.
 - **api:** levanta un PostgreSQL 16 de servicio y, desde `api/`, aplica las
-  migraciones (`alembic upgrade head`), comprueba que los modelos y las
+  migraciones (`alembic upgrade head`), las deshace y las vuelve a aplicar (`alembic downgrade base` y `alembic upgrade head`), comprueba que los modelos y las
   migraciones coinciden (`alembic check`) y corre pytest. También corre en
   todos los PR, sin filtros de rutas. La clave de esa base es de prueba y
   la base desaparece al terminar el job.

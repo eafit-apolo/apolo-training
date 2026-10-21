@@ -7,27 +7,29 @@ se corrige el contrato en el mismo PR.
 
 ## Estructura
 
-| Ruta            | Qué va ahí                                                     |
-| --------------- | -------------------------------------------------------------- |
-| `app/main.py`   | `create_app()`: arma la app, el motor de la base y los errores |
-| `app/core/`     | Configuración (`config.py`), base de datos (`db.py`) y errores |
-| `app/routers/`  | Rutas HTTP, un módulo por grupo del contrato                   |
-| `app/services/` | Lógica de negocio; no sabe de HTTP                             |
-| `app/models/`   | Modelos SQLAlchemy; cada modelo nuevo se importa en `__init__` |
-| `app/schemas/`  | Esquemas pydantic de entrada y salida                          |
-| `migrations/`   | Migraciones de Alembic                                         |
-| `tests/`        | Pruebas (pytest + httpx, contra PostgreSQL real)               |
+| Ruta                   | Qué va ahí                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------ |
+| `app/main.py`          | `create_app()`: arma la app, el motor de la base y los errores                                         |
+| `app/core/`            | Configuración (`config.py`), base de datos (`db.py`) y errores                                         |
+| `app/routers/`         | Rutas HTTP, un módulo por grupo del contrato                                                           |
+| `app/services/`        | Lógica de negocio; no sabe de HTTP                                                                     |
+| `app/models/`          | Modelos SQLAlchemy; cada modelo nuevo se importa en `__init__`; valores de los `CHECK` en `valores.py` |
+| `app/datos_ejemplo.py` | Usuarios de ejemplo del entorno de desarrollo                                                          |
+| `app/schemas/`         | Esquemas pydantic de entrada y salida                                                                  |
+| `migrations/`          | Migraciones de Alembic                                                                                 |
+| `tests/`               | Pruebas (pytest + httpx, contra PostgreSQL real)                                                       |
 
 ## Variables de entorno
 
 Todas llevan el prefijo `API_`. No hay archivo `.env`: se leen del entorno.
 
-| Variable           | Obligatoria  | Qué es                                                           |
-| ------------------ | ------------ | ---------------------------------------------------------------- |
-| `API_DATABASE_URL` | sí           | `postgresql+asyncpg://usuario:clave@host:puerto/base`            |
-| `API_DB_TIMEOUT`   | no (3)       | Segundos que `/api/health` espera a PostgreSQL                   |
-| `API_VERSION`      | no (`dev`)   | Versión que informa `/api/health`; la imagen la recibe del build |
-| `API_DOCS`         | no (`false`) | Publica `/api/docs` y `/api/openapi.json` (solo desarrollo)      |
+| Variable            | Obligatoria  | Qué es                                                           |
+| ------------------- | ------------ | ---------------------------------------------------------------- |
+| `API_DATABASE_URL`  | sí           | `postgresql+asyncpg://usuario:clave@host:puerto/base`            |
+| `API_DB_TIMEOUT`    | no (3)       | Segundos que `/api/health` espera a PostgreSQL                   |
+| `API_VERSION`       | no (`dev`)   | Versión que informa `/api/health`; la imagen la recibe del build |
+| `API_DOCS`          | no (`false`) | Publica `/api/docs` y `/api/openapi.json` (solo desarrollo)      |
+| `API_DATOS_EJEMPLO` | no (`false`) | Deja correr `python -m app.datos_ejemplo` (solo desarrollo)      |
 
 En la imagen además: `WEB_CONCURRENCY` (workers de gunicorn, 2 por defecto) y
 `GUNICORN_CMD_ARGS` para opciones extra.
@@ -64,6 +66,7 @@ uv pip install -r requirements-dev.txt
 export API_DATABASE_URL=postgresql+asyncpg://apolo:apolo@localhost:5433/apolo_training
 
 alembic upgrade head
+API_DATOS_EJEMPLO=true python -m app.datos_ejemplo   # usuarios de ejemplo (opcional)
 API_DOCS=true uvicorn --factory app.main:create_app --reload
 ```
 
@@ -151,7 +154,10 @@ el mismo PR que arregla lo que encuentre.
 
 - **Migraciones:** `alembic revision --autogenerate -m "..."` (con Docker:
   `docker compose -f deploy/compose.dev.yaml run --rm api alembic revision --autogenerate -m "..."`)
-  y revisarla a mano antes del commit. Los nombres de índices y restricciones salen de
-  `app/models/base.py`.
+  y revisarla a mano antes del commit: autogenerate no detecta cambios en los
+  `CHECK`, así que esos se escriben a mano. Los nombres de índices y
+  restricciones salen de `app/models/base.py`. Toda migración debe poder
+  deshacerse: el CI corre `upgrade head`, `downgrade base` y `upgrade head`.
+  El modelo y su diagrama están en `docs/diseno/modelo-datos.md`.
 - **Sin `print()`** (ruff `T20`): se usa `logging`, y nunca se registra la URL
   de la base ni claves.

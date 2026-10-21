@@ -95,21 +95,35 @@ en tu equipo; dentro de Docker, la API la sigue encontrando en `db:5432`.
 
 ### Servicios
 
-| Servicio  | Qué hace                                                                   |
-| --------- | -------------------------------------------------------------------------- |
-| `db`      | PostgreSQL 16 con `apolo_training` y `apolo_training_test` (volumen `db`)  |
-| `migrar`  | `alembic upgrade head` y termina; la API arranca solo si salió bien        |
-| `api`     | uvicorn con `--reload` (etapa `dev` de `api/Dockerfile`), `API_DOCS=true`  |
-| `web`     | `ng serve` (etapa `dev` de `web/Dockerfile`); envía `/api` al servicio API |
-| `pruebas` | Lo mismo que el job `api` del CI, contra `apolo_training_test` (a pedido)  |
+| Servicio  | Qué hace                                                                                                                          |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `db`      | PostgreSQL 16 con `apolo_training` y `apolo_training_test` (volumen `db`)                                                         |
+| `migrar`  | `alembic upgrade head`, carga los usuarios de ejemplo y termina; la API arranca solo si salió bien                                |
+| `api`     | uvicorn con `--reload` (etapa `dev` de `api/Dockerfile`), `API_DOCS=true`                                                         |
+| `web`     | `ng serve` (etapa `dev` de `web/Dockerfile`); envía `/api` al servicio API                                                        |
+| `pruebas` | Lo mismo que el job `api` del CI (migraciones de ida y vuelta, `alembic check` y pytest), contra `apolo_training_test` (a pedido) |
 
 La web y la API comparten origen gracias al proxy de `ng serve`
 (`web/proxy.conf.mjs`), igual que en producción detrás del nginx de borde: las
 cookies de la sesión lo necesitan y así no hace falta CORS.
 
-Los datos de ejemplo (usuarios de cada rol y un módulo con lección, video y
-quiz) se cargarán en el paso de `migrar` cuando existan las tablas (B-02) y el
-importador de contenido (B-04).
+### Usuarios de ejemplo
+
+`migrar` carga estos usuarios con `python -m app.datos_ejemplo` (B-02). Todos
+tienen la clave `apolo-training-dev`, que solo existe en tu base local: el
+script no corre sin `API_DATOS_EJEMPLO=true`, que solo pone este compose.
+
+| Usuario | Rol        | Clúster   | Para probar                        |
+| ------- | ---------- | --------- | ---------------------------------- |
+| `ana`   | estudiante | Apolo II  | Un estudiante normal, en español   |
+| `bruno` | estudiante | Apolo III | El cambio de clave obligatorio, EN |
+| `carla` | instructor | Apolo III | El panel de instructor             |
+| `diego` | admin      | Apolo II  | La administración                  |
+| `elena` | estudiante | Apolo III | Una cuenta dada de baja            |
+
+Se puede correr las veces que sea: crea los que falten y no toca los que ya
+existen. Para volver a los datos de ejemplo desde cero, `down -v` y `up`. El
+módulo de ejemplo con lección, video y quiz llega con el importador (B-04).
 
 ### Tareas de cada día
 

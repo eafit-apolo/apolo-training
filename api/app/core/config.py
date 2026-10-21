@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     version: str = "dev"
     # /api/docs y /api/openapi.json solo si se activan (desarrollo).
     docs: bool = False
+    # Solo desarrollo: permite que `python -m app.datos_ejemplo` cargue los
+    # usuarios de ejemplo. Lo pone el servicio migrar de deploy/compose.dev.yaml.
+    datos_ejemplo: bool = False
 
     @field_validator("database_url")
     @classmethod
