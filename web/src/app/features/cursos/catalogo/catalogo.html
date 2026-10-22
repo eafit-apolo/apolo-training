@@ -1,0 +1,90 @@
+<div class="at-contenedor">
+  @if (usuario(); as u) {
+    <h1>{{ 'cursos.hola' | transloco: { nombre: u.nombre } }}</h1>
+    <p class="perfil">
+      {{ 'cursos.perfilAntes' | transloco }}
+      <strong class="perfil-cluster">{{ 'cluster.' + u.cluster | transloco }}</strong
+      >{{ 'cursos.perfilDespues' | transloco }}
+    </p>
+  } @else {
+    <h1>{{ 'paginas.catalogo' | transloco }}</h1>
+  }
+
+  @if (actual(); as curso) {
+    <section class="seguir" aria-labelledby="seguir-titulo">
+      <div class="seguir-texto">
+        @if (curso.continuar; as leccion) {
+          <h2 id="seguir-titulo">
+            {{ (curso.empezado ? 'cursos.continuarTitulo' : 'cursos.empezarTitulo') | transloco }}
+          </h2>
+          <p class="seguir-leccion">
+            @if (moduloContinuar(); as modulo) {
+              <span class="seguir-modulo">
+                {{ 'cursos.modulo' | transloco: { n: modulo.numero, titulo: modulo.titulo } }}
+              </span>
+            }
+            {{ leccion.numero }} · {{ leccion.titulo }}
+          </p>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="curso.avance"
+            [attr.aria-label]="'cursos.avanceCurso' | transloco: { n: curso.avance }"
+          />
+        } @else {
+          <h2 id="seguir-titulo">{{ 'cursos.terminadoTitulo' | transloco }}</h2>
+          <p class="seguir-leccion">{{ 'cursos.terminadoTexto' | transloco }}</p>
+        }
+      </div>
+      @if (rutaContinuar(); as ruta) {
+        <a mat-flat-button [routerLink]="ruta">
+          <at-icono nombre="continuar" />
+          {{ (curso.empezado ? 'cursos.continuar' : 'cursos.empezar') | transloco }}
+        </a>
+      } @else {
+        <a mat-flat-button routerLink="/mi-progreso">{{ 'cursos.verProgreso' | transloco }}</a>
+      }
+    </section>
+  }
+
+  <h2>{{ 'cursos.lista' | transloco }}</h2>
+  <ul class="cursos">
+    @for (curso of cursos(); track curso.id) {
+      <li class="curso">
+        <div class="portada">
+          <img ngSrc="apolo-simbolo.png" width="72" height="72" alt="" />
+        </div>
+        <div class="datos">
+          <h3>
+            <a class="enlace" [routerLink]="['/cursos', curso.id]">{{ curso.titulo }}</a>
+          </h3>
+          <p class="descripcion">{{ curso.descripcion }}</p>
+          <ul class="at-etiquetas">
+            <li>
+              {{
+                plural('cursos.modulos', curso.modulos.length)
+                  | transloco: { n: curso.modulos.length }
+              }}
+            </li>
+            <li>{{ 'cursos.minutos' | transloco: { n: curso.duracion } }}</li>
+            <li>{{ plural('cursos.videos', curso.videos) | transloco: { n: curso.videos } }}</li>
+            <li>{{ 'cursos.idioma' | transloco }}</li>
+          </ul>
+          <div class="avance">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="curso.avance"
+              [attr.aria-label]="'cursos.avanceCurso' | transloco: { n: curso.avance }"
+            />
+            <span>
+              {{ 'cursos.porcentaje' | transloco: { n: curso.avance } }} ·
+              {{
+                'cursos.modulosCompletos'
+                  | transloco: { hechos: curso.modulosCompletos, total: curso.modulos.length }
+              }}
+            </span>
+          </div>
+        </div>
+      </li>
+    }
+  </ul>
+</div>

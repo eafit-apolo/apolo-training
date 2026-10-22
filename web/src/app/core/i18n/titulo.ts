@@ -6,9 +6,20 @@ import { TitleStrategy } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import { switchMap } from 'rxjs';
 
+const LITERAL = 'texto:';
+
 /**
- * El `title` de cada ruta es una clave de traducción. El título de la pestaña
- * queda como «<página> · <app>» y se vuelve a traducir al cambiar de idioma.
+ * Título que no se traduce (el de un curso, módulo o lección, que ya viene en
+ * el idioma del contenido). Lo usan los `ResolveFn` de `title`.
+ */
+export function tituloLiteral(texto: string): string {
+  return LITERAL + texto;
+}
+
+/**
+ * El `title` de cada ruta es una clave de traducción (o un `tituloLiteral()`).
+ * El título de la pestaña queda como «<página> · <app>» y se vuelve a traducir
+ * al cambiar de idioma.
  */
 @Injectable({ providedIn: 'root' })
 export class TituloTraducido extends TitleStrategy {
@@ -33,7 +44,16 @@ export class TituloTraducido extends TitleStrategy {
 
   private poner(): void {
     const app = this.transloco.translate('app.nombre');
-    const pagina = this.clave ? this.transloco.translate(this.clave) : '';
+    const pagina = this.pagina(this.clave);
     this.titulo.setTitle(pagina ? `${pagina} · ${app}` : app);
+  }
+
+  private pagina(clave: string | undefined): string {
+    if (!clave) {
+      return '';
+    }
+    return clave.startsWith(LITERAL)
+      ? clave.slice(LITERAL.length)
+      : this.transloco.translate(clave);
   }
 }

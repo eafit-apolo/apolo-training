@@ -41,26 +41,68 @@ comparten origen como en producción. Con `npm start` en tu equipo apunta a
 ```text
 src/
 ├── index.html, main.ts
-├── styles.scss            # tema de Material
+├── styles.scss            # tema de Material, foco visible y estilos comunes (at-contenedor, at-oculto)
 ├── styles/_theme-colors.scss  # paleta generada desde #001B89 (no editar a mano)
-├── testing/transloco.ts   # textos reales para las pruebas (no entra al build)
+├── testing/               # textos reales y axe para las pruebas (no entra al build)
 └── app/
     ├── app.ts, app.config.ts, app.routes.ts
     ├── core/
     │   ├── i18n/          # idioma inicial, cargador y títulos traducidos
-    │   └── layout/        # shell: barra, menú y selector de idioma
-    ├── shared/            # pantalla provisional de la F-01
+    │   ├── layout/        # shell: encabezado, menú (☰ en celular), idioma y menú de usuario
+    │   └── sesion/        # usuario actual (hoy uno de ejemplo; GET /api/me en la F-03)
+    ├── shared/            # ícono, migas de pan, plural y la pantalla provisional
     └── features/          # una carpeta por sección, cargada aparte (lazy)
         ├── cuenta/        # 01 ingresar y cambiar la clave (sin menú)
-        ├── cursos/        # 02 catálogo y 03 lección
+        ├── cursos/        # 02 catálogo y curso; 03 módulo y lección, con la barra lateral
+        │   └── datos/     # tipos, CatalogoService, armarCurso() y los datos de ejemplo
         ├── progreso/      # 04 mi progreso
         ├── panel/         # 05 panel de instructor
         └── admin/         # 06 administración de usuarios
 ```
 
-Cada pantalla es por ahora una página provisional (`shared/pendiente.ts`). La
-pantalla real reemplaza su `pendiente(...)` en el archivo de rutas de la
-sección.
+Las pantallas que todavía no existen son una página provisional
+(`shared/pendiente.ts`). La pantalla real reemplaza su `pendiente(...)` en el
+archivo de rutas de la sección.
+
+## Navegación del curso (F-02)
+
+```text
+/cursos                           catálogo: saludo, «Continuar» y los cursos
+/cursos/:curso                    el curso y la grilla de módulos
+/cursos/:curso/:modulo            el módulo y sus lecciones      ┐ con la barra
+/cursos/:curso/:modulo/:leccion   la lección (su cuerpo es de la F-04) ┘ lateral
+```
+
+`:modulo` y `:leccion` son el id del contenido (`m05/trabajos`, ver
+`content/README.md`). El módulo n+1 se abre al completar el n: los bloqueados
+se ven, pero no son enlaces, y abrirlos por dirección muestra qué terminar.
+Las pantallas del aula reciben los parámetros de sus rutas padre
+(`paramsInheritanceStrategy: 'always'` en `app.config.ts`).
+
+**Datos de ejemplo.** Mientras no exista la API de contenido (B-04), los
+cursos salen de `features/cursos/datos/datos-ejemplo.ts` y el avance de cada
+usuario de ejemplo (los mismos de `api/app/datos_ejemplo.py`) se calcula con
+`armarCurso()`. En el menú de usuario, «Probar como» cambia de usuario: Ana va
+en el módulo 5, Bruno no ha empezado, Carla (instructora) va a mitad del 7 y
+Diego (admin) terminó. Panel y Administración solo se muestran a su rol; las
+guardias de ruta y la sesión real son de la F-03, que también quita «Probar
+como».
+
+**Adaptable.** Celular hasta 599 px (desde 360), tableta hasta 1023 y
+escritorio desde 1024. Por debajo de 840 px el menú pasa al botón ☰; por
+debajo de 1024 la barra lateral es un panel «Módulos» que atrapa el foco, se
+cierra con Esc y devuelve el foco al botón. En celular las migas se reducen al
+enlace de la página de arriba.
+
+**Íconos.** Material Symbols como trazos SVG dentro de `shared/icono.ts` (sin
+fuente ni descargas, porque la plataforma solo se abre por VPN). Para agregar
+uno, copia el `d` del SVG del paquete `@material-symbols/svg-400`.
+
+**Accesibilidad (WCAG 2.2 AA).** Foco visible en todos los controles
+(`mat.strong-focus-indicators` y `:focus-visible`), estados con ícono y texto,
+`aria-current="page"` en la página actual y foco al contenido al cambiar de
+página. Las pruebas pasan axe por cada pantalla (`src/testing/axe.ts`); el
+contraste no se puede medir en jsdom y se revisa en el navegador.
 
 ## Idiomas
 

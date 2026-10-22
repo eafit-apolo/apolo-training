@@ -2,6 +2,14 @@
   display: block;
 }
 
+// El encabezado queda fijo arriba; la barra lateral del aula empieza debajo
+// (ALTO_ENCABEZADO en features/cursos/aula/aula.ts).
+.encabezado {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .barra {
   gap: 16px;
   border-bottom: 3px solid var(--at-azul-apolo);
@@ -13,6 +21,7 @@
   gap: 8px;
   color: var(--at-azul-apolo);
   font: var(--mat-sys-title-medium);
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -23,16 +32,48 @@
 
 .activo {
   background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
 }
 
 .espacio {
   flex: 1;
 }
 
+// Lugar de los menús mientras se cargan (avatar y ☰), para que la barra no salte.
+.reserva {
+  width: 48px;
+  height: 40px;
+}
+
+// Tableta y celular: el menú pasa al botón ☰.
+@media (max-width: 839.98px) {
+  .barra {
+    gap: 8px;
+  }
+
+  .menu {
+    display: none;
+  }
+}
+
+// Celular: solo el símbolo; el nombre del curso sigue para el lector de pantalla.
+@media (max-width: 599.98px) {
+  .marca-texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 .contenido {
-  padding: 24px 16px;
-  max-width: 1100px;
-  margin: 0 auto;
+  display: block;
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .saltar {
@@ -42,7 +83,7 @@
   &:focus {
     left: 16px;
     top: 8px;
-    z-index: 10;
+    z-index: 20;
     padding: 8px 12px;
     background: var(--mat-sys-surface);
   }

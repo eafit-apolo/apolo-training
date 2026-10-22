@@ -34,5 +34,92 @@
   },
   "noEncontrada": {
     "mensaje": "Esta dirección no existe. Revisa el enlace o vuelve a Cursos."
+  },
+  "cluster": {
+    "apolo2": "Apolo II",
+    "apolo3": "Apolo III"
+  },
+  "rol": {
+    "estudiante": "estudiante",
+    "instructor": "instructor",
+    "admin": "admin"
+  },
+  "usuario": {
+    "cambiarClave": "Cambiar contraseña",
+    "salir": "Cerrar sesión",
+    "probarComo": "Probar como (datos de ejemplo)"
+  },
+  "migas": {
+    "etiqueta": "Ruta de navegación"
+  },
+  "estado": {
+    "completo": "Completo",
+    "en-curso": "En curso",
+    "bloqueado": "Bloqueado",
+    "bloqueadoHasta": "Bloqueado: termina el módulo {{n}}",
+    "abreAl": "Termina el módulo {{n}} para abrirlo.",
+    "leyendaBloqueado": "Se abre al terminar el anterior",
+    "bloqueadoPagina": "Este módulo se abre cuando termines el módulo {{n}}.",
+    "irAlModulo": "Ir al módulo {{n}} · {{titulo}}",
+    "leccionCompleta": "Completa",
+    "leccionPendiente": "Pendiente"
+  },
+  "cursos": {
+    "hola": "Hola, {{nombre}}",
+    "perfilAntes": "Tu perfil de práctica es",
+    "perfilDespues": ": las lecciones abren primero esa pestaña.",
+    "continuarTitulo": "Continúa donde quedaste",
+    "empezarTitulo": "Empieza el curso",
+    "terminadoTitulo": "Terminaste el curso",
+    "terminadoTexto": "Revisa tu graduación y lo que sigue en Mi progreso.",
+    "continuar": "Continuar",
+    "empezar": "Empezar",
+    "verProgreso": "Ver mi progreso",
+    "lista": "Cursos",
+    "modulosTitulo": "Módulos",
+    "leyenda": "Estados de los módulos",
+    "modulo": "Módulo {{n}} · {{titulo}}",
+    "moduloCorto": "Módulo {{n}}:",
+    "modulos": {
+      "uno": "1 módulo",
+      "otros": "{{n}} módulos"
+    },
+    "videos": {
+      "uno": "1 video",
+      "otros": "{{n}} videos"
+    },
+    "practicas": {
+      "uno": "1 práctica",
+      "otros": "{{n}} prácticas"
+    },
+    "preguntas": {
+      "uno": "1 pregunta",
+      "otros": "{{n}} preguntas"
+    },
+    "minutos": "{{n}} min",
+    "idioma": "Español · subtítulos en inglés",
+    "porcentaje": "{{n}} %",
+    "modulosCompletos": "{{hechos}} de {{total}} módulos",
+    "avanceCurso": "Avance del curso: {{n}} %"
+  },
+  "modulo": {
+    "lecciones": "Lecciones",
+    "avance": {
+      "uno": "{{hechas}} de 1 lección",
+      "otros": "{{hechas}} de {{total}} lecciones"
+    },
+    "avanceEtiqueta": {
+      "uno": "Avance del módulo {{n}}: {{hechas}} de 1 lección",
+      "otros": "Avance del módulo {{n}}: {{hechas}} de {{total}} lecciones"
+    },
+    "repasar": "Repasar"
+  },
+  "aula": {
+    "navegacion": "Módulos del curso",
+    "abrir": "Módulos · {{n}} %",
+    "cerrar": "Cerrar los módulos"
+  },
+  "leccion": {
+    "pendiente": "El contenido de la lección (video, resumen, práctica y quiz) todavía está en construcción."
   }
 }

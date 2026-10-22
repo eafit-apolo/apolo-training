@@ -1,0 +1,80 @@
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface);
+}
+
+:host(:not(.bloqueado):hover) {
+  border-color: var(--mat-sys-primary);
+}
+
+:host(.en-curso) {
+  border: 2px solid var(--mat-sys-primary);
+}
+
+:host(.bloqueado) {
+  background: var(--mat-sys-surface-container);
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.numero {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--mat-sys-primary);
+  border-radius: 50%;
+  color: var(--mat-sys-primary);
+  font-weight: 600;
+}
+
+:host(.bloqueado) .numero {
+  border-color: var(--mat-sys-outline);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.enlace {
+  color: inherit;
+  text-decoration: none;
+
+  // Toda la tarjeta abre el módulo.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.minutos {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.bloqueado {
+  margin: auto 0 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+  font-style: italic;
+}
+
+mat-progress-bar {
+  margin-top: auto;
+}

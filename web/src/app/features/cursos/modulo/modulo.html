@@ -1,0 +1,66 @@
+@if (datos(); as m) {
+  <at-migas [migas]="migas()" />
+  <h1>{{ 'cursos.modulo' | transloco: { n: m.numero, titulo: m.titulo } }}</h1>
+
+  @if (m.estado === 'bloqueado') {
+    <at-bloqueado [curso]="datosCurso()" [modulo]="m" />
+  } @else {
+    <p class="resumen">{{ m.resumen }}</p>
+    <ul class="at-etiquetas">
+      <li>{{ 'cursos.minutos' | transloco: { n: m.duracion } }}</li>
+      @if (m.videos) {
+        <li>{{ plural('cursos.videos', m.videos) | transloco: { n: m.videos } }}</li>
+      }
+      @if (m.practicas) {
+        <li>{{ plural('cursos.practicas', m.practicas) | transloco: { n: m.practicas } }}</li>
+      }
+      @if (m.preguntas) {
+        <li>{{ plural('cursos.preguntas', m.preguntas) | transloco: { n: m.preguntas } }}</li>
+      }
+    </ul>
+
+    <div class="avance">
+      <mat-progress-bar
+        mode="determinate"
+        [value]="(100 * m.hechas) / m.lecciones.length"
+        [attr.aria-label]="
+          plural('modulo.avanceEtiqueta', m.lecciones.length)
+            | transloco: { n: m.numero, hechas: m.hechas, total: m.lecciones.length }
+        "
+      />
+      <span>{{
+        plural('modulo.avance', m.lecciones.length)
+          | transloco: { hechas: m.hechas, total: m.lecciones.length }
+      }}</span>
+    </div>
+
+    <h2>{{ 'modulo.lecciones' | transloco }}</h2>
+    <ol class="lecciones">
+      @for (l of m.lecciones; track l.id) {
+        <li>
+          <at-icono [nombre]="l.completa ? 'completo' : 'pendiente'" [class.hecha]="l.completa" />
+          <a [routerLink]="['/cursos', curso(), m.id, l.slug]">{{ l.numero }} · {{ l.titulo }}</a>
+          <span class="meta">
+            {{ 'cursos.minutos' | transloco: { n: l.duracion } }} ·
+            {{ (l.completa ? 'estado.leccionCompleta' : 'estado.leccionPendiente') | transloco }}
+          </span>
+        </li>
+      }
+    </ol>
+
+    @if (siguiente(); as ruta) {
+      <a mat-flat-button class="seguir" [routerLink]="ruta">
+        <at-icono nombre="continuar" />
+        @if (m.hechas === 0) {
+          {{ 'cursos.empezar' | transloco }}
+        } @else if (m.estado === 'completo') {
+          {{ 'modulo.repasar' | transloco }}
+        } @else {
+          {{ 'cursos.continuar' | transloco }}
+        }
+      </a>
+    }
+  }
+} @else {
+  <at-pagina-pendiente titulo="paginas.noEncontrada" mensaje="noEncontrada.mensaje" />
+}
