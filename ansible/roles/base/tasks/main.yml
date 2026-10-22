@@ -16,6 +16,9 @@
 - name: Hora
   ansible.builtin.import_tasks: chrony.yml
 
-# Al final: es lo único que descarga de Internet.
+# Al final: son las únicas tareas que descargan de Internet (requieren S4).
+- name: Repositorios
+  ansible.builtin.import_tasks: repositorios.yml
+
 - name: Actualizaciones automáticas
   ansible.builtin.import_tasks: actualizaciones.yml

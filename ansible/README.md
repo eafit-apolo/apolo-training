@@ -6,14 +6,15 @@ en Ansible Vault, nunca en claro.
 | Archivo                    | Qué es                                                                           |
 | -------------------------- | -------------------------------------------------------------------------------- |
 | `inventory.ini`            | Máquinas y usuario de conexión (**cifrado**)                                     |
-| `group_vars/all/vault.yml` | Admins, llaves, IPs y contraseña de sudo (**cifrado**)                           |
+| `group_vars/all/vault.yml` | Admins, llaves, IPs y contraseñas de sudo y de MariaDB (**cifrado**)             |
 | `group_vars/*/vars.yml`    | Variables; solo referencian las del Vault                                        |
 | `site.yml`                 | Qué rol se aplica a qué grupo                                                    |
 | `roles/base`               | Admins solo con llave y sshd sin root (contraseña solo para `apolo2` y `apolo3`) |
+| `roles/slurm`              | Slurm de un nodo: munge, MariaDB, slurmdbd, slurmctld y slurmd con cgroups       |
 
 ## Requisitos
 
-- VPN activa, colecciones `ansible.posix` y `community.general`.
+- VPN activa, colecciones `ansible.posix`, `community.general` y `community.mysql`.
 - `ansible/.vault_pass` información privada
 
 ## Uso
@@ -69,4 +70,34 @@ Verificación en la VM:
 getenforce                                    # Enforcing
 chronyc -n sources                            # ^* en el NTP institucional
 systemctl list-timers dnf-automatic.timer     # próxima ejecución
+```
+
+### Slurm
+
+Un solo nodo hace de controlador, de nodo de cómputo y de base de
+contabilidad: munge, MariaDB (`127.0.0.1`, base `slurm_acct_db`), slurmdbd,
+slurmctld y slurmd. Los repositorios (CRB, EPEL, OpenHPC 3) los pone `base`.
+La contraseña del usuario `slurm` de MariaDB es `vault_slurm_bd_password`.
+
+| Qué                  | Cómo queda                                      | Por qué                                                                 |
+| -------------------- | ----------------------------------------------- | ----------------------------------------------------------------------- |
+| cgroups              | `proctrack/cgroup`, `task/cgroup,task/affinity` | Limitan núcleos y memoria por trabajo; `jobacct_gather/cgroup` mide uso |
+| Swap                 | `ConstrainSwapSpace=yes`, `AllowedSwapSpace=0`  | La VM tiene 5 GB de swap; sin esto el trabajo usa swap en vez de OOM    |
+| Memoria              | `RealMemory=8700`, `DefMemPerCPU=2000`          | Deja ~3 GB al sistema; sin `--mem` un trabajo no reserva todo el nodo   |
+| Partición `training` | `DefaultTime=00:10:00`, `MaxTime=01:00:00`      | Laboratorios cortos con 4 núcleos compartidos                           |
+| Epilog               | Sin `slurm.epilog.clean` de OpenHPC             | Mataría las sesiones SSH del usuario al terminar su último trabajo      |
+| `slurmdbd.conf`      | `600`, dueño `slurm`                            | Tiene la contraseña; slurmdbd no arranca con otros permisos             |
+
+- `slurm.conf` sale de una plantilla propia completa, no de `slurm.conf.ohpc`:
+  la de OpenHPC ya trae opciones que, repetidas, dejan activo el valor viejo.
+- Los valores que cambian (nodo, memoria, partición) están en
+  `roles/slurm/defaults/main.yml`.
+
+Verificación en la VM:
+
+```bash
+sinfo                                                    # training, nodo idle
+srun -c 1 nproc                                          # 1
+srun --mem=200M python3 -c "x = b'x' * (500*1024*1024)"  # oom_kill
+sacct --format=JobID,State,ReqMem,MaxRSS,ExitCode        # OUT_OF_MEMORY
 ```

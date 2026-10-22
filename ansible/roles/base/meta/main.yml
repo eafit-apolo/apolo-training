@@ -1,6 +1,6 @@
 galaxy_info:
   author: apolo-training
-  description: Endurecimiento base de las VMs (usuarios, sshd, nftables, SELinux, chrony, dnf-automatic)
+  description: Endurecimiento base de las VMs (usuarios, sshd, nftables, SELinux, chrony, repositorios, dnf-automatic)
   license: MIT
   min_ansible_version: "2.15"
   platforms:

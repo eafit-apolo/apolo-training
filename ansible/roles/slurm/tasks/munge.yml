@@ -1,0 +1,18 @@
+- name: Llave de munge (solo si no existe)
+  ansible.builtin.command: /usr/sbin/create-munge-key
+  args:
+    creates: /etc/munge/munge.key
+  notify: Reiniciar munge
+
+- name: Permisos de la llave de munge
+  ansible.builtin.file:
+    path: /etc/munge/munge.key
+    owner: munge
+    group: munge
+    mode: "0600"
+
+- name: munge activo
+  ansible.builtin.service:
+    name: munge
+    state: started
+    enabled: true

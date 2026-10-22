@@ -16,3 +16,8 @@ base_salida_https:
 
 # S4: último día con salida a Internet por 80/443
 base_internet_hasta: "2026-11-27"
+
+# Contraseña del usuario slurm de MariaDB (StoragePass de slurmdbd.conf)
+slurm_bd_password: "{{ vault_slurm_bd_password }}"
+
+ansible_python_interpreter: /usr/bin/python3

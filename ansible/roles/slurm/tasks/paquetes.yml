@@ -1,0 +1,9 @@
+- name: Paquetes de Slurm, munge y MariaDB
+  ansible.builtin.dnf:
+    name:
+      - ohpc-slurm-server # slurmctld, munge y las plantillas de OpenHPC
+      - slurm-slurmd-ohpc # slurmd: este mismo nodo también calcula
+      - slurm-slurmdbd-ohpc # slurmdbd: contabilidad
+      - mariadb-server
+      - python3-PyMySQL # lo necesita community.mysql dentro de la VM
+    state: present

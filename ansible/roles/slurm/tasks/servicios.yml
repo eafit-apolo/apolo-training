@@ -1,0 +1,35 @@
+# Orden: slurmdbd → registrar el clúster → slurmctld → slurmd.
+- name: slurmdbd activo
+  ansible.builtin.service:
+    name: slurmdbd
+    state: started
+    enabled: true
+
+# La primera vez crea las tablas y tarda unos segundos en abrir el puerto.
+- name: Esperar a que slurmdbd escuche
+  ansible.builtin.wait_for:
+    port: 6819
+    timeout: 60
+
+# Solo lee: se ejecuta también con --check para que la siguiente tarea tenga datos.
+- name: Clústeres registrados en la contabilidad
+  ansible.builtin.command: sacctmgr -n -P show cluster format=cluster
+  register: slurm_clusters
+  changed_when: false
+  check_mode: false
+
+- name: Registrar el clúster
+  ansible.builtin.command: sacctmgr -i add cluster {{ slurm_cluster_name }}
+  when: slurm_cluster_name not in slurm_clusters.stdout_lines
+
+- name: slurmctld activo
+  ansible.builtin.service:
+    name: slurmctld
+    state: started
+    enabled: true
+
+- name: slurmd activo
+  ansible.builtin.service:
+    name: slurmd
+    state: started
+    enabled: true

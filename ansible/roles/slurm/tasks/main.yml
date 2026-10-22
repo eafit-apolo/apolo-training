@@ -1,0 +1,22 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/slurm
+- name: Verificar que hay contraseña para la base de datos
+  ansible.builtin.assert:
+    that: slurm_bd_password | length > 0
+    fail_msg: slurm_bd_password está vacía; agrégala al Vault.
+
+- name: Paquetes
+  ansible.builtin.import_tasks: paquetes.yml
+
+- name: munge
+  ansible.builtin.import_tasks: munge.yml
+
+- name: MariaDB
+  ansible.builtin.import_tasks: mariadb.yml
+
+- name: Configuración
+  ansible.builtin.import_tasks: configuracion.yml
+
+- name: Servicios
+  ansible.builtin.import_tasks: servicios.yml
