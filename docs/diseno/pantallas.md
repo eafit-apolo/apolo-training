@@ -14,11 +14,17 @@ módulos 0 a 4, va en el 5 y aprobó el laboratorio de módulos.
 | #   | Pantalla                                                     | Ruta en la app                                   | Rol                |
 | --- | ------------------------------------------------------------ | ------------------------------------------------ | ------------------ |
 | 01  | [Inicio de sesión y primer ingreso](#01-inicio-de-sesión)    | `/ingresar`, `/cambiar-clave`                    | todos              |
-| 02  | [Catálogo](#02-catálogo)                                     | `/cursos`                                        | todos              |
-| 03  | [Lección](#03-lección)                                       | `/cursos/:curso/:modulo/:leccion`                | todos              |
+| 02  | [Catálogo](#02-catálogo)                                     | `/cursos`, `/cursos/:curso`                      | todos              |
+| 03  | [Lección](#03-lección)                                       | `/cursos/:curso/:modulo`, `…/:leccion`           | todos              |
 | 04  | [Mi progreso](#04-mi-progreso)                               | `/mi-progreso`                                   | todos              |
 | 05  | [Panel de instructor](#05-panel-de-instructor)               | `/panel`, `/panel/graduaciones`, `/panel/videos` | instructor y admin |
 | 06  | [Administración de usuarios](#06-administración-de-usuarios) | `/admin/usuarios`, `/admin/qos`                  | solo admin         |
+
+**Desde la F-02, las capturas de [`capturas/`](capturas/) reemplazan a los
+wireframes 02 y 03** (que todavía muestran 10 módulos, OnDemand y la terminal
+quemada): catálogo, curso con sus módulos, módulo y lección, en celular y en
+escritorio. La navegación quedó en cuatro niveles (catálogo → curso → módulo →
+lección), cada uno con su página y sus migas de pan.
 
 En celular (360 px o más, F-02) todas las pantallas pasan a una columna: la
 barra lateral de la lección se vuelve un menú «Módulos», las tarjetas del

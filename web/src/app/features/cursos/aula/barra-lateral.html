@@ -1,0 +1,75 @@
+@let c = curso();
+<nav [attr.aria-label]="'aula.navegacion' | transloco">
+  <p class="curso">
+    <a [routerLink]="['/cursos', c.id]" (click)="navego.emit()">{{ c.titulo }}</a>
+  </p>
+  <div class="avance-curso">
+    <mat-progress-bar
+      mode="determinate"
+      [value]="c.avance"
+      [attr.aria-label]="'cursos.avanceCurso' | transloco: { n: c.avance }"
+    />
+    <span aria-hidden="true">{{ 'cursos.porcentaje' | transloco: { n: c.avance } }}</span>
+  </div>
+
+  <ol class="modulos">
+    @for (m of c.modulos; track m.id) {
+      <li [class]="m.estado">
+        <div class="modulo">
+          <at-estado-modulo [estado]="m.estado" [compacto]="true" />
+          @if (m.estado === 'bloqueado') {
+            <span class="titulo">{{ m.numero }} · {{ m.titulo }}</span>
+            <span class="at-oculto">{{ 'estado.abreAl' | transloco: { n: m.numero - 1 } }}</span>
+          } @else {
+            <a
+              class="titulo"
+              [routerLink]="['/cursos', c.id, m.id]"
+              routerLinkActive="actual"
+              [routerLinkActiveOptions]="{ exact: true }"
+              ariaCurrentWhenActive="page"
+              (click)="navego.emit()"
+            >
+              {{ m.numero }} · {{ m.titulo }}
+            </a>
+            <span class="cuenta">
+              <span aria-hidden="true">{{ m.hechas }}/{{ m.lecciones.length }}</span>
+              <span class="at-oculto">
+                {{
+                  plural('modulo.avance', m.lecciones.length)
+                    | transloco: { hechas: m.hechas, total: m.lecciones.length }
+                }}
+              </span>
+            </span>
+          }
+        </div>
+
+        @if (m.id === abierto() && m.estado !== 'bloqueado') {
+          <ol class="lecciones">
+            @for (l of m.lecciones; track l.id) {
+              <li>
+                <a
+                  [routerLink]="['/cursos', c.id, m.id, l.slug]"
+                  routerLinkActive="actual"
+                  ariaCurrentWhenActive="page"
+                  (click)="navego.emit()"
+                >
+                  <at-icono
+                    [nombre]="l.completa ? 'completo' : 'pendiente'"
+                    [class.hecha]="l.completa"
+                  />
+                  <span>{{ l.numero }} {{ l.titulo }}</span>
+                  <span class="at-oculto">
+                    ({{
+                      (l.completa ? 'estado.leccionCompleta' : 'estado.leccionPendiente')
+                        | transloco
+                    }})
+                  </span>
+                </a>
+              </li>
+            }
+          </ol>
+        }
+      </li>
+    }
+  </ol>
+</nav>

@@ -1,30 +1,43 @@
 <a class="saltar" href="#contenido">{{ 'shell.saltar' | transloco }}</a>
 
-<mat-toolbar class="barra">
-  <a class="marca" routerLink="/cursos">
-    <img ngSrc="apolo-simbolo.png" width="32" height="32" alt="Apolo" priority />
-    <span>{{ 'app.curso' | transloco }}</span>
-  </a>
+<header class="encabezado">
+  <mat-toolbar class="barra">
+    <a class="marca" routerLink="/cursos">
+      <img ngSrc="apolo-simbolo.png" width="32" height="32" alt="Apolo" priority />
+      <span class="marca-texto">{{ 'app.curso' | transloco }}</span>
+    </a>
 
-  @if (!sinMenu()) {
-    <nav class="menu" [attr.aria-label]="'shell.menu' | transloco">
-      @for (enlace of enlaces; track enlace.ruta) {
-        <a
-          mat-button
-          [routerLink]="enlace.ruta"
-          routerLinkActive="activo"
-          ariaCurrentWhenActive="page"
-        >
-          {{ enlace.clave | transloco }}
-        </a>
+    @if (!sinMenu()) {
+      <nav class="menu" [attr.aria-label]="'shell.menu' | transloco">
+        @for (enlace of enlaces(); track enlace.ruta) {
+          <a
+            mat-button
+            [routerLink]="enlace.ruta"
+            routerLinkActive="activo"
+            ariaCurrentWhenActive="page"
+          >
+            {{ enlace.clave | transloco }}
+          </a>
+        }
+      </nav>
+    }
+
+    <span class="espacio"></span>
+    <at-selector-idioma />
+
+    @if (!sinMenu()) {
+      <!-- Los menús usan el overlay de CDK: se cargan apenas el navegador queda
+           libre, para no sumarlo al bundle inicial. -->
+      @defer (on idle) {
+        <at-menu-usuario />
+        <at-menu-movil [enlaces]="enlaces()" />
+      } @placeholder {
+        <span class="reserva"></span>
       }
-    </nav>
-  }
+    }
+  </mat-toolbar>
+</header>
 
-  <span class="espacio"></span>
-  <at-selector-idioma />
-</mat-toolbar>
-
-<main id="contenido" class="contenido" tabindex="-1">
+<main #contenido id="contenido" class="contenido" tabindex="-1">
   <router-outlet />
 </main>

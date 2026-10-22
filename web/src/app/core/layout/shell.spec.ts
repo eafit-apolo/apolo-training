@@ -1,6 +1,8 @@
-import { TestBed } from '@angular/core/testing';
+import { DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { problemasDeAccesibilidad } from '../../../testing/axe';
 import { traduccionesDePrueba } from '../../../testing/transloco';
+import { SesionService } from '../sesion/sesion';
 import { Shell } from './shell';
 
 describe('Shell', () => {
@@ -51,5 +53,41 @@ describe('Shell', () => {
 
     expect(raiz.querySelector('nav')).toBeNull();
     expect(raiz.querySelector('at-selector-idioma')).not.toBeNull();
+  });
+
+  function enlacesDelMenu(raiz: HTMLElement): string[] {
+    return Array.from(raiz.querySelectorAll('nav a')).map((a) => a.textContent?.trim() ?? '');
+  }
+
+  it('Panel y Administración solo se muestran a su rol', async () => {
+    const sesion = TestBed.inject(SesionService);
+    const fixture = TestBed.createComponent(Shell);
+    await fixture.whenStable();
+    const raiz: HTMLElement = fixture.nativeElement;
+    expect(enlacesDelMenu(raiz)).toEqual(['Cursos', 'Mi progreso']);
+
+    sesion.probarComo('carla');
+    await fixture.whenStable();
+    expect(enlacesDelMenu(raiz)).toEqual(['Cursos', 'Mi progreso', 'Panel']);
+
+    sesion.probarComo('diego');
+    await fixture.whenStable();
+    expect(enlacesDelMenu(raiz)).toEqual(['Cursos', 'Mi progreso', 'Panel', 'Administración']);
+  });
+
+  it('el menú de usuario muestra el nombre y el perfil del clúster', async () => {
+    const fixture = TestBed.createComponent(Shell);
+    await fixture.whenStable();
+    const [menus] = await fixture.getDeferBlocks();
+    await menus.render(DeferBlockState.Complete);
+    const raiz: HTMLElement = fixture.nativeElement;
+
+    const boton = raiz.querySelector('at-menu-usuario button');
+    expect(boton?.textContent).toContain('Ana · Apolo II');
+    expect(boton?.getAttribute('aria-haspopup')).toBe('menu');
+    expect(raiz.querySelector('at-menu-movil button')?.getAttribute('aria-label')).toBe(
+      'Menú principal',
+    );
+    expect(await problemasDeAccesibilidad(raiz)).toEqual([]);
   });
 });

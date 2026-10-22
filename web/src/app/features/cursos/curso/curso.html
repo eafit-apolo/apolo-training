@@ -1,0 +1,58 @@
+@if (datos(); as curso) {
+  <div class="at-contenedor">
+    <at-migas [migas]="migas()" />
+    <h1>{{ curso.titulo }}</h1>
+    <p class="descripcion">{{ curso.descripcion }}</p>
+    <ul class="at-etiquetas">
+      <li>
+        {{
+          plural('cursos.modulos', curso.modulos.length) | transloco: { n: curso.modulos.length }
+        }}
+      </li>
+      <li>{{ 'cursos.minutos' | transloco: { n: curso.duracion } }}</li>
+      <li>{{ plural('cursos.videos', curso.videos) | transloco: { n: curso.videos } }}</li>
+      <li>{{ 'cursos.idioma' | transloco }}</li>
+    </ul>
+
+    <div class="avance">
+      <mat-progress-bar
+        mode="determinate"
+        [value]="curso.avance"
+        [attr.aria-label]="'cursos.avanceCurso' | transloco: { n: curso.avance }"
+      />
+      <span>
+        {{ 'cursos.porcentaje' | transloco: { n: curso.avance } }} ·
+        {{
+          'cursos.modulosCompletos'
+            | transloco: { hechos: curso.modulosCompletos, total: curso.modulos.length }
+        }}
+      </span>
+      @if (rutaContinuar(); as ruta) {
+        <a mat-flat-button [routerLink]="ruta">
+          <at-icono nombre="continuar" />
+          {{ (curso.empezado ? 'cursos.continuar' : 'cursos.empezar') | transloco }}
+        </a>
+      }
+    </div>
+
+    <div class="titulo-modulos">
+      <h2>{{ 'cursos.modulosTitulo' | transloco }}</h2>
+      <ul class="leyenda" [attr.aria-label]="'cursos.leyenda' | transloco">
+        <li><at-estado-modulo estado="completo" /></li>
+        <li><at-estado-modulo estado="en-curso" /></li>
+        <li>
+          <at-icono class="candado" nombre="bloqueado" />
+          {{ 'estado.leyendaBloqueado' | transloco }}
+        </li>
+      </ul>
+    </div>
+
+    <ol class="modulos">
+      @for (modulo of curso.modulos; track modulo.id) {
+        <li><at-tarjeta-modulo [curso]="curso.id" [modulo]="modulo" /></li>
+      }
+    </ol>
+  </div>
+} @else {
+  <at-pagina-pendiente titulo="paginas.noEncontrada" mensaje="noEncontrada.mensaje" />
+}

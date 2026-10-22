@@ -34,5 +34,92 @@
   },
   "noEncontrada": {
     "mensaje": "This address does not exist. Check the link or go back to Courses."
+  },
+  "cluster": {
+    "apolo2": "Apolo II",
+    "apolo3": "Apolo III"
+  },
+  "rol": {
+    "estudiante": "student",
+    "instructor": "instructor",
+    "admin": "admin"
+  },
+  "usuario": {
+    "cambiarClave": "Change password",
+    "salir": "Sign out",
+    "probarComo": "Try as (sample data)"
+  },
+  "migas": {
+    "etiqueta": "Breadcrumb"
+  },
+  "estado": {
+    "completo": "Complete",
+    "en-curso": "In progress",
+    "bloqueado": "Locked",
+    "bloqueadoHasta": "Locked: finish module {{n}}",
+    "abreAl": "Finish module {{n}} to unlock it.",
+    "leyendaBloqueado": "Unlocks when you finish the previous one",
+    "bloqueadoPagina": "This module unlocks when you finish module {{n}}.",
+    "irAlModulo": "Go to module {{n}} · {{titulo}}",
+    "leccionCompleta": "Complete",
+    "leccionPendiente": "Not started"
+  },
+  "cursos": {
+    "hola": "Hi, {{nombre}}",
+    "perfilAntes": "Your practice profile is",
+    "perfilDespues": ": lessons open that tab first.",
+    "continuarTitulo": "Pick up where you left off",
+    "empezarTitulo": "Start the course",
+    "terminadoTitulo": "You finished the course",
+    "terminadoTexto": "Check your graduation and what comes next in My progress.",
+    "continuar": "Continue",
+    "empezar": "Start",
+    "verProgreso": "See my progress",
+    "lista": "Courses",
+    "modulosTitulo": "Modules",
+    "leyenda": "Module states",
+    "modulo": "Module {{n}} · {{titulo}}",
+    "moduloCorto": "Module {{n}}:",
+    "modulos": {
+      "uno": "1 module",
+      "otros": "{{n}} modules"
+    },
+    "videos": {
+      "uno": "1 video",
+      "otros": "{{n}} videos"
+    },
+    "practicas": {
+      "uno": "1 practice",
+      "otros": "{{n}} practices"
+    },
+    "preguntas": {
+      "uno": "1 question",
+      "otros": "{{n}} questions"
+    },
+    "minutos": "{{n}} min",
+    "idioma": "Spanish · English subtitles",
+    "porcentaje": "{{n}}%",
+    "modulosCompletos": "{{hechos}} of {{total}} modules",
+    "avanceCurso": "Course progress: {{n}}%"
+  },
+  "modulo": {
+    "lecciones": "Lessons",
+    "avance": {
+      "uno": "{{hechas}} of 1 lesson",
+      "otros": "{{hechas}} of {{total}} lessons"
+    },
+    "avanceEtiqueta": {
+      "uno": "Module {{n}} progress: {{hechas}} of 1 lesson",
+      "otros": "Module {{n}} progress: {{hechas}} of {{total}} lessons"
+    },
+    "repasar": "Review"
+  },
+  "aula": {
+    "navegacion": "Course modules",
+    "abrir": "Modules · {{n}}%",
+    "cerrar": "Close modules"
+  },
+  "leccion": {
+    "pendiente": "The lesson content (video, summary, practice and quiz) is still under construction."
   }
 }
