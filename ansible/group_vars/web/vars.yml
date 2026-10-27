@@ -1,0 +1,31 @@
+# Plataforma (117): base + docker.
+
+# F1: SSH y ping solo desde la VPN; el resto se rechaza (F2). El 443 no va
+# aquí: los puertos publicados por Docker no pasan por entrada (ver DOCKER-USER).
+base_ssh_permitido:
+  - "{{ vault_red_vpn }}"
+
+# Mismos destinos prohibidos que la VM de práctica (F3, F4 y F5)
+base_salida_bloqueada:
+  - "{{ vault_ip_freeipa_apolo2 }}"
+  - "{{ vault_ip_freeipa_apolo3 }}"
+  - "{{ vault_ip_hipervisor }}"
+  - "{{ vault_red_servicios }}"
+
+# S4: salida web para el repo de Docker y los docker pull. PENDIENTE: la
+# plataforma necesita bajar imágenes (Docker Hub, GHCR) siempre; hay que pedir
+# a la coordinación un permiso permanente antes de esta fecha.
+base_internet_hasta: "2026-11-27"
+
+# Docker filtra el reenvío (ver roles/docker).
+base_reenvio_politica: accept
+
+docker_admins: "{{ vault_admins }}"
+docker_443_permitido:
+  - "{{ vault_red_vpn }}"
+docker_salida_bloqueada: "{{ base_salida_bloqueada }}"
+
+ansible_python_interpreter: /usr/bin/python3
+
+# La de group_vars/all es la del admin de la 116.
+ansible_become_password: "{{ ansible_become_password_web }}"

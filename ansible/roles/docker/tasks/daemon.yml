@@ -1,0 +1,13 @@
+- name: Directorio /etc/docker
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: "0755"
+
+- name: Configuración del daemon
+  ansible.builtin.copy:
+    content: "{{ docker_daemon | to_nice_json }}\n"
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+    validate: dockerd --validate --config-file %s
+  notify: Reiniciar docker

@@ -4,12 +4,14 @@
 table inet apolo_training
 delete table inet apolo_training
 
+{# nft no acepta `elements = { }`: con la lista vacía, el set queda sin elementos. #}
+{% macro elementos(lista) %}{% if lista %} elements = { {{ lista | join(', ') }} }{% endif %}{% endmacro %}
 table inet apolo_training {
-	set ssh_permitido    { type ipv4_addr; flags interval; elements = { {{ base_ssh_permitido | join(', ') }} } }
-	set salida_bloqueada { type ipv4_addr; flags interval; elements = { {{ base_salida_bloqueada | join(', ') }} } }
-	set dns              { type ipv4_addr; flags interval; elements = { {{ base_dns_servidores | join(', ') }} } }
-	set ntp              { type ipv4_addr; flags interval; elements = { {{ base_ntp_servidores | join(', ') }} } }
-	set https_interno    { type ipv4_addr; flags interval; elements = { {{ base_salida_https | join(', ') }} } }
+	set ssh_permitido    { type ipv4_addr; flags interval;{{ elementos(base_ssh_permitido) }} }
+	set salida_bloqueada { type ipv4_addr; flags interval;{{ elementos(base_salida_bloqueada) }} }
+	set dns              { type ipv4_addr; flags interval;{{ elementos(base_dns_servidores) }} }
+	set ntp              { type ipv4_addr; flags interval;{{ elementos(base_ntp_servidores) }} }
+	set https_interno    { type ipv4_addr; flags interval;{{ elementos(base_salida_https) }} }
 
 	chain entrada {
 		type filter hook input priority filter; policy drop;
@@ -45,7 +47,9 @@ table inet apolo_training {
 		reject with icmpx admin-prohibited
 	}
 
+{# accept donde corre Docker: el tráfico de los contenedores y de los puertos
+   publicados pasa por forward, y lo filtran Docker y DOCKER-USER (rol docker). #}
 	chain reenvio {
-		type filter hook forward priority filter; policy drop;
+		type filter hook forward priority filter; policy {{ base_reenvio_politica }};
 	}
 }

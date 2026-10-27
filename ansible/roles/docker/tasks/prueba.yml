@@ -1,0 +1,38 @@
+- name: Levantar el proyecto de prueba
+  when: docker_prueba == "present"
+  block:
+    - name: Directorio del proyecto de prueba
+      ansible.builtin.file:
+        path: "{{ docker_raiz }}/prueba"
+        state: directory
+        mode: "0755"
+
+    - name: compose.yaml de prueba
+      ansible.builtin.copy:
+        src: compose-prueba.yaml
+        dest: "{{ docker_raiz }}/prueba/compose.yaml"
+        mode: "0644"
+
+    - name: Proyecto de prueba arriba
+      community.docker.docker_compose_v2:
+        project_src: "{{ docker_raiz }}/prueba"
+        state: present
+
+- name: Quitar el proyecto de prueba
+  when: docker_prueba == "absent"
+  block:
+    - name: ¿Existe el proyecto de prueba?
+      ansible.builtin.stat:
+        path: "{{ docker_raiz }}/prueba/compose.yaml"
+      register: docker_prueba_compose
+
+    - name: Proyecto de prueba abajo
+      community.docker.docker_compose_v2:
+        project_src: "{{ docker_raiz }}/prueba"
+        state: absent
+      when: docker_prueba_compose.stat.exists
+
+    - name: Directorio del proyecto de prueba borrado
+      ansible.builtin.file:
+        path: "{{ docker_raiz }}/prueba"
+        state: absent

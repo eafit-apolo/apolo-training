@@ -1,0 +1,33 @@
+# Rocky 9 trae Podman; runc choca con containerd.io.
+- name: Quitar Podman y lo que choca con Docker
+  ansible.builtin.dnf:
+    name:
+      - podman
+      - buildah
+      - runc
+    state: absent
+
+- name: Llave del repositorio de Docker
+  ansible.builtin.rpm_key:
+    key: https://download.docker.com/linux/rhel/gpg
+    state: present
+
+- name: Repositorio de Docker CE para RHEL
+  ansible.builtin.yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/rhel/$releasever/$basearch/stable
+    gpgcheck: true
+    gpgkey: https://download.docker.com/linux/rhel/gpg
+
+- name: Paquetes de Docker
+  ansible.builtin.dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+      - docker-buildx-plugin # sin él, docker compose build avisa
+      - container-selinux # ya viene con docker-ce; queda explícito
+      - policycoreutils-python-utils # lo necesita sefcontext
+    state: present

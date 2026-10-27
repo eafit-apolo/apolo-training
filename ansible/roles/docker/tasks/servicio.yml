@@ -1,0 +1,20 @@
+# Si cambió daemon.json, reinicia ya: los contenedores que se crean después
+# (prueba.yml) deben nacer con la configuración nueva, no con la vieja.
+- name: Aplicar cambios pendientes del daemon
+  ansible.builtin.meta: flush_handlers
+
+- name: docker activo
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+# Estar en el grupo docker equivale a ser root: solo los administradores.
+- name: Administradores en el grupo docker
+  ansible.builtin.user:
+    name: "{{ item.nombre }}"
+    groups: docker
+    append: true
+  loop: "{{ docker_admins }}"
+  loop_control:
+    label: "{{ item.nombre }}"
