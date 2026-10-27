@@ -1,0 +1,18 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for roles/docker
+# live-restore: reiniciar el daemon no detiene los contenedores.
+- name: Reiniciar docker
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+
+- name: Aplicar reglas de DOCKER-USER
+  ansible.builtin.systemd_service:
+    name: docker-user.service
+    state: restarted
+    daemon_reload: true
+
+- name: Restaurar etiquetas SELinux
+  ansible.builtin.command: restorecon -R {{ docker_raiz }}
+  changed_when: true

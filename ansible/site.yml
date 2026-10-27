@@ -4,3 +4,10 @@
   roles:
     - base
     - slurm
+
+- name: Plataforma (117)
+  hosts: web
+  become: true
+  roles:
+    - base
+    - docker

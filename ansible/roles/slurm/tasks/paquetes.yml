@@ -1,3 +1,12 @@
+# Depende de EPEL, que pone base. La llave de OpenHPC viene dentro de este
+# mismo paquete, así que su firma no se puede verificar antes de instalarlo;
+# los paquetes del repositorio sí se verifican, con la llave que deja.
+- name: Repositorio de OpenHPC 3
+  ansible.builtin.dnf:
+    name: http://repos.openhpc.community/OpenHPC/3/EL_9/x86_64/ohpc-release-3-1.el9.x86_64.rpm
+    state: present
+    disable_gpg_check: true
+
 - name: Paquetes de Slurm, munge y MariaDB
   ansible.builtin.dnf:
     name:

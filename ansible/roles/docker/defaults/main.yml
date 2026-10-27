@@ -1,0 +1,36 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/docker
+
+# Solo ellos entran al grupo docker (equivale a root). Mismo formato que base.
+docker_admins: []
+
+# /etc/docker/daemon.json. Docker CE trae SELinux apagado: sin
+# selinux-enabled los contenedores no quedan confinados (container_t).
+docker_daemon:
+  log-driver: json-file
+  log-opts:
+    max-size: 10m
+    max-file: "3"
+  live-restore: true
+  selinux-enabled: true
+
+# DOCKER-USER: orígenes que pueden llegar al 443 publicado; el resto se rechaza.
+docker_443_permitido: []
+# Destinos que los contenedores no pueden alcanzar (como F3-F5 de base).
+docker_salida_bloqueada: []
+# Interfaz por la que entra el tráfico de fuera. Las reglas de entrada solo
+# miran esta interfaz para no cortar la salida de los contenedores.
+docker_interfaz_externa: "{{ ansible_facts.default_ipv4.interface }}"
+
+# Directorios de datos de la plataforma, con etiqueta container_file_t.
+docker_raiz: /srv/apolo-training
+docker_directorios:
+  - { nombre: media, dueno: root, modo: "0755" }
+  - { nombre: pgdata, dueno: "999", modo: "0700" } # uid de postgres en la imagen
+  - { nombre: backups, dueno: root, modo: "0700" }
+  - { nombre: tls, dueno: root, modo: "0750" } # llaves privadas
+
+# Proyecto de prueba: present lo levanta, absent lo quita (cuando llegue el
+# proxy real, que también publica el 443).
+docker_prueba: present

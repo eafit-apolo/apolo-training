@@ -1,0 +1,15 @@
+# Proyecto de prueba del rol docker: valida el ciclo (arranca solo tras
+# reiniciar la VM) y deja algo respondiendo en el 443 para el nmap. Sirve HTTP
+# sin TLS; lo reemplaza el proxy real.
+#
+# nginx y no hello-world: hello-world termina al instante y, con
+# unless-stopped, se reinicia en bucle; cada corrida de Ansible lo vería
+# detenido y lo volvería a levantar (nunca changed=0).
+name: apolo-training-prueba
+
+services:
+  proxy:
+    image: nginx:1.30-alpine
+    restart: unless-stopped
+    ports:
+      - "443:80"

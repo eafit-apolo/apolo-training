@@ -1,0 +1,33 @@
+# container_file_t: el tipo que un contenedor confinado (container_t) puede
+# usar. En el compose cada volumen va con :Z (privado de un contenedor) o :z
+# (compartido entre varios).
+- name: Etiqueta SELinux de los datos de la plataforma
+  community.general.sefcontext:
+    target: "{{ docker_raiz }}(/.*)?"
+    setype: container_file_t
+    state: present
+  notify: Restaurar etiquetas SELinux
+
+# file no etiqueta lo que crea (hereda var_t de /srv): restorecon lo corrige.
+- name: Directorio raíz de la plataforma
+  ansible.builtin.file:
+    path: "{{ docker_raiz }}"
+    state: directory
+    mode: "0755"
+  notify: Restaurar etiquetas SELinux
+
+- name: Directorios de datos
+  ansible.builtin.file:
+    path: "{{ docker_raiz }}/{{ item.nombre }}"
+    state: directory
+    owner: "{{ item.dueno }}"
+    group: "{{ item.dueno }}"
+    mode: "{{ item.modo }}"
+  loop: "{{ docker_directorios }}"
+  loop_control:
+    label: "{{ item.nombre }}"
+  notify: Restaurar etiquetas SELinux
+
+# Antes de prueba.yml: el contenedor de prueba vive dentro de docker_raiz.
+- name: Aplicar las etiquetas nuevas
+  ansible.builtin.meta: flush_handlers

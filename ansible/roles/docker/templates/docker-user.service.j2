@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+# Las reglas de iptables no sobreviven a un reinicio: esta unidad las pone
+# después de que docker cree sus cadenas. PartOf hace que también se vuelva a
+# correr cuando docker se reinicia.
+[Unit]
+Description=Reglas de apolo-training en DOCKER-USER
+After=docker.service
+PartOf=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/docker-user
+
+[Install]
+WantedBy=docker.service

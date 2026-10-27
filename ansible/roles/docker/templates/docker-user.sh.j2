@@ -1,0 +1,29 @@
+#!/bin/sh
+# {{ ansible_managed }}
+#
+# Reglas de DOCKER-USER. Docker publica los puertos con DNAT, así que ese
+# tráfico pasa por forward y no por la cadena entrada de nftables: aquí es
+# donde se filtra. Vacía la cadena y la vuelve a llenar; correrlo dos veces da
+# lo mismo.
+set -eu
+
+EXT={{ docker_interfaz_externa }}
+
+iptables -N DOCKER-USER 2>/dev/null || true
+iptables -F DOCKER-USER
+
+iptables -A DOCKER-USER -m conntrack --ctstate ESTABLISHED,RELATED -j RETURN
+
+# Los contenedores no alcanzan lo que base bloquea para la VM (F3-F5).
+{% for destino in docker_salida_bloqueada %}
+iptables -A DOCKER-USER -d {{ destino }} -j REJECT --reject-with icmp-admin-prohibited
+{% endfor %}
+
+# Entrada: solo el 443 publicado y solo desde estos orígenes. Después del DNAT
+# el puerto ya es el del contenedor; --ctorigdstport mira el original.
+{% for origen in docker_443_permitido %}
+iptables -A DOCKER-USER -i "$EXT" -s {{ origen }} -p tcp -m conntrack --ctstate DNAT --ctorigdstport 443 -j RETURN
+{% endfor %}
+iptables -A DOCKER-USER -i "$EXT" -j REJECT --reject-with icmp-admin-prohibited
+
+iptables -A DOCKER-USER -j RETURN

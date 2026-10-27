@@ -9,3 +9,4 @@ base_ssh_permitido: []
 base_salida_bloqueada: []
 base_salida_https: []
 base_internet_hasta: ""
+base_reenvio_politica: drop
