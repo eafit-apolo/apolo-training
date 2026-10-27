@@ -1,0 +1,51 @@
+# La plataforma en la 117. Hoy solo la base (W-05); la API, la web, la terminal
+# y el proxy llegan con la W-06. En la 117 vive en /srv/apolo-training y se
+# corre desde ahí; ver «La plataforma en la 117» en deploy/README.md.
+#
+#   docker compose up -d
+#   docker compose exec db psql -U training -c 'select 1'
+#
+# Los datos y la clave están fuera del repo, en APOLO_TRAINING_RAIZ
+# (/srv/apolo-training por defecto; el rol docker de Ansible crea las carpetas).
+name: apolo-training
+
+services:
+  db:
+    # Versión menor fijada; Debian y no Alpine porque su usuario postgres es el
+    # uid 999, el dueño de pgdata en el rol docker.
+    image: postgres:16.15-trixie
+    environment:
+      POSTGRES_USER: training
+      POSTGRES_DB: training
+      # La imagen lee la clave de este archivo; solo se usa al crear la base
+      # (con pgdata vacío).
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      # :Z porque la carpeta es solo de este contenedor (SELinux).
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/pgdata:/var/lib/postgresql/data:Z
+    # Sin ports: solo se llega desde la red interna del compose.
+    networks:
+      - interna
+    healthcheck:
+      # Por TCP a propósito: mientras se inicializa, PostgreSQL solo escucha en
+      # el socket, así que el chequeo no da «listo» antes de tiempo.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U training -d training"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    # Tiempo para cerrar limpio al apagar la VM, antes de que Docker lo mate.
+    stop_grace_period: 1m
+
+networks:
+  # internal: sin salida a internet ni a la red de la 117.
+  interna:
+    internal: true
+
+secrets:
+  db_password:
+    # Una línea con la clave; dueño root, modo 600. Nunca en el repo.
+    file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/db_password

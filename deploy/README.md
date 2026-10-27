@@ -2,8 +2,9 @@
 
 Aquí van los archivos para levantar la plataforma con Docker Compose:
 
-- `compose.dev.yaml`: el entorno de desarrollo en tu equipo (esta guía).
-- `compose.yaml` y `nginx.conf`: la plataforma en la 117 (llegan con la W-06).
+- `compose.dev.yaml`: el entorno de desarrollo en tu equipo.
+- `compose.yaml`: la plataforma en la 117. Hoy solo trae la base (W-05); el
+  resto de servicios y `nginx.conf` llegan con la W-06.
 
 Cada servicio trae su `Dockerfile` en su propia carpeta (`api/Dockerfile`,
 `web/Dockerfile`…), y el dueño de las imágenes publicadas va en la variable
@@ -210,3 +211,50 @@ que no está en este entorno. Puertos: `API_IMAGEN_PUERTO` (8001) y
 - **La base de pruebas no existe**: el script que la crea
   (`dev/initdb/10-base-pruebas.sh`) solo corre con el volumen vacío. Si tu
   volumen es anterior, bórralo con `down -v`.
+
+## La plataforma en la 117
+
+`compose.yaml` vive en `/srv/apolo-training` y se corre desde ahí. El rol
+`docker` de Ansible (W-04) ya deja Docker arrancando con la VM y las carpetas de
+datos con su dueño y su etiqueta SELinux.
+
+| Servicio | Qué es                                                          |
+| -------- | --------------------------------------------------------------- |
+| `db`     | PostgreSQL 16.15, base y usuario `training`, datos en `pgdata/` |
+
+- **Sin puertos publicados.** `db` solo está en la red `interna`, que además es
+  `internal`: no tiene salida a internet. La API la encontrará en `db:5432`.
+- **La clave no está en el repo.** Es un secret de Compose que se lee de
+  `/srv/apolo-training/secrets/db_password` (root, 600). La imagen solo la usa
+  al crear la base, con `pgdata/` vacío: cambiar el archivo después no cambia
+  la clave (hace falta `ALTER USER training PASSWORD …` en `psql`).
+- **Arranca sola** tras reiniciar la VM: `restart: unless-stopped`. Si alguien
+  la detiene con `docker compose stop`, no vuelve hasta un `up`.
+
+### Levantarla la primera vez
+
+Como administrador de la 117 (en el grupo `docker`), desde una copia del repo:
+
+```bash
+# La clave, una sola vez. En hex para que luego sirva tal cual en la URL de la API.
+sudo sh -c 'umask 077; openssl rand -hex 32 > /srv/apolo-training/secrets/db_password'
+sudo install -m 0644 deploy/compose.yaml /srv/apolo-training/compose.yaml
+cd /srv/apolo-training
+docker compose up -d --wait     # termina cuando db está healthy
+```
+
+### Verificar
+
+```bash
+cd /srv/apolo-training
+docker compose exec db psql -U training -c 'select 1'   # 1 fila
+docker compose ps        # db: Up (healthy); en PORTS, 5432/tcp sin «->»
+sudo ss -tlnp | grep -w 5432    # nada: el 5432 no se publica en la 117
+sudo reboot              # y al volver: docker compose ps → Up (healthy)
+```
+
+Para probar este compose en tu equipo sin tocar `/srv`, apunta
+`APOLO_TRAINING_RAIZ` a una carpeta con `pgdata/` y `secrets/db_password`:
+`APOLO_TRAINING_RAIZ=/tmp/raiz docker compose -f deploy/compose.yaml up -d`.
+`pgdata/` queda con dueño 999; bórrala desde un contenedor
+(`docker run --rm -v /tmp/raiz:/r alpine rm -rf /r/pgdata`).
