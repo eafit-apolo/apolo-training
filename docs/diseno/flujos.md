@@ -68,7 +68,7 @@ sequenceDiagram
   API->>DB: argon2, intentos_fallidos, bloqueado_hasta
   API-->>W: 200 + cookies at (15 min), rt (7 días), csrf
   Note over W: debe_cambiar_clave = true → la guardia lleva a /cambiar-clave
-  U->>W: contraseña nueva (10 caracteres o más)
+  U->>W: contraseña nueva (8 caracteres o más)
   W->>API: POST /api/auth/cambiar-clave + X-CSRF-Token
   API->>DB: hash nuevo, debe_cambiar_clave = false, revoca las demás sesiones
   API-->>W: 204
@@ -80,13 +80,19 @@ sequenceDiagram
 - **Cookies.** `at` (token de acceso, 15 min) y `rt` (refresh, 7 días, solo en
   `/api/auth`) son `HttpOnly`, `Secure` y `SameSite=Strict`. `csrf` es legible
   por la app y se devuelve en la cabecera `X-CSRF-Token` en todo lo que no sea
-  `GET` (doble envío, B-03).
+  `GET` (doble envío ligado a la sesión, B-03: es un HMAC del id de la sesión,
+  así que una cookie `csrf` plantada por otro sitio no sirve).
+- **Renovación.** Cada `POST /api/auth/refresh` rota `rt` y cuenta los 7 días
+  otra vez. Un `rt` ya rotado que llega en los 30 s siguientes (otra pestaña)
+  no cambia nada; si llega después, se cierran todas las sesiones del usuario.
+- **Bloqueo.** Al quinto intento fallido, 15 minutos de bloqueo y el contador
+  vuelve a 0. Un usuario inexistente recibe lo mismo que una clave errada.
 - **Errores con código.** La API responde `{"detail": "...", "codigo": "..."}` y
   la app traduce el `codigo` con Transloco (`clave_incorrecta`,
   `cuenta_bloqueada`, `debe_cambiar_clave`…). Así los mensajes salen en el
   idioma de la interfaz sin que la API sepa de idiomas.
-- Mientras `debe_cambiar_clave` sea `true`, todo salvo `/api/auth/*` y
-  `GET /api/me` responde 403 con `codigo = debe_cambiar_clave`.
+- Mientras `debe_cambiar_clave` sea `true`, todo salvo `/api/auth/*`,
+  `GET /api/me` y `PATCH /api/me` responde 403 con `codigo = debe_cambiar_clave`.
 - **Olvidé mi contraseña:** en la v0 no hay correo saliente, así que la pantalla
   indica escribir a soporte y un instructor la reinicia desde el panel.
 

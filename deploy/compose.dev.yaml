@@ -23,6 +23,13 @@ x-api-dev: &api-dev
   environment:
     API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training
     API_DOCS: "true"
+    # Firma las sesiones (B-03). Valor fijo y solo de desarrollo, como la clave
+    # de la base: el de la 117 irá en /srv/apolo-training/secrets (W-06).
+    API_SECRETO: desarrollo-desarrollo-desarrollo-desarrollo
+    # true: el navegador solo guarda las cookies de sesión en localhost. Para
+    # probar desde el celular por la IP del equipo:
+    # API_COOKIES_SEGURAS=false docker compose -f deploy/compose.dev.yaml up -d
+    API_COOKIES_SEGURAS: ${API_COOKIES_SEGURAS:-true}
 
 services:
   db:
@@ -123,6 +130,7 @@ services:
     environment:
       API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training
       API_DOCS: "true"
+      API_SECRETO: desarrollo-desarrollo-desarrollo-desarrollo
     ports:
       - "127.0.0.1:${API_IMAGEN_PUERTO:-8001}:8000"
     depends_on:

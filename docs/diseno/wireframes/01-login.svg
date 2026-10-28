@@ -75,7 +75,7 @@
 <text x="787" y="535.0" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">••••••••••••••</text>
 <circle cx="782.5" cy="573.5" r="7.5" fill="#2e7d32" stroke="none" stroke-width="1"/>
 <path d="M778.75 573.65 l2.85 3.0 l5.1000000000000005 -5.8500000000000005" fill="none" stroke="#fff" stroke-width="1.6666666666666667" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="799" y="578" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">10 caracteres o más</text>
+<text x="799" y="578" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">8 caracteres o más</text>
 <circle cx="782.5" cy="597.5" r="7.5" fill="#2e7d32" stroke="none" stroke-width="1"/>
 <path d="M778.75 597.65 l2.85 3.0 l5.1000000000000005 -5.8500000000000005" fill="none" stroke="#fff" stroke-width="1.6666666666666667" stroke-linecap="round" stroke-linejoin="round"/>
 <text x="799" y="602" font-size="13" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">Distinta de la temporal</text>

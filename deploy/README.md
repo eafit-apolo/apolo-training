@@ -126,6 +126,17 @@ Se puede correr las veces que sea: crea los que falten y no toca los que ya
 existen. Para volver a los datos de ejemplo desde cero, `down -v` y `up`. El
 módulo de ejemplo con lección, video y quiz llega con el importador (B-04).
 
+Desde la B-03 se puede entrar con ellos (`POST /api/auth/login`). Si cambias la
+clave de `bruno` o bloqueas a alguien con 5 intentos fallidos, `down -v` y `up`
+lo dejan como al principio. Las sesiones las firma `API_SECRETO`, que en este
+compose tiene un valor fijo de desarrollo.
+
+Las cookies de la sesión llevan `Secure`: Chrome y Firefox las aceptan en
+`http://localhost`, pero Safari (y cualquier navegador que entre por la IP del
+equipo, como el celular) las descarta. Para esa prueba, levanta el entorno con
+`API_COOKIES_SEGURAS=false` en la misma terminal y vuelve a levantarlo sin la
+variable al terminar.
+
 ### Tareas de cada día
 
 Todos desde la raíz del repo. Para escribir menos, puedes crear un alias:

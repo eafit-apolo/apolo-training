@@ -7,6 +7,7 @@ from fastapi import APIRouter, Request, Response, status
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.core.auth import publica
 from app.core.db import EngineDep
 from app.schemas.salud import Salud
 
@@ -19,6 +20,7 @@ router = APIRouter(tags=["salud"])
     "/health",
     operation_id="salud",
     summary="Estado de la API y de la conexión a PostgreSQL",
+    **publica(),
     responses={
         status.HTTP_503_SERVICE_UNAVAILABLE: {
             "model": Salud,
