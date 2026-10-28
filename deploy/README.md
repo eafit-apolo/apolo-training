@@ -190,8 +190,12 @@ docker compose -f deploy/compose.dev.yaml --profile imagenes down
 ```
 
 `web-imagen` solo sirve la app: `/api` lo reparte el nginx de borde de la 117,
-que no está en este entorno. Puertos: `API_IMAGEN_PUERTO` (8001) y
-`WEB_IMAGEN_PUERTO` (8080).
+que no está en este entorno. Puertos: `API_IMAGEN_PUERTO` (8001),
+`WEB_IMAGEN_PUERTO` (8080) y `TERMINAL_IMAGEN_PUERTO` (8002).
+
+`terminal-imagen` abre SSH de verdad hacia la VM de práctica, así que necesita
+la VPN y la llave revisada de la VM; los pasos están en
+[`terminal/README.md`](../terminal/README.md).
 
 ### Si algo falla
 

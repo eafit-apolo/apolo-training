@@ -104,6 +104,31 @@ jobs:
       - name: Correr pytest
         run: python -m pytest verifier
 
+  terminal:
+    name: terminal
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # ruff de terminal/ ya lo corre el job pre-commit (con terminal/ruff.toml).
+    # Las pruebas no necesitan la API ni la VM: usan dobles y un servidor SSH
+    # de asyncssh dentro del mismo proceso.
+    defaults:
+      run:
+        working-directory: terminal
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: terminal/requirements*.txt
+
+      - name: Instalar las dependencias de prueba
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Correr pytest
+        run: python -m pytest
+
   api:
     name: api
     runs-on: ubuntu-24.04

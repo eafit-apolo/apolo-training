@@ -31,6 +31,7 @@ docker_directorios:
   - { nombre: backups, dueno: root, modo: "0700" }
   - { nombre: tls, dueno: root, modo: "0750" } # llaves privadas
   - { nombre: secrets, dueno: root, modo: "0700" } # secrets de Compose (600)
+  - { nombre: terminal, dueno: root, modo: "0755" } # known_hosts de la VM de práctica (644)
 
 # Proyecto de prueba: present lo levanta, absent lo quita (cuando llegue el
 # proxy real, que también publica el 443).

@@ -158,6 +158,21 @@ Motivos de cierre: `inactividad`, `tiempo_maximo`, `otra_sesion`,
 `ssh_rechazado`, `sesion_invalida`, `error`. La app los traduce y ofrece
 reconectar.
 
+Lo que decidió la implementación (T-05, ver [`terminal/`](../../terminal/README.md)):
+
+- Una URL con parámetros (`/ws/terminal?host=…`) se rechaza con 403, igual que
+  un `Origin` ajeno.
+- `debe_cambiar_clave` cierra con `sesion_invalida`: primero se cambia la clave
+  de la plataforma.
+- Mientras sshd pide la contraseña, el gateway hace de editor de línea (Enter y
+  Retroceso, sin eco). Con la PTY abierta, `entrada` va tal cual a la VM.
+- `tamano` puede llegar antes de la PTY; si no llega, se abre con 80×24.
+- Cuando el usuario sale del shell (`exit`), llega `estado: cerrado` sin
+  `motivo`.
+- La inactividad cuenta solo lo que el usuario escribe: un comando largo sin
+  teclear nada también se cierra a los 15 minutos.
+- La sesión de la plataforma se valida solo al conectar.
+
 ## 4. Sincronización de laboratorios
 
 ```mermaid

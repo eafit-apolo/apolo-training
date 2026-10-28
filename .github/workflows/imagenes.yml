@@ -1,5 +1,5 @@
-# Imágenes (V-02): construye las imágenes de api/ y web/ en cada PR, sin
-# publicarlas, y al llegar a main (o con un tag vX.Y.Z) las publica en GHCR.
+# Imágenes (V-02): construye las imágenes de api/, web/ y terminal/ en cada PR,
+# sin publicarlas, y al llegar a main (o con un tag vX.Y.Z) las publica en GHCR.
 # No es un check obligatorio de main, así que sí lleva filtros de rutas.
 # El dueño de las imágenes va en la variable IMAGE_PREFIX del repo.
 name: Imágenes
@@ -9,15 +9,17 @@ on:
     paths:
       - "api/**"
       - "web/**"
+      - "terminal/**"
       - ".github/workflows/imagenes.yml"
   push:
     branches: [main]
     # GitHub no aplica los filtros de rutas a los tags: un tag siempre
-    # construye las dos imágenes.
+    # construye todas las imágenes.
     tags: ["v*.*.*"]
     paths:
       - "api/**"
       - "web/**"
+      - "terminal/**"
       - ".github/workflows/imagenes.yml"
   # Para republicar a mano (por ejemplo, tras cambiar IMAGE_PREFIX en la A-16).
   # Solo publica si se lanza sobre main o sobre un tag vX.Y.Z.
@@ -41,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        imagen: [api, web]
+        imagen: [api, web, terminal]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -73,7 +75,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        imagen: [api, web]
+        imagen: [api, web, terminal]
     env:
       IMAGE_PREFIX: ${{ vars.IMAGE_PREFIX }}
       IMAGEN: apolo-training-${{ matrix.imagen }}

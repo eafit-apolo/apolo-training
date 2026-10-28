@@ -1,0 +1,15 @@
+# Solo entran requirements.txt y app/.
+**/__pycache__
+**/*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+tests/
+Dockerfile
+.dockerignore
+README.md
+pytest.ini
+ruff.toml
+requirements-dev.txt
