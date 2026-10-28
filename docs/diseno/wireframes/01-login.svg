@@ -32,7 +32,7 @@
 <text x="157" y="385.0" font-size="14" fill="#222" font-weight="normal" text-anchor="start" xml:space="preserve">••••••••••</text>
 <rect x="145" y="418" width="360" height="58" rx="6" fill="#fbe4e4" stroke="#c62828" stroke-width="1"/>
 <text x="161" y="442" font-size="13" fill="#c62828" font-weight="bold" text-anchor="start" xml:space="preserve">Usuario o contraseña incorrectos.</text>
-<text x="161" y="462" font-size="13" fill="#c62828" font-weight="normal" text-anchor="start" xml:space="preserve">Te quedan 3 intentos antes de un bloqueo de 15 min.</text>
+<text x="161" y="462" font-size="13" fill="#666" font-weight="normal" text-anchor="start" xml:space="preserve">Tras 5 intentos fallidos, bloqueo de 15 min.</text>
 <circle cx="517" cy="432" r="11" fill="#d6336c" stroke="#fff" stroke-width="2"/>
 <text x="517" y="436.5" font-size="12" fill="#fff" font-weight="bold" text-anchor="middle" xml:space="preserve">2</text>
 <rect x="145" y="492" width="360" height="40" rx="6" fill="#1f5fbf" stroke="#1f5fbf" stroke-width="1"/>

@@ -19,6 +19,7 @@
   "paginas": {
     "ingresar": "Ingresar",
     "cambiarClave": "Crea tu contraseña",
+    "cambiarClaveVoluntario": "Cambiar contraseña",
     "catalogo": "Cursos",
     "leccion": "Lección",
     "miProgreso": "Mi progreso",
@@ -46,8 +47,7 @@
   },
   "usuario": {
     "cambiarClave": "Cambiar contraseña",
-    "salir": "Cerrar sesión",
-    "probarComo": "Probar como (datos de ejemplo)"
+    "salir": "Cerrar sesión"
   },
   "migas": {
     "etiqueta": "Ruta de navegación"
@@ -121,5 +121,71 @@
   },
   "leccion": {
     "pendiente": "El contenido de la lección (video, resumen, práctica y quiz) todavía está en construcción."
+  },
+  "cuenta": {
+    "mostrarClave": "Mostrar la contraseña",
+    "mostrarClaves": "Mostrar las contraseñas",
+    "ingresar": {
+      "titulo": "Ingresa al curso de inducción",
+      "subtitulo": "Usa el mismo usuario de tu cuenta de Apolo II o Apolo III.",
+      "usuario": "Usuario",
+      "clave": "Contraseña",
+      "faltaUsuario": "Escribe tu usuario.",
+      "faltaClave": "Escribe tu contraseña.",
+      "bloqueo": "Tras 5 intentos fallidos la cuenta se bloquea 15 minutos.",
+      "entrar": "Ingresar",
+      "entrando": "Ingresando…",
+      "vencida": "Tu sesión terminó. Vuelve a ingresar para seguir donde estabas.",
+      "olvido": "¿Olvidaste tu contraseña?",
+      "olvidoTexto": "Escribe al equipo de Apolo y te la reinician:",
+      "sinCuenta": "¿No tienes cuenta?",
+      "sinCuentaTexto": "La crea el equipo de Apolo cuando aprueba tu solicitud."
+    },
+    "cambiar": {
+      "tituloPrimer": "Crea tu contraseña",
+      "subtituloPrimer": "Es tu primer ingreso: la contraseña temporal solo sirve una vez.",
+      "titulo": "Cambiar contraseña",
+      "subtitulo": "Al guardarla se cierran tus sesiones en otros equipos; esta sigue abierta.",
+      "dosClavesPrimer": "Esta contraseña es solo para la plataforma. La de la VM de práctica la cambias en tu primera conexión SSH (módulo 1).",
+      "dosClaves": "Esta contraseña es solo para la plataforma: la de la VM de práctica no cambia.",
+      "temporal": "Contraseña temporal",
+      "actual": "Contraseña actual",
+      "faltaActual": "Escribe tu contraseña actual.",
+      "nueva": "Nueva contraseña",
+      "repetir": "Repite la nueva contraseña",
+      "cumple": "Cumple:",
+      "falta": "Falta:",
+      "reglas": {
+        "largo": "8 caracteres o más",
+        "maximo": "128 caracteres como máximo",
+        "distintaTemporal": "Distinta de la temporal",
+        "distintaActual": "Distinta de la actual",
+        "distintaUsuario": "Distinta de tu usuario",
+        "coinciden": "Las dos coinciden"
+      },
+      "revisar": "Revisa los requisitos de la nueva contraseña.",
+      "guardarPrimer": "Guardar y continuar",
+      "guardar": "Guardar",
+      "cancelar": "Cancelar",
+      "sinCurso": "Hasta que la cambies no puedes abrir el curso.",
+      "hecho": "Cambiaste tu contraseña. Cerramos tus sesiones en otros equipos."
+    }
+  },
+  "errores": {
+    "clave_incorrecta": "Usuario o contraseña incorrectos.",
+    "cuenta_bloqueada": {
+      "uno": "Tu cuenta quedó bloqueada por varios intentos fallidos. Podrás intentarlo otra vez a las {{hora}}, en 1 minuto.",
+      "otros": "Tu cuenta quedó bloqueada por varios intentos fallidos. Podrás intentarlo otra vez a las {{hora}}, en {{minutos}} minutos."
+    },
+    "cuenta_bloqueada_sin_hora": "Tu cuenta quedó bloqueada por varios intentos fallidos. Vuelve a intentarlo en 15 minutos.",
+    "cuenta_inactiva": "Tu cuenta está dada de baja. Si crees que es un error, escribe a {{correo}}.",
+    "demasiadas_peticiones": "Demasiados intentos seguidos. Espera un minuto y vuelve a intentarlo.",
+    "sin_conexion": "No pudimos comunicarnos con la plataforma. Revisa tu conexión a la VPN de EAFIT e inténtalo de nuevo.",
+    "inesperado": "Algo falló de nuestro lado. Inténtalo de nuevo en unos minutos.",
+    "clave_temporal_incorrecta": "La contraseña temporal no es correcta.",
+    "clave_actual_incorrecta": "La contraseña actual no es correcta.",
+    "clave_debil": "La nueva contraseña debe tener 8 caracteres o más y ser distinta de tu usuario.",
+    "clave_repetida": "La nueva contraseña debe ser distinta de la actual.",
+    "clave_larga": "La contraseña puede tener 128 caracteres como máximo."
   }
 }

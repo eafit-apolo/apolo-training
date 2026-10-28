@@ -35,11 +35,20 @@ acciones.
 
 ![Wireframe de inicio de sesión y primer ingreso](wireframes/01-login.svg)
 
+**Desde la F-03, las capturas `capturas/f03-*.png` reemplazan a este
+wireframe:** ingreso, clave errada, bloqueo y cambio de clave (primer ingreso y
+voluntario), en celular y en escritorio.
+
 1. **Usuario de su clúster.** El mismo de Apolo II o Apolo III. No hay registro
    propio: las cuentas las crea el equipo (ver [flujos](flujos.md#1-alta-de-una-cuenta)).
-2. **Errores con código.** La API responde `clave_incorrecta` o
-   `cuenta_bloqueada` y la app arma el mensaje en el idioma elegido. Tras 5
-   intentos, bloqueo de 15 minutos (B-03).
+   La app lo manda en minúsculas y sin espacios.
+2. **Errores con código.** La API responde `clave_incorrecta`,
+   `cuenta_bloqueada` o `cuenta_inactiva` y la app arma el mensaje en el idioma
+   elegido. Tras 5 intentos, bloqueo de 15 minutos (B-03). La pantalla **no dice
+   cuántos intentos quedan** (eso delataría qué usuarios existen): muestra un
+   aviso fijo, y con el bloqueo, la hora de desbloqueo en la hora local con la
+   diferencia con UTC («3:42 p. m. GMT-5») y los minutos que faltan, para que
+   alguien en otro país no se confunda.
 3. **Sin recuperación por correo** en la v0: no hay correo saliente. Un
    instructor reinicia la clave desde el panel (pantalla 06).
 4. **Idioma.** Antes de iniciar sesión se toma del navegador; después, del
@@ -50,10 +59,17 @@ acciones.
 6. **Política:** 8 caracteres o más (128 como máximo), distinta de la temporal
    y del usuario. La validación se ve mientras se escribe; la API vuelve a
    validar (`clave_debil`, `clave_repetida`).
+7. **Cambio voluntario.** «Cambiar contraseña» sigue en el menú de usuario
+   (F-03): la misma pantalla pide la contraseña actual, tiene «Cancelar» y avisa
+   que se cierran las sesiones en otros equipos.
+8. **Sesión vencida.** Si la sesión no se puede renovar, la app vuelve aquí con
+   «Tu sesión terminó» y, al entrar, regresa a la página donde estaba
+   (`?volver=`, solo rutas de la app).
 
-**API:** `POST /auth/login`, `POST /auth/cambiar-clave`, `GET /me`.
+**API:** `POST /auth/login`, `POST /auth/cambiar-clave`, `GET /me`,
+`PATCH /me` (idioma), `POST /auth/logout`.
 **Estados:** cargando (botón deshabilitado), clave errada, cuenta bloqueada con
-la hora de desbloqueo, cuenta dada de baja.
+la hora de desbloqueo, cuenta dada de baja, sin conexión (VPN), sesión vencida.
 
 ## 02 Catálogo
 

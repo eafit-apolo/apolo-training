@@ -1,0 +1,92 @@
+<div class="cuenta">
+  <section class="tarjeta" aria-labelledby="titulo-cuenta">
+    <h1 id="titulo-cuenta">{{ 'cuenta.ingresar.titulo' | transloco }}</h1>
+    <p class="subtitulo">{{ 'cuenta.ingresar.subtitulo' | transloco }}</p>
+
+    @if (vencida()) {
+      <div class="aviso" role="status">
+        <at-icono nombre="info" />
+        <p>{{ 'cuenta.ingresar.vencida' | transloco }}</p>
+      </div>
+    }
+
+    <form novalidate (submit)="enviar($event)">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'cuenta.ingresar.usuario' | transloco }}</mat-label>
+        <input
+          matInput
+          name="username"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
+          required
+          [value]="username()"
+          [atErrorSi]="faltaUsuario()"
+          (input)="username.set(valorDe($event))"
+        />
+        <mat-error>{{ 'cuenta.ingresar.faltaUsuario' | transloco }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'cuenta.ingresar.clave' | transloco }}</mat-label>
+        <input
+          #campoClave
+          matInput
+          name="clave"
+          autocomplete="current-password"
+          required
+          [type]="ver() ? 'text' : 'password'"
+          [value]="clave()"
+          [atErrorSi]="faltaClave()"
+          (input)="clave.set(valorDe($event))"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          [attr.aria-label]="'cuenta.mostrarClave' | transloco"
+          [attr.aria-pressed]="ver()"
+          (click)="ver.set(!ver())"
+        >
+          <at-icono [nombre]="ver() ? 'ocultar' : 'ver'" />
+        </button>
+        <mat-error>{{ 'cuenta.ingresar.faltaClave' | transloco }}</mat-error>
+      </mat-form-field>
+
+      @if (error(); as e) {
+        <div class="aviso aviso-error" role="alert">
+          <at-icono nombre="error" />
+          @switch (e.tipo) {
+            @case ('cuenta_bloqueada') {
+              @if (bloqueo(); as b) {
+                <p>{{ plural('errores.cuenta_bloqueada', b.minutos) | transloco: b }}</p>
+              }
+            }
+            @case ('cuenta_inactiva') {
+              <p>{{ 'errores.cuenta_inactiva' | transloco: { correo } }}</p>
+            }
+            @default {
+              <p>{{ 'errores.' + e.tipo | transloco }}</p>
+            }
+          }
+        </div>
+      }
+
+      <p class="nota">{{ 'cuenta.ingresar.bloqueo' | transloco }}</p>
+
+      <button mat-flat-button type="submit" class="principal" [disabled]="enviando()">
+        {{ (enviando() ? 'cuenta.ingresar.entrando' : 'cuenta.ingresar.entrar') | transloco }}
+      </button>
+    </form>
+
+    <div class="ayuda">
+      <h2>{{ 'cuenta.ingresar.olvido' | transloco }}</h2>
+      <p>
+        {{ 'cuenta.ingresar.olvidoTexto' | transloco }}
+        <a [href]="'mailto:' + correo">{{ correo }}</a>
+      </p>
+      <h2>{{ 'cuenta.ingresar.sinCuenta' | transloco }}</h2>
+      <p>{{ 'cuenta.ingresar.sinCuentaTexto' | transloco }}</p>
+    </div>
+  </section>
+</div>

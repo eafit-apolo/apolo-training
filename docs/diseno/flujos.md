@@ -93,6 +93,12 @@ sequenceDiagram
   idioma de la interfaz sin que la API sepa de idiomas.
 - Mientras `debe_cambiar_clave` sea `true`, todo salvo `/api/auth/*`,
   `GET /api/me` y `PATCH /api/me` responde 403 con `codigo = debe_cambiar_clave`.
+- **En la app (F-03).** Al arrancar, si no hay cookie `csrf` no hay sesión y no
+  se llama a la API; si la hay, `GET /api/me` trae el perfil y su idioma. Las
+  guardias llevan a `/ingresar?volver=…` sin sesión, a `/cambiar-clave` con la
+  clave temporal y a `/cursos` a quien abre Panel o Administración sin su rol.
+  El interceptor renueva una sola vez aunque fallen varias peticiones a la vez;
+  si la renovación falla, lleva a `/ingresar` con «Tu sesión terminó».
 - **Olvidé mi contraseña:** en la v0 no hay correo saliente, así que la pantalla
   indica escribir a soporte y un instructor la reinicia desde el panel.
 

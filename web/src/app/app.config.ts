@@ -1,4 +1,4 @@
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import type { ApplicationConfig } from '@angular/core';
 import {
   inject,
@@ -18,6 +18,8 @@ import { routes } from './app.routes';
 import { CargadorTraducciones } from './core/i18n/cargador';
 import { IDIOMAS, IDIOMA_POR_DEFECTO, IdiomaService } from './core/i18n/idioma';
 import { TituloTraducido } from './core/i18n/titulo';
+import { interceptorSesion } from './core/sesion/interceptor';
+import { SesionService } from './core/sesion/sesion';
 
 /** Opciones del router; las pruebas de rutas usan las mismas. */
 export const opcionesRouter = [
@@ -31,7 +33,7 @@ export const opcionesRouter = [
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([interceptorSesion])),
     provideRouter(routes, ...opcionesRouter),
     { provide: TitleStrategy, useClass: TituloTraducido },
     provideTransloco({
@@ -45,6 +47,13 @@ export const appConfig: ApplicationConfig = {
       },
       loader: CargadorTraducciones,
     }),
-    provideAppInitializer(() => inject(IdiomaService).iniciar()),
+    // Primero el idioma guardado o del navegador (se aplica en el acto) y a la
+    // vez la sesión: si hay perfil, su idioma manda. La app espera a los dos
+    // para que las guardias ya sepan quién entra.
+    provideAppInitializer(() => {
+      const idioma = inject(IdiomaService).iniciar();
+      const sesion = inject(SesionService).iniciar();
+      return Promise.all([idioma, sesion]).then(() => undefined);
+    }),
   ],
 };

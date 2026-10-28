@@ -49,8 +49,8 @@ src/
     ├── core/
     │   ├── i18n/          # idioma inicial, cargador y títulos traducidos
     │   ├── layout/        # shell: encabezado, menú (☰ en celular), idioma y menú de usuario
-    │   └── sesion/        # usuario actual (hoy uno de ejemplo; GET /api/me en la F-03)
-    ├── shared/            # ícono, migas de pan, plural y la pantalla provisional
+    │   └── sesion/        # sesión (GET /api/me), interceptor, guardias y errores de la API
+    ├── shared/            # ícono, migas de pan, plural, [atErrorSi] y la pantalla provisional
     └── features/          # una carpeta por sección, cargada aparte (lazy)
         ├── cuenta/        # 01 ingresar y cambiar la clave (sin menú)
         ├── cursos/        # 02 catálogo y curso; 03 módulo y lección, con la barra lateral
@@ -81,12 +81,9 @@ Las pantallas del aula reciben los parámetros de sus rutas padre
 
 **Datos de ejemplo.** Mientras no exista la API de contenido (B-04), los
 cursos salen de `features/cursos/datos/datos-ejemplo.ts` y el avance de cada
-usuario de ejemplo (los mismos de `api/app/datos_ejemplo.py`) se calcula con
-`armarCurso()`. En el menú de usuario, «Probar como» cambia de usuario: Ana va
-en el módulo 5, Bruno no ha empezado, Carla (instructora) va a mitad del 7 y
-Diego (admin) terminó. Panel y Administración solo se muestran a su rol; las
-guardias de ruta y la sesión real son de la F-03, que también quita «Probar
-como».
+usuario de ejemplo de la API (`api/app/datos_ejemplo.py`) se calcula con
+`armarCurso()`: Ana va en el módulo 5, Bruno no ha empezado, Carla
+(instructora) va a mitad del 7 y Diego (admin) terminó.
 
 **Adaptable.** Celular hasta 599 px (desde 360), tableta hasta 1023 y
 escritorio desde 1024. Por debajo de 840 px el menú pasa al botón ☰; por
@@ -104,6 +101,38 @@ uno, copia el `d` del SVG del paquete `@material-symbols/svg-400`.
 página. Las pruebas pasan axe por cada pantalla (`src/testing/axe.ts`); el
 contraste no se puede medir en jsdom y se revisa en el navegador.
 
+## Sesión (F-03)
+
+La sesión es la de la API (B-03): cookies `at`, `rt` y `csrf`. La app nunca ve
+`at` ni `rt` (`HttpOnly`); solo lee `csrf`.
+
+- **Al arrancar** (`provideAppInitializer` en `app.config.ts`),
+  `SesionService.iniciar()` pide `GET /api/me` si existe la cookie `csrf`. Sin
+  ella no hay sesión que renovar y no llama a la API.
+- **Interceptor** (`core/sesion/interceptor.ts`, solo para `/api/…`): pone
+  `X-CSRF-Token` en todo lo que no sea GET; ante un 401 hace un solo
+  `POST /api/auth/refresh`, compartido por todas las peticiones que fallaron a
+  la vez, y las repite (un 204 sin cookies nuevas también vale). Si la
+  renovación falla, `/ingresar?motivo=vencida&volver=…`. Un 403
+  `debe_cambiar_clave` lleva a `/cambiar-clave`.
+- **Guardias** (`core/sesion/guardias.ts`): `conSesion` en todo lo que tiene
+  menú (sin sesión, a `/ingresar?volver=…`; con la clave temporal, a
+  `/cambiar-clave`); `conRol(...)` en `canMatch` de Panel y Administración (sin
+  el rol, a `/cursos`, sin descargar el código de esa sección); `sinSesion` en
+  `/ingresar`. La API revisa los roles igual: las guardias solo evitan mostrar
+  pantallas que van a fallar.
+- **Pantallas de cuenta** (`features/cuenta/`): sin `@angular/forms`. Los
+  campos son signals y `[atErrorSi]` (`shared/error-si.ts`) le dice a
+  `matInput` cuándo marcar el error. Así `@angular/forms` no entra al bundle
+  inicial (el selector de idioma, que también lo usa, va con `@defer`).
+
+Para probar en local, `docker compose -f deploy/compose.dev.yaml up --build` y
+los usuarios de ejemplo con la clave `apolo-training-dev`: `ana` (estudiante),
+`bruno` (debe cambiar la clave, perfil en inglés), `carla` (instructora),
+`diego` (admin) y `elena` (dada de baja). Las cookies llevan `Secure`: usa
+Chrome o Firefox en `http://localhost:4200` (para Safari o el celular,
+`API_COOKIES_SEGURAS=false`, ver `deploy/README.md`).
+
 ## Idiomas
 
 Los textos de la interfaz están en `public/i18n/es.json` y `en.json`. Una
@@ -112,8 +141,8 @@ toda clave nueva va en ambos.
 
 El idioma inicial es el que el usuario eligió antes en ese navegador; si no, el
 del navegador, y si no, español. Cambiarlo con el selector ES/EN cambia los
-textos y el título de la pestaña sin recargar. Cuando exista la sesión, el del
-perfil (`GET /api/me`) mandará sobre los demás.
+textos y el título de la pestaña sin recargar. Con sesión manda el del perfil
+(`GET /api/me`), y el selector también lo guarda ahí (`PATCH /api/me`).
 
 ## Imagen
 
