@@ -1,5 +1,5 @@
-# La plataforma en la 117. Hoy solo la base (W-05); la API, la web, la terminal
-# y el proxy llegan con la W-06. En la 117 vive en /srv/apolo-training y se
+# La plataforma en la 117. Hoy la base (W-05) y la terminal (T-05); la API, la
+# web y el proxy llegan con la W-06. En la 117 vive en /srv/apolo-training y se
 # corre desde ahí; ver «La plataforma en la 117» en deploy/README.md.
 #
 #   docker compose up -d
@@ -40,10 +40,38 @@ services:
     # Tiempo para cerrar limpio al apagar la VM, antes de que Docker lo mate.
     stop_grace_period: 1m
 
+  terminal:
+    # Imagen de terminal/Dockerfile que publica la CI (Imágenes). La W-06
+    # alinea las etiquetas con las de la API y la web.
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-terminal:${TERMINAL_TAG:-main}
+    environment:
+      TERMINAL_ORIGEN: https://training.apolo.eafit.edu.co
+      TERMINAL_API_URL: http://api:8000
+      # Si el nombre aún no resuelve, la IP va en el .env de la 117, nunca en
+      # el repo (y known_hosts debe usar ese mismo nombre o IP).
+      TERMINAL_SSH_HOST: ${TERMINAL_SSH_HOST:-apolo-training.apolo.eafit.edu.co}
+    volumes:
+      # Llave pública de la VM de práctica, con la huella revisada a mano (ver
+      # terminal/README.md). :Z porque es solo de este contenedor.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/terminal/known_hosts:/run/terminal/known_hosts:ro,Z
+    # Sin ports: nginx (W-06) le llega por la red interna.
+    networks:
+      - interna # la API
+      - salida # el 22 de la VM de práctica
+    # No escribe en disco ni necesita privilegios.
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
 networks:
   # internal: sin salida a internet ni a la red de la 117.
   interna:
     internal: true
+  # La única red con salida; solo la usa terminal, para el SSH a la VM de
+  # práctica. DOCKER-USER (rol docker) le bloquea lo mismo que a la VM.
+  salida: {}
 
 secrets:
   db_password:

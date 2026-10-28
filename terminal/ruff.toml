@@ -1,0 +1,37 @@
+# ruff del gateway de terminal (FastAPI, Python 3.12). Una configuración anidada
+# no hereda nada (en la raíz no hay ninguna), así que todo va aquí.
+target-version = "py312"
+
+[lint]
+# Lista explícita para no depender de las reglas por defecto de cada versión
+# de ruff (la 0.16 cambió muchas).
+select = [
+  "E",     # pycodestyle
+  "W",
+  "F",     # pyflakes
+  "I",     # orden de imports
+  "UP",    # sintaxis moderna de 3.12
+  "B",     # bugbear
+  "ASYNC", # llamadas que bloquean el event loop
+  "FAST",  # FastAPI: Annotated en dependencias, parámetros de ruta
+  "S",     # seguridad (bandit)
+  "DTZ",   # fechas con zona horaria (expiración de cookies y tokens)
+  "C4",    # comprensiones
+  "SIM",   # simplificaciones
+  "PT",    # estilo de pytest
+  "T20",   # sin print(): se usa logging
+  "RUF",
+]
+ignore = [
+  "E501", # el largo de línea lo maneja ruff format
+]
+
+[lint.per-file-ignores]
+"tests/**" = [
+  "S101", # assert es la forma de probar en pytest
+  "S105", # contraseñas de prueba
+  "S106",
+]
+
+[lint.isort]
+known-first-party = ["app", "tests"]

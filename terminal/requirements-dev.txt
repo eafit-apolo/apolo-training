@@ -1,0 +1,7 @@
+# Pruebas del gateway. ruff no va aquí: lo corre pre-commit.
+-r requirements.txt
+pytest==9.1.1
+# Pruebas con async def (validar_sesion es asíncrona).
+pytest-asyncio==1.4.0
+# El TestClient de FastAPI (Starlette 1.x) usa httpx2 para hablar con la app.
+httpx2==2.16.0

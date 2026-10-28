@@ -146,5 +146,27 @@ services:
     ports:
       - "127.0.0.1:${WEB_IMAGEN_PUERTO:-8080}:8080"
 
+  # La imagen del gateway contra la VM de práctica (hace falta la VPN). Usa las
+  # mismas variables que uvicorn en tu equipo: TERMINAL_SSH_HOST y, para la
+  # llave revisada de la VM, TERMINAL_KNOWN_HOSTS (ver terminal/README.md).
+  terminal-imagen:
+    profiles: [imagenes]
+    build:
+      context: ../terminal
+      args:
+        VERSION: local
+    environment:
+      TERMINAL_ORIGEN: http://localhost:4200
+      TERMINAL_API_URL: http://api:8000
+      TERMINAL_SSH_HOST: ${TERMINAL_SSH_HOST:-apolo-training.apolo.eafit.edu.co}
+    volumes:
+      - ${TERMINAL_KNOWN_HOSTS:-/tmp/known_hosts_116}:/run/terminal/known_hosts:ro,z
+    read_only: true
+    cap_drop: [ALL]
+    ports:
+      - "127.0.0.1:${TERMINAL_IMAGEN_PUERTO:-8002}:8001"
+    depends_on:
+      - api
+
 volumes:
   db:

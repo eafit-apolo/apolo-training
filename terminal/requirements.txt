@@ -1,0 +1,10 @@
+# Dependencias del gateway (imagen y desarrollo). Las comunes con la API van
+# en la misma versión que en api/requirements.txt.
+fastapi==0.143.0
+# [standard] trae la librería websockets, que uvicorn necesita para servir WebSocket.
+uvicorn[standard]==0.54.0
+pydantic-settings==2.15.0
+# Cliente HTTP asíncrono para preguntarle a la API por la sesión (GET /api/me).
+httpx==0.28.1
+# Cliente SSH asíncrono hacia la VM de práctica.
+asyncssh==2.24.1
