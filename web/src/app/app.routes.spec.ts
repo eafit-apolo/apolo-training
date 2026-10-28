@@ -1,14 +1,16 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
 import { Router, TitleStrategy, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { problemasDeAccesibilidad } from '../testing/axe';
+import { ANA, BRUNO, DIEGO, entrarComo } from '../testing/sesion';
 import { traduccionesDePrueba } from '../testing/transloco';
 import { opcionesRouter } from './app.config';
 import { routes } from './app.routes';
 import { TituloTraducido } from './core/i18n/titulo';
-import { SesionService } from './core/sesion/sesion';
 
 describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
   beforeEach(() => {
@@ -16,10 +18,14 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
     TestBed.configureTestingModule({
       imports: [traduccionesDePrueba()],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideRouter(routes, ...opcionesRouter),
         { provide: TitleStrategy, useClass: TituloTraducido },
       ],
     });
+    // Ana va en el módulo 5 (datos de ejemplo de la F-02).
+    entrarComo(ANA);
   });
 
   async function abrir(url: string) {
@@ -39,31 +45,44 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
     expect(pagina.h1).toBe('Hola, Ana');
   });
 
+  // Diego es admin y terminó el curso: puede abrir todas las pantallas.
   it.each([
-    ['/cursos', 'Hola, Ana', true],
-    ['/cursos/induccion', 'Curso de inducción a Apolo', true],
-    ['/cursos/induccion/m05', 'Módulo 5 · Trabajos con Slurm', true],
-    ['/cursos/induccion/m05/trabajos', '5.1 · Tu primer trabajo con Slurm', true],
-    ['/cursos/otro', 'Página no encontrada', true],
-    ['/cursos/induccion/m99', 'Página no encontrada', true],
-    ['/cursos/induccion/m05/no-existe', 'Página no encontrada', true],
-    ['/mi-progreso', 'Mi progreso', true],
-    ['/panel', 'Panel del curso', true],
-    ['/panel/graduaciones', 'Graduaciones', true],
-    ['/panel/videos', 'Videos', true],
-    ['/admin/usuarios', 'Usuarios', true],
-    ['/admin/qos', 'Aprobados pendientes de QOS', true],
-    ['/ingresar', 'Ingresar', false],
-    ['/cambiar-clave', 'Crea tu contraseña', false],
-    ['/no-existe', 'Página no encontrada', true],
-  ])('%s → «%s» (menú: %s)', async (url, h1, conMenu) => {
+    ['/cursos', 'Hola, Diego'],
+    ['/cursos/induccion', 'Curso de inducción a Apolo'],
+    ['/cursos/induccion/m05', 'Módulo 5 · Trabajos con Slurm'],
+    ['/cursos/induccion/m05/trabajos', '5.1 · Tu primer trabajo con Slurm'],
+    ['/cursos/otro', 'Página no encontrada'],
+    ['/cursos/induccion/m99', 'Página no encontrada'],
+    ['/cursos/induccion/m05/no-existe', 'Página no encontrada'],
+    ['/mi-progreso', 'Mi progreso'],
+    ['/panel', 'Panel del curso'],
+    ['/panel/graduaciones', 'Graduaciones'],
+    ['/panel/videos', 'Videos'],
+    ['/admin/usuarios', 'Usuarios'],
+    ['/admin/qos', 'Aprobados pendientes de QOS'],
+    ['/no-existe', 'Página no encontrada'],
+  ])('%s → «%s», con menú', async (url, h1) => {
+    entrarComo(DIEGO);
     const pagina = await abrir(url);
     expect(pagina.url).toBe(url);
     expect(pagina.h1).toBe(h1);
-    expect(pagina.conMenu).toBe(conMenu);
+    expect(pagina.conMenu).toBe(true);
+  });
+
+  it.each([
+    ['/ingresar', null, 'Ingresa al curso de inducción'],
+    ['/cambiar-clave', BRUNO, 'Crea tu contraseña'],
+    ['/cambiar-clave', ANA, 'Cambiar contraseña'],
+  ] as const)('%s (%o) → «%s», sin menú', async (url, usuario, h1) => {
+    entrarComo(usuario);
+    const pagina = await abrir(url);
+    expect(pagina.url).toBe(url);
+    expect(pagina.h1).toBe(h1);
+    expect(pagina.conMenu).toBe(false);
   });
 
   it('/admin lleva a usuarios', async () => {
+    entrarComo(DIEGO);
     expect((await abrir('/admin')).url).toBe('/admin/usuarios');
   });
 
@@ -117,8 +136,8 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
     expect(raiz.querySelector('.cuerpo')).toBeNull();
   });
 
-  it('«Probar como» cambia el avance: Bruno no ha empezado', async () => {
-    TestBed.inject(SesionService).probarComo('bruno');
+  it('el avance es el del usuario de la sesión: Bruno no ha empezado', async () => {
+    entrarComo({ ...BRUNO, idioma: 'es', debe_cambiar_clave: false });
     const { raiz, h1 } = await abrir('/cursos');
     expect(h1).toBe('Hola, Bruno');
     expect(raiz.querySelector('.seguir a')?.textContent).toContain('Empezar');
@@ -128,7 +147,7 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
   });
 
   it('con el curso terminado, «Continuar» lleva a Mi progreso', async () => {
-    TestBed.inject(SesionService).probarComo('diego');
+    entrarComo(DIEGO);
     const { raiz } = await abrir('/cursos');
     expect(raiz.querySelector('.seguir a')?.getAttribute('href')).toBe('/mi-progreso');
   });
@@ -140,7 +159,11 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
     '/cursos/induccion/m05/trabajos',
     '/cursos/induccion/m06',
     '/ingresar',
+    '/cambiar-clave',
   ])('%s no tiene problemas de accesibilidad (axe)', async (url) => {
+    if (url === '/ingresar') {
+      entrarComo(null);
+    }
     const { raiz } = await abrir(url);
     expect(await problemasDeAccesibilidad(raiz)).toEqual([]);
   });

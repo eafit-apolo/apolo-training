@@ -4,6 +4,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslocoPipe } from '@jsverse/transloco';
 import type { Idioma } from '../i18n/idioma';
 import { IDIOMAS, IdiomaService, esIdioma } from '../i18n/idioma';
+import { SesionService } from '../sesion/sesion';
 
 /** Cada idioma se nombra en su propia lengua, sin importar el idioma activo. */
 const NOMBRES: Record<Idioma, string> = { es: 'Español', en: 'English' };
@@ -29,12 +30,14 @@ const NOMBRES: Record<Idioma, string> = { es: 'Español', en: 'English' };
 })
 export class SelectorIdioma {
   protected readonly idioma = inject(IdiomaService);
+  private readonly sesion = inject(SesionService);
   protected readonly idiomas = IDIOMAS;
   protected readonly nombres = NOMBRES;
 
   protected elegir(evento: MatButtonToggleChange): void {
     if (esIdioma(evento.value)) {
-      void this.idioma.cambiar(evento.value);
+      // Con sesión también se guarda en el perfil (PATCH /api/me).
+      void this.sesion.cambiarIdioma(evento.value);
     }
   }
 }

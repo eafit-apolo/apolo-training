@@ -19,6 +19,7 @@
   "paginas": {
     "ingresar": "Sign in",
     "cambiarClave": "Create your password",
+    "cambiarClaveVoluntario": "Change password",
     "catalogo": "Courses",
     "leccion": "Lesson",
     "miProgreso": "My progress",
@@ -46,8 +47,7 @@
   },
   "usuario": {
     "cambiarClave": "Change password",
-    "salir": "Sign out",
-    "probarComo": "Try as (sample data)"
+    "salir": "Sign out"
   },
   "migas": {
     "etiqueta": "Breadcrumb"
@@ -121,5 +121,71 @@
   },
   "leccion": {
     "pendiente": "The lesson content (video, summary, practice and quiz) is still under construction."
+  },
+  "cuenta": {
+    "mostrarClave": "Show password",
+    "mostrarClaves": "Show passwords",
+    "ingresar": {
+      "titulo": "Sign in to the induction course",
+      "subtitulo": "Use the same username as your Apolo II or Apolo III account.",
+      "usuario": "Username",
+      "clave": "Password",
+      "faltaUsuario": "Enter your username.",
+      "faltaClave": "Enter your password.",
+      "bloqueo": "After 5 failed attempts the account is locked for 15 minutes.",
+      "entrar": "Sign in",
+      "entrando": "Signing in…",
+      "vencida": "Your session ended. Sign in again to continue where you left off.",
+      "olvido": "Forgot your password?",
+      "olvidoTexto": "Write to the Apolo team and they will reset it:",
+      "sinCuenta": "Don't have an account?",
+      "sinCuentaTexto": "The Apolo team creates it when they approve your request."
+    },
+    "cambiar": {
+      "tituloPrimer": "Create your password",
+      "subtituloPrimer": "This is your first sign-in: the temporary password only works once.",
+      "titulo": "Change password",
+      "subtitulo": "Saving it signs you out on other devices; this session stays open.",
+      "dosClavesPrimer": "This password is only for the platform. You change the practice VM password the first time you connect over SSH (module 1).",
+      "dosClaves": "This password is only for the platform: the practice VM password does not change.",
+      "temporal": "Temporary password",
+      "actual": "Current password",
+      "faltaActual": "Enter your current password.",
+      "nueva": "New password",
+      "repetir": "Repeat the new password",
+      "cumple": "Done:",
+      "falta": "Missing:",
+      "reglas": {
+        "largo": "8 characters or more",
+        "maximo": "128 characters at most",
+        "distintaTemporal": "Different from the temporary one",
+        "distintaActual": "Different from the current one",
+        "distintaUsuario": "Different from your username",
+        "coinciden": "Both match"
+      },
+      "revisar": "Check the requirements for the new password.",
+      "guardarPrimer": "Save and continue",
+      "guardar": "Save",
+      "cancelar": "Cancel",
+      "sinCurso": "You can't open the course until you change it.",
+      "hecho": "Your password was changed. We signed you out on other devices."
+    }
+  },
+  "errores": {
+    "clave_incorrecta": "Incorrect username or password.",
+    "cuenta_bloqueada": {
+      "uno": "Your account is locked after several failed attempts. You can try again at {{hora}}, in 1 minute.",
+      "otros": "Your account is locked after several failed attempts. You can try again at {{hora}}, in {{minutos}} minutes."
+    },
+    "cuenta_bloqueada_sin_hora": "Your account is locked after several failed attempts. Try again in 15 minutes.",
+    "cuenta_inactiva": "Your account has been deactivated. If you think this is a mistake, write to {{correo}}.",
+    "demasiadas_peticiones": "Too many attempts in a row. Wait a minute and try again.",
+    "sin_conexion": "We couldn't reach the platform. Check your EAFIT VPN connection and try again.",
+    "inesperado": "Something went wrong on our side. Try again in a few minutes.",
+    "clave_temporal_incorrecta": "The temporary password is not correct.",
+    "clave_actual_incorrecta": "The current password is not correct.",
+    "clave_debil": "The new password must have 8 characters or more and be different from your username.",
+    "clave_repetida": "The new password must be different from the current one.",
+    "clave_larga": "The password can have 128 characters at most."
   }
 }

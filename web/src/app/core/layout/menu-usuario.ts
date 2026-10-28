@@ -1,15 +1,17 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { filter, map } from 'rxjs';
 import { Icono } from '../../shared/icono';
-import { SesionService, USUARIOS_EJEMPLO } from '../sesion/sesion';
+import { rutaInterna } from '../sesion/rutas';
+import { SesionService } from '../sesion/sesion';
 
 /**
  * Menú de usuario del encabezado: nombre y perfil del clúster, Mi progreso,
- * cambiar la contraseña y cerrar la sesión. «Probar como» cambia el usuario de
- * ejemplo mientras no hay sesión (se quita en la F-03).
+ * cambiar la contraseña (voluntario; decisión del 28-oct) y cerrar la sesión.
  */
 @Component({
   selector: 'at-menu-usuario',
@@ -26,7 +28,7 @@ import { SesionService, USUARIOS_EJEMPLO } from '../sesion/sesion';
 
       <mat-menu #menu="matMenu" xPosition="before">
         <a mat-menu-item routerLink="/mi-progreso">{{ 'nav.miProgreso' | transloco }}</a>
-        <a mat-menu-item routerLink="/cambiar-clave">
+        <a mat-menu-item routerLink="/cambiar-clave" [queryParams]="{ volver: volver() }">
           <at-icono nombre="clave" />
           {{ 'usuario.cambiarClave' | transloco }}
         </a>
@@ -34,25 +36,6 @@ import { SesionService, USUARIOS_EJEMPLO } from '../sesion/sesion';
           <at-icono nombre="salir" />
           {{ 'usuario.salir' | transloco }}
         </button>
-        <div role="separator" class="separador"></div>
-        <div role="group" [attr.aria-label]="'usuario.probarComo' | transloco">
-          <p class="grupo" aria-hidden="true">{{ 'usuario.probarComo' | transloco }}</p>
-          @for (ejemplo of ejemplos; track ejemplo.username) {
-            <button
-              mat-menu-item
-              type="button"
-              role="menuitemradio"
-              [attr.aria-checked]="ejemplo.username === usuario.username"
-              (click)="sesion.probarComo(ejemplo.username)"
-            >
-              <at-icono
-                [nombre]="ejemplo.username === usuario.username ? 'completo' : 'pendiente'"
-              />
-              {{ ejemplo.nombre }} · {{ 'rol.' + ejemplo.rol | transloco }} ·
-              {{ 'cluster.' + ejemplo.cluster | transloco }}
-            </button>
-          }
-        </div>
       </mat-menu>
     }
   `,
@@ -87,28 +70,23 @@ import { SesionService, USUARIOS_EJEMPLO } from '../sesion/sesion';
         margin-right: 0;
       }
     }
-
-    .separador {
-      margin: 8px 0;
-      border-top: 1px solid var(--mat-sys-outline-variant);
-    }
-
-    .grupo {
-      margin: 0;
-      padding: 4px 16px;
-      color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-label-medium);
-    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuUsuario {
   protected readonly sesion = inject(SesionService);
   private readonly router = inject(Router);
-  protected readonly ejemplos = USUARIOS_EJEMPLO;
 
-  /** Sin sesión todavía: solo lleva a la pantalla de ingreso (la F-03 la cierra de verdad). */
+  /** Página actual, para que «Cancelar» en /cambiar-clave vuelva a ella. */
+  protected readonly volver = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map((e) => rutaInterna(e.urlAfterRedirects)),
+    ),
+    { initialValue: rutaInterna(this.router.url) },
+  );
+
   protected salir(): void {
-    void this.router.navigateByUrl('/ingresar');
+    void this.sesion.salir();
   }
 }

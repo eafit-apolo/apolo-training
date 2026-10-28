@@ -23,7 +23,14 @@
     }
 
     <span class="espacio"></span>
-    <at-selector-idioma />
+    <!-- mat-button-toggle trae parte de @angular/forms: diferido, ese código
+         no entra al bundle inicial aunque las pantallas de cuenta usen campos
+         de Material (F-03). -->
+    @defer (on idle) {
+      <at-selector-idioma />
+    } @placeholder {
+      <span class="reserva-idioma"></span>
+    }
 
     @if (!sinMenu()) {
       <!-- Los menús usan el overlay de CDK: se cargan apenas el navegador queda

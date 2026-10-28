@@ -1,0 +1,121 @@
+<div class="cuenta">
+  <section class="tarjeta" aria-labelledby="titulo-cuenta">
+    @if (obligatorio()) {
+      <h1 id="titulo-cuenta">{{ 'cuenta.cambiar.tituloPrimer' | transloco }}</h1>
+      <p class="subtitulo">{{ 'cuenta.cambiar.subtituloPrimer' | transloco }}</p>
+    } @else {
+      <h1 id="titulo-cuenta">{{ 'cuenta.cambiar.titulo' | transloco }}</h1>
+      <p class="subtitulo">{{ 'cuenta.cambiar.subtitulo' | transloco }}</p>
+    }
+
+    <div class="aviso">
+      <at-icono nombre="info" />
+      <p>
+        {{
+          (obligatorio() ? 'cuenta.cambiar.dosClavesPrimer' : 'cuenta.cambiar.dosClaves')
+            | transloco
+        }}
+      </p>
+    </div>
+
+    <form novalidate (submit)="enviar($event)">
+      <mat-form-field appearance="outline">
+        <mat-label>{{
+          (obligatorio() ? 'cuenta.cambiar.temporal' : 'cuenta.cambiar.actual') | transloco
+        }}</mat-label>
+        <input
+          #campoActual
+          matInput
+          name="actual"
+          autocomplete="current-password"
+          required
+          [type]="ver() ? 'text' : 'password'"
+          [value]="actual()"
+          [atErrorSi]="faltaActual()"
+          (input)="escribir(actual, $event)"
+        />
+        <mat-error>{{ 'cuenta.cambiar.faltaActual' | transloco }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'cuenta.cambiar.nueva' | transloco }}</mat-label>
+        <input
+          #campoNueva
+          matInput
+          name="nueva"
+          autocomplete="new-password"
+          aria-describedby="reglas-clave"
+          [type]="ver() ? 'text' : 'password'"
+          [value]="nueva()"
+          (input)="escribir(nueva, $event)"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'cuenta.cambiar.repetir' | transloco }}</mat-label>
+        <input
+          matInput
+          name="repetir"
+          autocomplete="new-password"
+          [type]="ver() ? 'text' : 'password'"
+          [value]="repetir()"
+          (input)="escribir(repetir, $event)"
+        />
+      </mat-form-field>
+
+      <button
+        mat-button
+        type="button"
+        class="mostrar"
+        [attr.aria-pressed]="ver()"
+        (click)="ver.set(!ver())"
+      >
+        <at-icono [nombre]="ver() ? 'ocultar' : 'ver'" />
+        {{ 'cuenta.mostrarClaves' | transloco }}
+      </button>
+
+      <ul id="reglas-clave" class="reglas">
+        @for (regla of reglas(); track regla.clave) {
+          <li [class.ok]="regla.ok">
+            <at-icono [nombre]="regla.ok ? 'completo' : 'pendiente'" />
+            <span class="at-oculto">{{
+              (regla.ok ? 'cuenta.cambiar.cumple' : 'cuenta.cambiar.falta') | transloco
+            }}</span>
+            {{
+              (regla.clave === 'distintaActual' && obligatorio()
+                ? 'cuenta.cambiar.reglas.distintaTemporal'
+                : 'cuenta.cambiar.reglas.' + regla.clave
+              ) | transloco
+            }}
+          </li>
+        }
+      </ul>
+
+      @if (error(); as clave) {
+        <div class="aviso aviso-error" role="alert">
+          <at-icono nombre="error" />
+          <p>{{ clave | transloco }}</p>
+        </div>
+      }
+
+      <div class="acciones">
+        <button mat-flat-button type="submit" class="principal" [disabled]="enviando()">
+          {{
+            (obligatorio() ? 'cuenta.cambiar.guardarPrimer' : 'cuenta.cambiar.guardar') | transloco
+          }}
+        </button>
+        @if (obligatorio()) {
+          <button mat-button type="button" (click)="salir()">
+            {{ 'usuario.salir' | transloco }}
+          </button>
+        } @else {
+          <a mat-button [routerLink]="destino()">{{ 'cuenta.cambiar.cancelar' | transloco }}</a>
+        }
+      </div>
+    </form>
+
+    @if (obligatorio()) {
+      <p class="nota">{{ 'cuenta.cambiar.sinCurso' | transloco }}</p>
+    }
+  </section>
+</div>

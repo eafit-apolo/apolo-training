@@ -1,8 +1,11 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import type { ComponentFixture } from '@angular/core/testing';
 import { DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { problemasDeAccesibilidad } from '../../../testing/axe';
+import { ANA, CARLA, DIEGO, entrarComo } from '../../../testing/sesion';
 import { traduccionesDePrueba } from '../../../testing/transloco';
-import { SesionService } from '../sesion/sesion';
 import { Shell } from './shell';
 
 describe('Shell', () => {
@@ -10,9 +13,19 @@ describe('Shell', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [Shell, traduccionesDePrueba()],
-      providers: [provideRouter([])],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
+    entrarComo(ANA);
   });
+
+  /** El selector de idioma y los menús van con @defer (on idle): se pintan aquí. */
+  async function conDiferidos(fixture: ComponentFixture<Shell>): Promise<HTMLElement> {
+    await fixture.whenStable();
+    for (const bloque of await fixture.getDeferBlocks()) {
+      await bloque.render(DeferBlockState.Complete);
+    }
+    return fixture.nativeElement;
+  }
 
   function boton(raiz: HTMLElement, texto: string): HTMLButtonElement {
     const botones = Array.from(
@@ -28,8 +41,7 @@ describe('Shell', () => {
   // DoD 2 de la F-01.
   it('cambia los textos al elegir otro idioma, sin recargar', async () => {
     const fixture = TestBed.createComponent(Shell);
-    await fixture.whenStable();
-    const raiz: HTMLElement = fixture.nativeElement;
+    const raiz = await conDiferidos(fixture);
     expect(raiz.querySelector('nav')?.textContent).toContain('Mi progreso');
 
     boton(raiz, 'EN').click();
@@ -48,10 +60,10 @@ describe('Shell', () => {
   it('las pantallas de cuenta no muestran el menú, pero sí el idioma', async () => {
     const fixture = TestBed.createComponent(Shell);
     fixture.componentRef.setInput('sinMenu', true);
-    await fixture.whenStable();
-    const raiz: HTMLElement = fixture.nativeElement;
+    const raiz = await conDiferidos(fixture);
 
     expect(raiz.querySelector('nav')).toBeNull();
+    expect(raiz.querySelector('at-menu-usuario')).toBeNull();
     expect(raiz.querySelector('at-selector-idioma')).not.toBeNull();
   });
 
@@ -60,27 +72,23 @@ describe('Shell', () => {
   }
 
   it('Panel y Administración solo se muestran a su rol', async () => {
-    const sesion = TestBed.inject(SesionService);
     const fixture = TestBed.createComponent(Shell);
     await fixture.whenStable();
     const raiz: HTMLElement = fixture.nativeElement;
     expect(enlacesDelMenu(raiz)).toEqual(['Cursos', 'Mi progreso']);
 
-    sesion.probarComo('carla');
+    entrarComo(CARLA);
     await fixture.whenStable();
     expect(enlacesDelMenu(raiz)).toEqual(['Cursos', 'Mi progreso', 'Panel']);
 
-    sesion.probarComo('diego');
+    entrarComo(DIEGO);
     await fixture.whenStable();
     expect(enlacesDelMenu(raiz)).toEqual(['Cursos', 'Mi progreso', 'Panel', 'Administración']);
   });
 
   it('el menú de usuario muestra el nombre y el perfil del clúster', async () => {
     const fixture = TestBed.createComponent(Shell);
-    await fixture.whenStable();
-    const [menus] = await fixture.getDeferBlocks();
-    await menus.render(DeferBlockState.Complete);
-    const raiz: HTMLElement = fixture.nativeElement;
+    const raiz = await conDiferidos(fixture);
 
     const boton = raiz.querySelector('at-menu-usuario button');
     expect(boton?.textContent).toContain('Ana · Apolo II');
@@ -88,6 +96,14 @@ describe('Shell', () => {
     expect(raiz.querySelector('at-menu-movil button')?.getAttribute('aria-label')).toBe(
       'Menú principal',
     );
+    expect(raiz.textContent).not.toContain('Probar como');
     expect(await problemasDeAccesibilidad(raiz)).toEqual([]);
+  });
+
+  it('sin sesión no hay menú de usuario', async () => {
+    entrarComo(null);
+    const fixture = TestBed.createComponent(Shell);
+    const raiz = await conDiferidos(fixture);
+    expect(raiz.querySelector('at-menu-usuario button')).toBeNull();
   });
 });
