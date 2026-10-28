@@ -1,0 +1,5 @@
+# gnu14 es el único compilador que existe en Apolo II y en Apolo III (I-06).
+- name: Compilador gnu14, openmpi5 y módulos base
+  ansible.builtin.dnf:
+    name: "{{ lmod_paquetes_toolchain }}"
+    state: present

@@ -4,6 +4,7 @@
   roles:
     - base
     - slurm
+    - lmod
 
 - name: Plataforma (117)
   hosts: web

@@ -1,0 +1,5 @@
+# lmod-defaults trae el módulo ohpc, que carga el toolchain al entrar.
+- name: Lmod y módulo ohpc
+  ansible.builtin.dnf:
+    name: "{{ lmod_paquetes_lmod }}"
+    state: present

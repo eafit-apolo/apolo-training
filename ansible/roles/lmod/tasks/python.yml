@@ -1,0 +1,5 @@
+# py3-numpy/1.26.4: mismo nombre que en los clústeres (laboratorio de módulos).
+- name: numpy de OpenHPC
+  ansible.builtin.dnf:
+    name: "{{ lmod_paquetes_python }}"
+    state: present

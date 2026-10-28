@@ -1,0 +1,14 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/lmod
+- name: Repositorio de OpenHPC
+  ansible.builtin.import_tasks: repositorio.yml
+
+- name: Lmod
+  ansible.builtin.import_tasks: lmod.yml
+
+- name: Toolchain
+  ansible.builtin.import_tasks: toolchain.yml
+
+- name: Python con numpy
+  ansible.builtin.import_tasks: python.yml

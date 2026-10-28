@@ -16,10 +16,9 @@ los clústeres).
   `Cluster` de la API. Lo fija `apolo-training-admin alta --cluster` (flujo de
   altas en [`diseno/flujos.md`](diseno/flujos.md)).
 - El perfil decide su grupo Unix y su cuenta de Slurm en la VM, las particiones
-  que ve, la partición por defecto, el toolchain que carga al entrar, el prompt
-  y el mensaje de bienvenida.
-- Slurm, la QOS del curso, el verificador, las prácticas y `pi.py` son iguales
-  para los dos.
+  que ve, la partición por defecto, el prompt y el mensaje de bienvenida.
+- Slurm, la QOS del curso, los módulos, el verificador, las prácticas y `pi.py`
+  son iguales para los dos.
 - Lo que la VM no puede imitar (cuotas, scratch, tiempos y memoria por defecto,
   OnDemand) se explica en las pestañas Apolo II / Apolo III de cada lección.
 
@@ -35,8 +34,8 @@ los clústeres).
 | Memoria por defecto (`DefMemPerCPU`)              | 1875 MB en `longjobs`, 8000 en `bigmem`, 1900 en `learning`                   | 7500 MB en `bigmem`, 5700 en `longjobs`, 4000 en `accel`                         | Solo texto: la VM es un solo nodo pequeño                                                            |
 | Límite de memoria y de núcleos                    | Sí                                                                            | No                                                                               | La VM limita los dos en los dos perfiles; ver «Aviso de Apolo III (P-05)»                            |
 | Uso real de CPU en `sacct` (`TotalCPU`, `MaxRSS`) | Sí                                                                            | No                                                                               | La VM lo registra en los dos perfiles; ver «Aviso de Apolo III (P-05)»                               |
-| Toolchain al entrar                               | `gnu15/15.2.0` + `openmpi5/5.0.10`                                            | `gnu14/14.2.0` + `openmpi5/5.0.7`                                                | Se imita (I-06); si OpenHPC no tiene la versión exacta, la más cercana, anotada en la I-06           |
-| `MODULEPATH` al entrar                            | `/opt/ohpc/pub/modulefiles`, `moduledeps/gnu15` y `moduledeps/gnu15-openmpi5` | `/opt/ohpc/pub/modulefiles`, `moduledeps/gnu14` y `moduledeps/gnu14-openmpi5`    | Se imita: lo arma el toolchain cargado                                                               |
+| Toolchain al entrar                               | `gnu15/15.2.0` + `openmpi5/5.0.10`                                            | `gnu14/14.2.0` + `openmpi5/5.0.7`                                                | Igual para los dos: `gnu14/14.2.0` + `openmpi5/5.0.7` (ver «Módulos»)                                |
+| `MODULEPATH` al entrar                            | `/opt/ohpc/pub/modulefiles`, `moduledeps/gnu15` y `moduledeps/gnu15-openmpi5` | `/opt/ohpc/pub/modulefiles`, `moduledeps/gnu14` y `moduledeps/gnu14-openmpi5`    | Igual para los dos: el de Apolo III                                                                  |
 | Software que pide `module use`                    | No                                                                            | Parte del árbol solo aparece con `module use /opt/ohpc/pub/moduledeps/<paquete>` | Solo texto: ninguna práctica lo necesita                                                             |
 | Módulos del curso                                 | `py3-numpy/1.26.4` y `apolo-training`, sin `module use`                       | Igual                                                                            | Igual                                                                                                |
 | Home                                              | NFS con autofs                                                                | En el nodo maestro, por NFS                                                      | Solo texto: en la VM es local                                                                        |
@@ -65,6 +64,23 @@ mensaje «Apolo III no tiene partición por defecto: indique una con -p».
 - Si el Slurm de la VM no trae el plugin `job_submit/lua`, `longjobs` queda por
   defecto para los dos perfiles y la diferencia se explica solo en el módulo 5.
 
+## Módulos
+
+La VM no imita el toolchain de cada clúster: todos los usuarios entran con
+`gnu14/14.2.0` + `openmpi5/5.0.7` (rol `lmod`, I-06), el entorno por defecto de
+Apolo III.
+
+- `gnu14` es el único compilador que existe en los dos clústeres. En Apolo II
+  no es el de por defecto (`gnu15`), pero aparece en `module avail`.
+- Lo que el curso enseña no depende del compilador: `module avail`, `spider`,
+  `load`, `list` y `purge` funcionan igual, y `module load py3-numpy` encuentra
+  `py3-numpy/1.26.4` con el toolchain por defecto de cada clúster.
+- Diferencia que queda: un usuario `apolo2` ve `gnu14` en `module list` y en su
+  clúster verá `gnu15`, con otras versiones de `openmpi5`, `hwloc` y `ucx`. Se
+  aclara en la pestaña Apolo II de `m04/modulos`.
+- Lmod no lee el perfil (`APOLO_TRAINING_CLUSTER`), así que el entorno es el
+  mismo aunque el usuario no tenga perfil.
+
 ## Graduación
 
 La graduación no se hace en la VM: es el primer trabajo del usuario en su
@@ -89,17 +105,14 @@ usuario, que lee de `APOLO_TRAINING_CLUSTER`.
 | Perfil del usuario | `/etc/apolo-training/usuarios/<usuario>`: una línea, `apolo2` o `apolo3`; dueño `root`, modo 644 | `apolo-training-admin alta` (V-04) | `/etc/profile.d/apolo-training.sh` |
 | Script de entrada  | `/etc/profile.d/apolo-training.sh`                                                               | Rol `profiles` de Ansible (P-03)   | Cada sesión de shell               |
 
-| Variable                 | Valor                     | Quién la pone                                                                                                                                           | Para qué                                                                                                                             |
-| ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `APOLO_TRAINING_CLUSTER` | `apolo2` o `apolo3`       | En la VM, `apolo-training.sh`; en Apolo II y Apolo III, el modulefile `apolo-training/1.0` que instala la V-06 en cada clúster (el de la VM no la pone) | Partición de la graduación y mensajes de Apolo III del verificador (P-05); laboratorio por perfil (P-04); toolchain al entrar (I-06) |
-| `APOLO_TRAINING`         | Carpeta de instalación    | Modulefile `apolo-training/1.0` (ya existe)                                                                                                             | El verificador encuentra `labs/`                                                                                                     |
-| `APOLO_TRAINING_LANG`    | `es` (por defecto) o `en` | El usuario (ya existe)                                                                                                                                  | Idioma del verificador y del mensaje de bienvenida                                                                                   |
+| Variable                 | Valor                     | Quién la pone                                                                                                                                           | Para qué                                                                                                 |
+| ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `APOLO_TRAINING_CLUSTER` | `apolo2` o `apolo3`       | En la VM, `apolo-training.sh`; en Apolo II y Apolo III, el modulefile `apolo-training/1.0` que instala la V-06 en cada clúster (el de la VM no la pone) | Partición de la graduación y mensajes de Apolo III del verificador (P-05); laboratorio por perfil (P-04) |
+| `APOLO_TRAINING`         | Carpeta de instalación    | Modulefile `apolo-training/1.0` (ya existe)                                                                                                             | El verificador encuentra `labs/`                                                                         |
+| `APOLO_TRAINING_LANG`    | `es` (por defecto) o `en` | El usuario (ya existe)                                                                                                                                  | Idioma del verificador y del mensaje de bienvenida                                                       |
 
 - **Prompt:** `[\u@\h \W (apolo3)]\$ `, el de Rocky con el perfil al final; por
   ejemplo, `[ana@apolo-training ~ (apolo3)]$`.
-- **Toolchain:** `apolo-training.sh` exporta `APOLO_TRAINING_CLUSTER` antes de
-  que Lmod cargue los módulos por defecto; la I-06 define cómo se elige el
-  toolchain con esa variable.
 - **Mensaje de bienvenida:**
 
   ```text
@@ -118,7 +131,9 @@ usuario, que lee de `APOLO_TRAINING_CLUSTER`.
 
 - Slurm: la misma versión, cgroups, registro de uso y QOS `curso` (I-08).
 - El verificador `apolo-training` y las siete prácticas.
-- `pi.py`. En `curso.sh` solo cambian la partición y el `module load` (P-04).
+- Los módulos: `gnu14` + `openmpi5` al entrar, `py3-numpy` y `apolo-training`.
+- `pi.py`. En `curso.sh` solo cambia la partición (P-04): `module load` es el
+  mismo en la VM y en los dos clústeres.
 - El nombre de la máquina (`hostname`) y la práctica de VS Code.
 
 ## Dónde se explica lo que no se imita
@@ -127,6 +142,7 @@ usuario, que lee de `APOLO_TRAINING_CLUSTER`.
 | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | Home, cuotas y scratch                                    | `m03/archivos`                                                                  |
 | `module use` y el árbol escondido de Apolo III            | `m04/modulos`                                                                   |
+| Toolchain de Apolo II (`gnu15`) frente al de la VM        | `m04/modulos`                                                                   |
 | Partición, tiempo y memoria por defecto                   | `m05/trabajos`                                                                  |
 | Apolo III sin límite de memoria ni registro de uso (P-05) | `m05/trabajos` y `m06/paralelismo`, con el texto de «Aviso de Apolo III (P-05)» |
 | OnDemand                                                  | `m07/vscode`                                                                    |
