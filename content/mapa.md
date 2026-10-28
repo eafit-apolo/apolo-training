@@ -180,7 +180,8 @@ plataforma.
   antes), `module load`, `module list` y `module purge`.
 - **Pestañas del resumen:** en Apolo III primero va
   `module use /opt/ohpc/pub/moduledeps/…`. Toolchain: gcc 15.2 en Apolo II,
-  gcc 14.2 en Apolo III (A-04).
+  gcc 14.2 en Apolo III (A-04). En la VM todos tienen `gnu14` (I-06): la
+  pestaña Apolo II aclara que en su clúster verá `gnu15`.
 - **Laboratorio `modulos`:** el trabajo falla sin numpy, el usuario busca el
   módulo con `module spider`, lo carga en el script y el trabajo termina. Cierra con
   `apolo-training verificar modulos`. Nombre
@@ -295,7 +296,6 @@ Byron lleva uno más pero con menos minutos.
 | --------------------------------------------------------------------------------------- | ---------------- | ----------- |
 | Instalar `apolo-training` en la 116 y en Apolo II y Apolo III, visible sin `module use` | módulos 2, 3 y 7 | V-06, V-07  |
 | Scratch y áreas compartidas de cada clúster                                             | módulo 3         | A-04        |
-| Toolchain por defecto confirmado                                                        | módulo 4         | A-04, I-06  |
 | Nombre del módulo de Python con numpy                                                   | módulos 4 a 7    | I-07        |
 | Enlace a la guía de OnDemand en apolo-docs                                              | módulo 7         | C-09        |
 | Las 10 preguntas más repetidas en soporte                                               | quices           | A-10        |

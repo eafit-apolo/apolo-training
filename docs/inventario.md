@@ -152,6 +152,9 @@ las versiones:
   pedirlo.
 - **Módulo 4:** en Apolo III hay que explicar `module use` antes de
   `module spider`, porque parte del software no aparece en `module avail`.
+- **Módulo 4:** el toolchain por defecto es distinto (`gnu15` en Apolo II,
+  `gnu14` en Apolo III), pero `module load py3-numpy` funciona igual en los dos
+  y `gnu14` existe en ambos. Los ejemplos del curso no nombran el compilador.
 - **Módulo 5:** confirma que en Apolo III no hay partición por defecto; los
   ejemplos llevan `-p`. El tiempo por defecto es 2 h en Apolo III.
 - **Módulo 7:** OnDemand solo existe en Apolo III. La graduación con OnDemand
