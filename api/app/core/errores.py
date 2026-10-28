@@ -25,7 +25,10 @@ CODIGOS_HTTP = {
 
 
 class ErrorApi(Exception):
-    """Error que la API lanza a propósito, con su código estable."""
+    """Error que la API lanza a propósito, con su código estable.
+
+    `extra` agrega campos al cuerpo, como `bloqueado_hasta` en `cuenta_bloqueada`.
+    """
 
     def __init__(
         self,
@@ -33,12 +36,14 @@ class ErrorApi(Exception):
         codigo: str,
         detail: str,
         headers: dict[str, str] | None = None,
+        extra: dict[str, object] | None = None,
     ) -> None:
         super().__init__(detail)
         self.status_code = status_code
         self.codigo = codigo
         self.detail = detail
         self.headers = headers
+        self.extra = extra or {}
 
 
 def _respuesta(
@@ -56,7 +61,7 @@ def _respuesta(
 
 
 async def _error_api(_: Request, exc: ErrorApi) -> JSONResponse:
-    return _respuesta(exc.status_code, exc.detail, exc.codigo, exc.headers)
+    return _respuesta(exc.status_code, exc.detail, exc.codigo, exc.headers, **exc.extra)
 
 
 async def _error_http(_: Request, exc: StarletteHTTPException) -> JSONResponse:

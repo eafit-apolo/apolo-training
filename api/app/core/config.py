@@ -21,6 +21,21 @@ class Settings(BaseSettings):
     # Solo desarrollo: permite que `python -m app.datos_ejemplo` cargue los
     # usuarios de ejemplo. Lo pone el servicio migrar de deploy/compose.dev.yaml.
     datos_ejemplo: bool = False
+    # Firma el token de acceso (JWT HS256) y genera el token CSRF de cada sesión
+    # (B-03). Obligatoria para la API, no para las migraciones ni los datos de
+    # ejemplo: por eso no tiene valor por defecto y la exige create_app().
+    # Cambiarla cierra todas las sesiones.
+    secreto: SecretStr | None = None
+    # Cookies con Secure. Solo se apaga para probar desde otro equipo por http
+    # (Safari descarta las cookies Secure fuera de https y de localhost).
+    cookies_seguras: bool = True
+
+    @field_validator("secreto")
+    @classmethod
+    def _secreto_largo(cls, valor: SecretStr | None) -> SecretStr | None:
+        if valor is not None and len(valor.get_secret_value()) < 32:
+            raise ValueError("debe tener 32 caracteres o más")
+        return valor
 
     @field_validator("database_url")
     @classmethod

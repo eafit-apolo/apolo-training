@@ -47,8 +47,9 @@ acciones.
 5. **Dos contraseñas.** Este aviso es la decisión más importante de la pantalla:
    la de la plataforma y la de la VM de práctica empiezan iguales y luego son
    independientes.
-6. **Política:** 10 caracteres o más, distinta de la temporal. La validación se
-   ve mientras se escribe; la API vuelve a validar (`clave_debil`).
+6. **Política:** 8 caracteres o más (128 como máximo), distinta de la temporal
+   y del usuario. La validación se ve mientras se escribe; la API vuelve a
+   validar (`clave_debil`, `clave_repetida`).
 
 **API:** `POST /auth/login`, `POST /auth/cambiar-clave`, `GET /me`.
 **Estados:** cargando (botón deshabilitado), clave errada, cuenta bloqueada con

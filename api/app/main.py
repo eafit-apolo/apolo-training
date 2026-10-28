@@ -12,13 +12,16 @@ from fastapi import FastAPI
 from app.core.config import Settings, obtener_settings
 from app.core.db import crear_engine, crear_sessionmaker
 from app.core.errores import registrar_manejadores
-from app.routers import salud
+from app.routers import auth, perfil, salud
 
 PREFIJO = "/api"
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or obtener_settings()
+    if settings.secreto is None:
+        # Sin secreto no hay sesiones: mejor no arrancar que fallar en el login.
+        raise RuntimeError("Falta API_SECRETO (32 caracteres o más); ver api/README.md")
     engine = crear_engine(settings)
 
     @asynccontextmanager
@@ -40,4 +43,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     registrar_manejadores(app)
     app.include_router(salud.router, prefix=PREFIJO)
+    app.include_router(auth.router, prefix=PREFIJO)
+    app.include_router(perfil.router, prefix=PREFIJO)
     return app

@@ -27,6 +27,22 @@ def test_lee_variables_con_prefijo_api(monkeypatch: pytest.MonkeyPatch) -> None:
     assert Settings().version == "1.2.3"
 
 
+def test_create_app_exige_el_secreto(settings_sin_base: Settings) -> None:
+    with pytest.raises(RuntimeError, match="API_SECRETO"):
+        create_app(settings_sin_base.model_copy(update={"secreto": None}))
+
+
+def test_secreto_de_32_caracteres_o_mas() -> None:
+    with pytest.raises(ValidationError, match="32 caracteres"):
+        Settings(
+            database_url="postgresql+asyncpg://nadie@localhost/nada", secreto="corto"
+        )
+
+
+def test_el_secreto_no_sale_en_repr(settings_sin_base: Settings) -> None:
+    assert settings_sin_base.secreto.get_secret_value() not in repr(settings_sin_base)
+
+
 @pytest.mark.parametrize(("docs", "esperado"), [(False, 404), (True, 200)])
 async def test_docs_solo_si_se_activan(
     crear_cliente, settings_sin_base: Settings, docs: bool, esperado: int

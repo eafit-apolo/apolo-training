@@ -12,10 +12,12 @@ info:
     **Sesión.** El login deja tres cookies: `at` (acceso, 15 min), `rt`
     (refresh, 7 días, solo en `/api/auth`) y `csrf`. `at` y `rt` son
     `HttpOnly`, `Secure` y `SameSite=Strict`. Todo lo que no sea `GET` exige
-    la cabecera `X-CSRF-Token` con el valor de la cookie `csrf`.
+    la cabecera `X-CSRF-Token` con el valor de la cookie `csrf`, que está ligado
+    a la sesión (B-03): una cookie `csrf` puesta por otro sitio no sirve.
 
     **Roles.** Cada operación declara en `x-roles` quién puede usarla. Un
-    usuario con `debe_cambiar_clave` solo puede usar `/auth/*` y `GET /me`.
+    usuario con `debe_cambiar_clave` solo puede usar `/auth/*`, `GET /me` y
+    `PATCH /me`.
 
     **Idioma.** Las rutas de contenido aceptan `?lang=es|en`. Si falta la
     traducción, responden en español con `fallback: true`.
@@ -79,8 +81,12 @@ paths:
       summary: Iniciar sesión con usuario y contraseña
       description: |
         Verifica la contraseña con argon2. Tras 5 intentos fallidos la cuenta
-        queda bloqueada 15 minutos. Además hay un límite de 10 intentos por
-        minuto por IP (B-09). No exige CSRF porque todavía no hay sesión.
+        queda bloqueada 15 minutos (el contador vuelve a 0); mientras dure, la
+        respuesta es `cuenta_bloqueada` con `bloqueado_hasta`, sin revisar la
+        clave. Un usuario que no existe recibe lo mismo que una clave errada, y
+        `cuenta_inactiva` solo sale con la clave correcta. Además hay un límite
+        de 10 intentos por minuto por IP (B-09). No exige CSRF porque todavía no
+        hay sesión.
       security: []
       x-roles: [publico]
       requestBody:
@@ -108,7 +114,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "403":
-          description: "Cuenta bloqueada o dada de baja (`cuenta_bloqueada`, `cuenta_inactiva`)"
+          description: "Cuenta bloqueada (`cuenta_bloqueada`, con `bloqueado_hasta`) o dada de baja (`cuenta_inactiva`)"
           content:
             application/json:
               schema:
@@ -123,14 +129,19 @@ paths:
       tags: [auth]
       operationId: renovarSesion
       summary: Renovar el token de acceso con la cookie de refresh
-      description: Rota el refresh token (el anterior queda revocado).
+      description: |
+        Rota el refresh token: el anterior queda revocado y los 7 días se
+        cuentan otra vez desde ahora. Si llega un refresh ya rotado dentro de
+        los 30 s siguientes (otra pestaña que renovó a la vez), responde 204
+        sin cambiar las cookies; si llega después, se toma como robado y se
+        cierran todas las sesiones del usuario (`token_invalido`).
       security:
         - cookieRefresh: []
           csrf: []
       x-roles: [estudiante, instructor, admin]
       responses:
         "204":
-          description: Cookies renovadas
+          description: Cookies renovadas (o sin cambios, si otra pestaña acaba de renovarlas)
           headers:
             Set-Cookie:
               description: Cookies `at`, `rt` y `csrf` nuevas
@@ -138,22 +149,28 @@ paths:
                 type: string
         "401":
           $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
 
   /auth/logout:
     post:
       tags: [auth]
       operationId: cerrarSesion
       summary: Cerrar sesión
-      description: Revoca el refresh token y borra las cookies.
+      description: |
+        Revoca la sesión de la cookie `rt` (o, si no viene, la de `at`, aunque
+        haya vencido) y borra las cookies. Sin sesión responde 204 igual.
       security:
+        - cookieRefresh: []
+          csrf: []
         - cookieAcceso: []
           csrf: []
       x-roles: [estudiante, instructor, admin]
       responses:
         "204":
-          description: Sesión cerrada
-        "401":
-          $ref: "#/components/responses/NoAutenticado"
+          description: Sesión cerrada y cookies borradas
+        "403":
+          $ref: "#/components/responses/Prohibido"
 
   /auth/cambiar-clave:
     post:
@@ -163,7 +180,9 @@ paths:
       description: |
         Obligatorio en el primer ingreso y después de un reinicio. Solo cambia
         la contraseña de la plataforma, no la de la VM de práctica. Revoca las
-        demás sesiones del usuario.
+        demás sesiones del usuario (la actual sigue abierta). Política: 8
+        caracteres o más (`clave_debil`), distinta del usuario (`clave_debil`) y
+        de la actual (`clave_repetida`); más de 128 es un error de validación.
       security:
         - cookieAcceso: []
           csrf: []
@@ -212,6 +231,7 @@ paths:
       tags: [perfil]
       operationId: actualizarPerfil
       summary: Cambiar el idioma preferido
+      description: También con `debe_cambiar_clave`, para el selector de idioma de la pantalla de cambio de clave.
       security:
         - cookieAcceso: []
           csrf: []
@@ -1301,6 +1321,10 @@ components:
           type: string
           description: Código estable que la app traduce
           examples: [clave_incorrecta]
+        bloqueado_hasta:
+          type: string
+          format: date-time
+          description: Solo con `cuenta_bloqueada`; la pantalla de ingreso muestra la hora
         errores:
           type: array
           description: Solo en errores de validación
@@ -1363,7 +1387,7 @@ components:
           type: string
           format: password
           minLength: 1
-          maxLength: 256
+          maxLength: 128
     LoginSalida:
       type: object
       required: [usuario]
@@ -1377,11 +1401,13 @@ components:
         clave_actual:
           type: string
           format: password
+          minLength: 1
+          maxLength: 128
         clave_nueva:
           type: string
           format: password
-          minLength: 10
-          maxLength: 256
+          description: 8 caracteres o más; el mínimo lo revisa la API (`clave_debil`), no la validación
+          maxLength: 128
 
     Usuario:
       type: object
@@ -2217,7 +2243,8 @@ components:
         clave_temporal:
           type: string
           format: password
-          minLength: 10
+          minLength: 8
+          maxLength: 128
           description: La misma que se puso en la VM; la API solo guarda el hash
     EstadoUsuario:
       type: object

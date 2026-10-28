@@ -222,14 +222,16 @@ las lecciones. Una baja no borra la fila: pone `activo = false` y `baja_en`
 auditoría.
 
 - Bloqueo: `intentos_fallidos` llega a 5 → `bloqueado_hasta = ahora + 15 min`
-  y se reinicia a 0 al entrar bien (B-03).
-- `debe_cambiar_clave` empieza en `true` y la API solo deja usar `/auth/*` y
-  `GET /me` hasta que se cambie.
+  y vuelve a 0 (B-03); también vuelve a 0 al entrar bien.
+- `debe_cambiar_clave` empieza en `true` y la API solo deja usar `/auth/*`,
+  `GET /me` y `PATCH /me` hasta que se cambie.
 
 **sesiones.** Una fila por refresh token emitido. Se guarda solo el hash, nunca
 el token. Sirve para cerrar sesión de verdad (logout, cambio de clave, baja o
-reinicio de clave revocan todas las sesiones del usuario). Se borran las
-vencidas con una tarea diaria.
+reinicio de clave revocan todas las sesiones del usuario). Cada renovación
+revoca la fila y crea otra (B-03): el token de acceso lleva el `id` de la
+fila, y el token CSRF sale de ese mismo `id`. Se borran las vencidas con una
+tarea diaria.
 
 ### Contenido
 
@@ -309,10 +311,12 @@ Cuando un admin aplica la QOS normal en el clúster real, marca
 ### Auditoría
 
 **auditoria.** Solo agrega filas. Acciones previstas: `login_ok`,
-`login_fallido`, `cuenta_bloqueada`, `cambio_clave`, `alta`, `baja`,
-`reinicio_clave`, `cambio_rol`, `video_subido`, `graduacion_enviada`,
+`login_fallido`, `cuenta_bloqueada`, `cambio_clave`, `reuso_refresh`, `alta`,
+`baja`, `reinicio_clave`, `cambio_rol`, `video_subido`, `graduacion_enviada`,
 `graduacion_revisada`, `qos_aplicada`, `sincronizacion_rechazada`. Nunca guarda
-contraseñas, tokens ni lo que se escribe en una terminal.
+contraseñas, tokens ni lo que se escribe en una terminal. Un `login_fallido`
+con un usuario que no existe no guarda lo que se escribió (podría ser la clave
+en el campo equivocado).
 
 ## Cuándo se aprueba el curso
 

@@ -12,7 +12,7 @@ se corrige el contrato en el mismo PR.
 | `app/main.py`          | `create_app()`: arma la app, el motor de la base y los errores                                         |
 | `app/core/`            | Configuración (`config.py`), base de datos (`db.py`) y errores                                         |
 | `app/routers/`         | Rutas HTTP, un módulo por grupo del contrato                                                           |
-| `app/services/`        | Lógica de negocio; no sabe de HTTP                                                                     |
+| `app/services/`        | Lógica de negocio; no sabe de cookies ni de `Request` (errores con `ErrorApi`)                         |
 | `app/models/`          | Modelos SQLAlchemy; cada modelo nuevo se importa en `__init__`; valores de los `CHECK` en `valores.py` |
 | `app/datos_ejemplo.py` | Usuarios de ejemplo del entorno de desarrollo                                                          |
 | `app/schemas/`         | Esquemas pydantic de entrada y salida                                                                  |
@@ -23,13 +23,15 @@ se corrige el contrato en el mismo PR.
 
 Todas llevan el prefijo `API_`. No hay archivo `.env`: se leen del entorno.
 
-| Variable            | Obligatoria  | Qué es                                                           |
-| ------------------- | ------------ | ---------------------------------------------------------------- |
-| `API_DATABASE_URL`  | sí           | `postgresql+asyncpg://usuario:clave@host:puerto/base`            |
-| `API_DB_TIMEOUT`    | no (3)       | Segundos que `/api/health` espera a PostgreSQL                   |
-| `API_VERSION`       | no (`dev`)   | Versión que informa `/api/health`; la imagen la recibe del build |
-| `API_DOCS`          | no (`false`) | Publica `/api/docs` y `/api/openapi.json` (solo desarrollo)      |
-| `API_DATOS_EJEMPLO` | no (`false`) | Deja correr `python -m app.datos_ejemplo` (solo desarrollo)      |
+| Variable              | Obligatoria     | Qué es                                                                    |
+| --------------------- | --------------- | ------------------------------------------------------------------------- |
+| `API_DATABASE_URL`    | sí              | `postgresql+asyncpg://usuario:clave@host:puerto/base`                     |
+| `API_DB_TIMEOUT`      | no (3)          | Segundos que `/api/health` espera a PostgreSQL                            |
+| `API_VERSION`         | no (`dev`)      | Versión que informa `/api/health`; la imagen la recibe del build          |
+| `API_DOCS`            | no (`false`)    | Publica `/api/docs` y `/api/openapi.json` (solo desarrollo)               |
+| `API_DATOS_EJEMPLO`   | no (`false`)    | Deja correr `python -m app.datos_ejemplo` (solo desarrollo)               |
+| `API_SECRETO`         | sí, para la API | 32 caracteres o más; firma la sesión. Cambiarlo cierra todas              |
+| `API_COOKIES_SEGURAS` | no (`true`)     | Cookies con `Secure`; `false` solo para probar por http desde otro equipo |
 
 En la imagen además: `WEB_CONCURRENCY` (workers de gunicorn, 2 por defecto) y
 `GUNICORN_CMD_ARGS` para opciones extra.
@@ -64,6 +66,7 @@ uv venv -p 3.12 .venv
 source .venv/bin/activate
 uv pip install -r requirements-dev.txt
 export API_DATABASE_URL=postgresql+asyncpg://apolo:apolo@localhost:5433/apolo_training
+export API_SECRETO=desarrollo-desarrollo-desarrollo-desarrollo   # solo local
 
 alembic upgrade head
 API_DATOS_EJEMPLO=true python -m app.datos_ejemplo   # usuarios de ejemplo (opcional)
@@ -160,4 +163,27 @@ el mismo PR que arregla lo que encuentre.
   deshacerse: el CI corre `upgrade head`, `downgrade base` y `upgrade head`.
   El modelo y su diagrama están en `docs/diseno/modelo-datos.md`.
 - **Sin `print()`** (ruff `T20`): se usa `logging`, y nunca se registra la URL
-  de la base ni claves.
+  de la base ni claves. Las claves que llegan en el cuerpo son `SecretStr`.
+- **Roles de cada ruta (B-03):** toda ruta declara quién la usa con un ayudante
+  de `app/core/auth.py`, que además pone `x-roles` en el OpenAPI. Tiene que
+  coincidir con `x-roles` de `openapi.yaml`: lo revisa `tests/test_roles.py`,
+  que también prueba que un estudiante recibe 403 en toda ruta que no lo
+  incluye.
+
+  ```python
+  from app.core.auth import UsuarioDep, con_roles
+
+
+  @router.get("/panel/resumen", **con_roles("instructor", "admin"))
+  async def resumen(usuario: UsuarioDep, sesion: SesionDep) -> Resumen: ...
+  ```
+
+  `publica()` es para rutas sin sesión y `con_refresh()` para las que usan la
+  cookie `rt`. Con `con_roles(...)`, todo lo que no sea GET exige además el
+  token CSRF, sin código extra en la ruta.
+
+- **Sesión (B-03):** cookies `at` (JWT de 15 min con el id del usuario y de su
+  sesión), `rt` (7 días desde el último uso, solo su sha256 en `sesiones`) y
+  `csrf` (HMAC del id de la sesión). El rol y el estado se leen de la base en
+  cada petición: una baja, un cambio de rol o un logout valen al instante.
+  Constantes (duraciones, bloqueo, largo de la clave) en `app/core/seguridad.py`.
