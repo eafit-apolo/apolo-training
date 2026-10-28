@@ -1,0 +1,17 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/lmod
+# Un solo entorno para los dos perfiles: gnu14 es el único compilador que
+# existe en Apolo II y en Apolo III (I-06).
+lmod_paquetes_lmod:
+  - lmod-ohpc
+  - lmod-defaults-gnu14-openmpi5-ohpc
+
+lmod_paquetes_toolchain:
+  - gnu14-compilers-ohpc
+  - openmpi5-gnu14-ohpc
+  - ohpc-autotools
+  - prun-ohpc
+
+lmod_paquetes_python:
+  - python3.11-numpy-gnu14-ohpc

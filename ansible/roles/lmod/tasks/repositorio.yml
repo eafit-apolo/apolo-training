@@ -1,0 +1,10 @@
+# El repositorio de OpenHPC 3 lo instala el rol slurm.
+- name: Buscar el repositorio de OpenHPC
+  ansible.builtin.stat:
+    path: /etc/yum.repos.d/OpenHPC.repo
+  register: lmod_repo_ohpc
+
+- name: Verificar que está el repositorio de OpenHPC
+  ansible.builtin.assert:
+    that: lmod_repo_ohpc.stat.exists
+    fail_msg: Falta el repositorio de OpenHPC; aplica antes el rol slurm.
