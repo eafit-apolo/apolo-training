@@ -117,13 +117,13 @@ Docker CE del repositorio oficial para RHEL (se quitan podman, buildah y runc),
 con el plugin de Compose. Solo los administradores están en el grupo `docker`,
 que equivale a ser root.
 
-| Qué              | Cómo queda                                                           | Por qué                                                                                  |
-| ---------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `daemon.json`    | `json-file` 10m × 3, `live-restore`, `selinux-enabled`               | Logs acotados; reiniciar el daemon no tumba contenedores; Docker CE trae SELinux apagado |
-| Reenvío (`base`) | `base_reenvio_politica: accept`                                      | Los puertos publicados y la salida de los contenedores pasan por forward                 |
-| DOCKER-USER      | 443 publicado solo desde `docker_443_permitido`; resto, rechazado    | Docker publica con DNAT y se salta la cadena `entrada` de nftables                       |
-| Salida           | Contenedores sin acceso a `docker_salida_bloqueada`                  | Lo mismo que F3–F5 para la VM                                                            |
-| Datos            | `/srv/apolo-training/{media,pgdata,backups,tls}`, `container_file_t` | En el compose, `:Z` si el volumen es de un contenedor, `:z` si se comparte               |
+| Qué              | Cómo queda                                                                   | Por qué                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `daemon.json`    | `json-file` 10m × 3, `live-restore`, `selinux-enabled`                       | Logs acotados; reiniciar el daemon no tumba contenedores; Docker CE trae SELinux apagado |
+| Reenvío (`base`) | `base_reenvio_politica: accept`                                              | Los puertos publicados y la salida de los contenedores pasan por forward                 |
+| DOCKER-USER      | 443 publicado solo desde `docker_443_permitido`; resto, rechazado            | Docker publica con DNAT y se salta la cadena `entrada` de nftables                       |
+| Salida           | Contenedores sin acceso a `docker_salida_bloqueada`                          | Lo mismo que F3–F5 para la VM                                                            |
+| Datos            | `/srv/apolo-training/{media,pgdata,backups,tls,secrets}`, `container_file_t` | En el compose, `:Z` si el volumen es de un contenedor, `:z` si se comparte               |
 
 - Las reglas de DOCKER-USER están en `/usr/local/sbin/docker-user` y las pone
   la unidad `docker-user.service` después de docker (y otra vez si docker se

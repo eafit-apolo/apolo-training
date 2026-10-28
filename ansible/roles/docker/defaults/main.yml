@@ -30,6 +30,7 @@ docker_directorios:
   - { nombre: pgdata, dueno: "999", modo: "0700" } # uid de postgres en la imagen
   - { nombre: backups, dueno: root, modo: "0700" }
   - { nombre: tls, dueno: root, modo: "0750" } # llaves privadas
+  - { nombre: secrets, dueno: root, modo: "0700" } # secrets de Compose (600)
 
 # Proyecto de prueba: present lo levanta, absent lo quita (cuando llegue el
 # proxy real, que también publica el 443).
