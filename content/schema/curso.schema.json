@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "curso.schema.json",
+  "title": "Front matter de un curso",
+  "description": "Datos del curso, en content/<idioma>/_curso.md (B-04). Lo valida el importador antes de cargar los módulos.",
+  "type": "object",
+  "required": ["id", "titulo", "descripcion"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "Nombre corto del curso: su dirección en la plataforma (/cursos/induccion).",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "titulo": {
+      "description": "Título del curso en el idioma de la carpeta.",
+      "type": "string",
+      "minLength": 1
+    },
+    "descripcion": {
+      "description": "Una o dos frases para la tarjeta del catálogo.",
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

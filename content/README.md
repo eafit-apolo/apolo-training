@@ -24,6 +24,7 @@ content/
 │   ├── leccion.schema.json
 │   └── modulo.schema.json
 ├── es/
+│   ├── _curso.md
 │   ├── _plantilla.md
 │   ├── _plantilla-modulo.md
 │   ├── m00/
@@ -37,12 +38,14 @@ content/
 └── en/          (fase 2: mismas rutas, mismos id y claves)
 ```
 
+- `es/_curso.md` tiene los datos del curso ([esquema](schema/curso.schema.json)):
+  `id` (su dirección en la plataforma, `induccion`), `titulo` y `descripcion`.
 - Cada módulo es una carpeta `mNN/` con su `_modulo.md` y una lección por
   archivo.
 - La ruta de una lección es su `id`: `es/m05/trabajos.md` tiene
   `id: m05/trabajos`, que es también su dirección en la plataforma.
-- El importador solo lee las carpetas `mNN/`. Las plantillas están fuera, así
-  que no se importan.
+- El importador lee `_curso.md` y las carpetas `mNN/`. Las plantillas están
+  fuera, así que no se importan, pero sí se validan.
 
 ## Una lección
 
@@ -107,15 +110,32 @@ plataforma a partir del front matter.
 - **Sin datos reales:** ni usuarios, ni IPs, ni nombres internos de nodos o
   servidores. El repo es público.
 
+## Importar y validar
+
+El importador es de la API (B-04), desde `api/`:
+
+```bash
+python -m app.importar --revisar    # solo valida, como el job content del CI
+python -m app.importar              # valida y carga en la base
+```
+
+En el entorno de desarrollo lo corre el servicio `migrar`; después de editar
+algo, `docker compose -f deploy/compose.dev.yaml run --rm migrar` lo vuelve a
+cargar. Cada error dice el archivo y el campo.
+
 ## Lo que revisa el importador además del esquema
 
 - El `id` coincide con la ruta del archivo y con la carpeta del módulo.
 - No hay dos lecciones con el mismo `orden` en un módulo.
 - Las `clave` de las preguntas son únicas en todo el curso y empiezan por el
   módulo de la lección (`m05-…` en `m05/`).
+- Las carpetas de `es/` se llaman `mNN`, cada una con su `_modulo.md` y al
+  menos una lección.
 - Con `en/` (fase 2): cada archivo tiene su par en `es/` con el mismo `id`, las
   mismas `clave` de preguntas y las mismas opciones correctas, en el mismo
-  orden. Si falta el inglés, la plataforma muestra el español.
+  orden. Los datos que no se traducen (`orden`, `duracion`, `video`,
+  `practicas`, `quiz_final`) son iguales a los de `es/`. Si falta el inglés, la
+  plataforma muestra el español.
 
 Cambiar el texto de una pregunta no cambia su `clave`, así que los intentos
 anteriores se conservan. Cambiar la `clave` crea una pregunta nueva.

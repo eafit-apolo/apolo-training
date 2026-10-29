@@ -235,8 +235,8 @@ tarea diaria.
 
 ### Contenido
 
-El contenido vive en `content/` del repo y lo carga `training import-content`
-(B-04). El importador busca por `slug` o `clave`, así que importar dos veces no
+El contenido vive en `content/` del repo y lo carga `python -m app.importar`
+(B-04). El curso sale de `content/es/_curso.md` (su `id` es `cursos.slug`). El importador busca por `slug` o `clave`, así que importar dos veces no
 duplica filas y el progreso de los usuarios no se pierde. Los `orden` únicos
 (lecciones, preguntas y opciones) son **diferibles**: se revisan al confirmar
 la transacción, para que el importador pueda reordenar sin chocar a mitad de

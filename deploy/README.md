@@ -99,7 +99,7 @@ en tu equipo; dentro de Docker, la API la sigue encontrando en `db:5432`.
 | Servicio  | Qué hace                                                                                                                          |
 | --------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `db`      | PostgreSQL 16 con `apolo_training` y `apolo_training_test` (volumen `db`)                                                         |
-| `migrar`  | `alembic upgrade head`, carga los usuarios de ejemplo y termina; la API arranca solo si salió bien                                |
+| `migrar`  | `alembic upgrade head`, los usuarios de ejemplo y `content/` (B-04), y termina; la API arranca solo si salió bien                 |
 | `api`     | uvicorn con `--reload` (etapa `dev` de `api/Dockerfile`), `API_DOCS=true`                                                         |
 | `web`     | `ng serve` (etapa `dev` de `web/Dockerfile`); envía `/api` al servicio API                                                        |
 | `pruebas` | Lo mismo que el job `api` del CI (migraciones de ida y vuelta, `alembic check` y pytest), contra `apolo_training_test` (a pedido) |
@@ -123,8 +123,23 @@ script no corre sin `API_DATOS_EJEMPLO=true`, que solo pone este compose.
 | `elena` | estudiante | Apolo III | Una cuenta dada de baja            |
 
 Se puede correr las veces que sea: crea los que falten y no toca los que ya
-existen. Para volver a los datos de ejemplo desde cero, `down -v` y `up`. El
-módulo de ejemplo con lección, video y quiz llega con el importador (B-04).
+existen. Para volver a los datos de ejemplo desde cero, `down -v` y `up`.
+
+### Contenido
+
+`migrar` también importa `content/` con `python -m app.importar` (B-04), así
+que el entorno arranca con el curso del repo (hoy, el módulo 0 con su lección,
+su video y su quiz). Después de editar el contenido, vuelve a importarlo sin
+bajar nada:
+
+```bash
+docker compose -f deploy/compose.dev.yaml run --rm migrar
+```
+
+Si un archivo no cumple los esquemas, `migrar` sale con error y dice cuál
+(`docker compose -f deploy/compose.dev.yaml logs migrar`). Para solo validar:
+`docker compose -f deploy/compose.dev.yaml run --rm --no-deps migrar python -m app.importar --revisar`.
+Los videos quedan «pendientes» hasta que se suban desde el panel (B-05).
 
 Desde la B-03 se puede entrar con ellos (`POST /api/auth/login`). Si cambias la
 clave de `bruno` o bloqueas a alguien con 5 intentos fallidos, `down -v` y `up`
@@ -222,7 +237,8 @@ la VPN y la llave revisada de la VM; los pasos están en
   correr `npm ci`.
 - **`migrar` sale con error**: mira el motivo con
   `docker compose -f deploy/compose.dev.yaml logs migrar`. La API no arranca
-  hasta que las migraciones pasen.
+  hasta que las migraciones y la importación del contenido pasen; un error del
+  importador dice el archivo de `content/` y el campo.
 - **La base de pruebas no existe**: el script que la crea
   (`dev/initdb/10-base-pruebas.sh`) solo corre con el volumen vacío. Si tu
   volumen es anterior, bórralo con `down -v`.

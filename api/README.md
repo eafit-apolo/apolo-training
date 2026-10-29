@@ -15,6 +15,7 @@ se corrige el contrato en el mismo PR.
 | `app/services/`        | Lógica de negocio; no sabe de cookies ni de `Request` (errores con `ErrorApi`)                         |
 | `app/models/`          | Modelos SQLAlchemy; cada modelo nuevo se importa en `__init__`; valores de los `CHECK` en `valores.py` |
 | `app/datos_ejemplo.py` | Usuarios de ejemplo del entorno de desarrollo                                                          |
+| `app/importar.py`      | Importador de `content/` (B-04): `python -m app.importar`                                              |
 | `app/schemas/`         | Esquemas pydantic de entrada y salida                                                                  |
 | `migrations/`          | Migraciones de Alembic                                                                                 |
 | `tests/`               | Pruebas (pytest + httpx, contra PostgreSQL real)                                                       |
@@ -70,6 +71,7 @@ export API_SECRETO=desarrollo-desarrollo-desarrollo-desarrollo   # solo local
 
 alembic upgrade head
 API_DATOS_EJEMPLO=true python -m app.datos_ejemplo   # usuarios de ejemplo (opcional)
+python -m app.importar                               # el contenido de content/ (B-04)
 API_DOCS=true uvicorn --factory app.main:create_app --reload
 ```
 
@@ -83,6 +85,39 @@ quedó activado.
 
 La imagen de producción (gunicorn sin root) se prueba con el perfil `imagenes`
 de `deploy/compose.dev.yaml` (ver [deploy/README.md](../deploy/README.md)).
+
+## Importar el contenido (B-04)
+
+El curso vive en `content/` (formato en [content/README.md](../content/README.md)).
+El importador lo valida con los esquemas de `content/schema/` y las reglas del
+README, y lo carga en la base:
+
+```bash
+python -m app.importar              # valida y carga (usa API_DATABASE_URL)
+python -m app.importar --revisar    # solo valida; no necesita la base (el job content del CI)
+python -m app.importar --dir RUTA   # otra carpeta content/
+```
+
+- Por defecto lee `content/` dos niveles arriba de `app/`: la raíz del repo, o
+  `/content` en los servicios `migrar` y `pruebas` del compose de desarrollo,
+  que la montan en solo lectura. `migrar` lo corre después de las migraciones;
+  para volver a importar tras editar el contenido,
+  `docker compose -f deploy/compose.dev.yaml run --rm migrar`.
+- Si un archivo no cumple, no carga nada y dice cada error con su archivo y su
+  campo. Todo va en una transacción.
+- Se puede correr las veces que sea: busca por slug o clave y lo que no cambió
+  no se toca («Importado: sin cambios»).
+- Nunca borra progreso. Una lección que sale del repo queda con
+  `publicada = false`; una pregunta que sale se borra con sus opciones (los
+  intentos guardan sus respuestas); un quiz que sale se borra solo si nadie lo
+  ha intentado, y si no, el importador falla y lo dice.
+- Los videos se crean sin archivo, con su clave: el instructor los sube desde
+  el panel (B-05).
+
+Las rutas de lectura (`/api/cursos/...`) van por slug y calculan el estado de
+cada módulo con la regla de desbloqueo: el n+1 se abre al completar el n
+(`app/services/contenido.py`). Instructores y admins pueden abrir lecciones de
+módulos bloqueados.
 
 ## Pruebas y calidad
 
@@ -103,7 +138,9 @@ pre-commit run --all-files     # ruff (con api/ruff.toml), prettier y demás
 
 En CI, el job `api` de `.github/workflows/calidad.yml` levanta PostgreSQL 16,
 aplica las migraciones, corre `alembic check` y pytest. ruff lo corre el job
-`pre-commit`.
+`pre-commit`, y el job `content` valida `content/` con
+`python -m app.importar --revisar`. Las pruebas del importador también leen el
+`content/` real (por eso el servicio `pruebas` lo monta).
 
 ## Reglas de ruff
 

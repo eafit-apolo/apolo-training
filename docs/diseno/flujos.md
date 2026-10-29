@@ -284,8 +284,11 @@ sequenceDiagram
 
 ## 7. Carga del contenido
 
-`training import-content` (B-04) lee `content/es` y `content/en`, valida cada
-archivo con los esquemas de pydantic y del formato de terminal (T-01) y hace
-upsert por `slug` y `clave`. Se corre en el despliegue (W-06), después de
-`alembic upgrade head`. Nunca borra progreso; una lección que desaparece del
-repo queda despublicada, no borrada.
+`python -m app.importar` (B-04) lee `content/es` y `content/en`, valida cada
+archivo con los esquemas de `content/schema/` y las reglas de
+`content/README.md`, y hace upsert por `slug` y `clave` en una sola
+transacción: si algo no cumple, no carga nada. Se corre después de
+`alembic upgrade head`: en desarrollo lo hace el servicio `migrar`; en la 117,
+el despliegue (W-06). Nunca borra progreso; una lección que desaparece del repo
+queda despublicada, no borrada. Con `--revisar` solo valida, sin la base (job
+`content` del CI).

@@ -56,8 +56,13 @@ services:
 
   migrar:
     <<: *api-dev
-    # Aplica las migraciones, carga los usuarios de ejemplo (B-02) y termina.
-    # Aquí se enganchará también el importador de contenido (B-04).
+    # Aplica las migraciones, carga los usuarios de ejemplo (B-02), importa
+    # content/ (B-04) y termina. Para volver a importar después de editar el
+    # contenido: docker compose -f deploy/compose.dev.yaml run --rm migrar
+    volumes:
+      - ../api:/app:z
+      # app.importar lee /content (dos niveles arriba de /app/app).
+      - ../content:/content:ro,z
     environment:
       API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training
       # Solo aquí: sin esta variable, app.datos_ejemplo no carga nada.
@@ -65,7 +70,7 @@ services:
     command:
       - sh
       - -c
-      - alembic upgrade head && python -m app.datos_ejemplo
+      - alembic upgrade head && python -m app.datos_ejemplo && python -m app.importar
     depends_on:
       db:
         condition: service_healthy
@@ -105,6 +110,8 @@ services:
       # Para test_diagrama.py, que compara docs/diseno/modelo-datos.md con los
       # modelos.
       - ../docs:/docs:ro,z
+      # Para las pruebas del importador, que validan el contenido real (B-04).
+      - ../content:/content:ro,z
     environment:
       API_DATABASE_URL: postgresql+asyncpg://apolo:apolo@db:5432/apolo_training_test
     # Migraciones de ida, de vuelta y de ida otra vez (DoD de la B-02), y luego

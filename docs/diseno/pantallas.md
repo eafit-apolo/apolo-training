@@ -78,7 +78,7 @@ la hora de desbloqueo, cuenta dada de baja, sin conexión (VPN), sesión vencida
 1. **Perfil del clúster** visible desde la primera pantalla, porque decide qué
    pestaña se abre en las lecciones y cómo se ve la VM de práctica.
 2. **Continuar** lleva a la lección donde quedó (`continuar` de
-   `GET /cursos/{id}`). Si no ha empezado, dice «Empezar».
+   `GET /cursos/{curso}`). Si no ha empezado, dice «Empezar».
 3. **Catálogo.** Hoy hay un curso; la pantalla ya lista todos los publicados
    para no rehacerla cuando haya otro.
 4. **Módulos bloqueados.** Se ven (título, duración, contenido) pero no se
@@ -87,7 +87,8 @@ la hora de desbloqueo, cuenta dada de baja, sin conexión (VPN), sesión vencida
 5. **Qué trae cada módulo:** video, terminal quemada, laboratorio y número de
    preguntas, tal como en la tabla de módulos del plan.
 
-**API:** `GET /cursos`, `GET /cursos/{curso_id}`.
+**API:** `GET /cursos`, `GET /cursos/{curso}`, `GET /cursos/{curso}/modulos/{modulo}`
+(por slug: `induccion`, `m05`).
 **Estados:** sin empezar (sin barra «Continuar»), curso terminado (la barra
 lleva a Mi progreso).
 
@@ -129,7 +130,7 @@ lleva a Mi progreso).
     se puede abrir en otra pestaña y se cierra a los 15 min sin actividad o a las
     2 h (T-05, T-06).
 
-**API:** `GET /lecciones/{id}`, `GET /media/{id}`, `GET /media/{id}/subtitulos/{idioma}`,
+**API:** `GET /cursos/{curso}/lecciones/{modulo}/{leccion}`, `GET /media/{id}`, `GET /media/{id}/subtitulos/{idioma}`,
 `POST /progreso/video`, `POST /progreso/terminal`, `GET /quizzes/{id}`,
 `POST /quizzes/{id}/intentos`, `POST /lecciones/{id}/completar` y el WebSocket
 `/ws/terminal` ([flujo 3](flujos.md#3-terminal-real)).
