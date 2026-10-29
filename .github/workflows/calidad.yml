@@ -1,5 +1,5 @@
-# CI (V-02): pre-commit, gitleaks y las pruebas del verificador, de la API y de
-# la web en cada PR.
+# CI (V-02): pre-commit, gitleaks, las pruebas del verificador, de la API y de
+# la web, y la validación del contenido en cada PR.
 # Todos los jobs son (o serán) checks obligatorios de main, así que no llevan
 # filtros de rutas: un check obligatorio que no corre deja el PR bloqueado.
 name: Calidad
@@ -180,6 +180,31 @@ jobs:
 
       - name: Correr pytest
         run: python -m pytest
+
+  content:
+    name: content
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Valida content/ con las mismas reglas del importador de la API (B-04):
+    # los esquemas de content/schema/ y las de content/README.md. No necesita
+    # la base: --revisar no carga nada.
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: api/requirements.txt
+
+      - name: Instalar las dependencias de la API
+        run: python -m pip install -r requirements.txt
+
+      - name: Validar el contenido
+        run: python -m app.importar --revisar
 
   web:
     name: web

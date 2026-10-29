@@ -339,16 +339,20 @@ paths:
         "403":
           $ref: "#/components/responses/Prohibido"
 
-  /cursos/{curso_id}:
+  /cursos/{curso}:
     get:
       tags: [contenido]
       operationId: obtenerCurso
-      summary: Curso con sus módulos, estado de cada uno y lección para continuar
+      summary: Curso con sus módulos, el estado de cada uno y la lección para continuar
+      description: |
+        Las rutas de lectura van por slug, igual que las de la web
+        (`/cursos/induccion/m05/trabajos`); las respuestas traen también el
+        `id` numérico, que usan las rutas de escritura (progreso, quiz).
       security:
         - cookieAcceso: []
       x-roles: [estudiante, instructor, admin]
       parameters:
-        - $ref: "#/components/parameters/CursoId"
+        - $ref: "#/components/parameters/CursoSlug"
         - $ref: "#/components/parameters/Lang"
       responses:
         "200":
@@ -364,7 +368,7 @@ paths:
         "404":
           $ref: "#/components/responses/NoEncontrado"
 
-  /modulos/{modulo_id}:
+  /cursos/{curso}/modulos/{modulo}:
     get:
       tags: [contenido]
       operationId: obtenerModulo
@@ -374,7 +378,8 @@ paths:
         - cookieAcceso: []
       x-roles: [estudiante, instructor, admin]
       parameters:
-        - $ref: "#/components/parameters/ModuloId"
+        - $ref: "#/components/parameters/CursoSlug"
+        - $ref: "#/components/parameters/ModuloSlug"
         - $ref: "#/components/parameters/Lang"
       responses:
         "200":
@@ -390,20 +395,23 @@ paths:
         "404":
           $ref: "#/components/responses/NoEncontrado"
 
-  /lecciones/{leccion_id}:
+  /cursos/{curso}/lecciones/{modulo}/{leccion}:
     get:
       tags: [contenido]
       operationId: obtenerLeccion
       summary: Lección completa con su progreso
       description: |
-        Trae el Markdown, el video, el escenario de terminal quemada, el
-        laboratorio y el id del quiz, según lo que tenga la lección. Los
-        instructores y admins pueden abrir lecciones de módulos bloqueados.
+        Trae el Markdown, los videos, las prácticas y el id del quiz, según lo
+        que tenga la lección. Los instructores y admins pueden abrir lecciones
+        de módulos bloqueados (para revisar el contenido); a un estudiante le
+        responde 403 `modulo_bloqueado` con `bloqueado_por`.
       security:
         - cookieAcceso: []
       x-roles: [estudiante, instructor, admin]
       parameters:
-        - $ref: "#/components/parameters/LeccionId"
+        - $ref: "#/components/parameters/CursoSlug"
+        - $ref: "#/components/parameters/ModuloSlug"
+        - $ref: "#/components/parameters/LeccionSlug"
         - $ref: "#/components/parameters/Lang"
       responses:
         "200":
@@ -415,7 +423,7 @@ paths:
         "401":
           $ref: "#/components/responses/NoAutenticado"
         "403":
-          description: "Módulo bloqueado (`modulo_bloqueado`) o clave por cambiar (`debe_cambiar_clave`)"
+          description: "Módulo bloqueado (`modulo_bloqueado`, con `bloqueado_por`) o clave por cambiar (`debe_cambiar_clave`)"
           content:
             application/json:
               schema:
@@ -1200,23 +1208,33 @@ components:
     Lang:
       name: lang
       in: query
-      description: Idioma del contenido; si falta la traducción se responde en español con `fallback = true`
+      description: Idioma del contenido; sin él, el del perfil. Si falta la traducción se responde en español con `fallback = true`
       schema:
         $ref: "#/components/schemas/Idioma"
-    CursoId:
-      name: curso_id
+    CursoSlug:
+      name: curso
       in: path
       required: true
+      description: Slug del curso (el `id` de `content/es/_curso.md`)
       schema:
-        type: integer
-        format: int64
-    ModuloId:
-      name: modulo_id
+        type: string
+        examples: [induccion]
+    ModuloSlug:
+      name: modulo
       in: path
       required: true
+      description: Slug del módulo (`mNN`, el nombre de su carpeta en `content/`)
       schema:
-        type: integer
-        format: int64
+        type: string
+        examples: [m05]
+    LeccionSlug:
+      name: leccion
+      in: path
+      required: true
+      description: Slug de la lección (el nombre del archivo, `trabajos` en `m05/trabajos`)
+      schema:
+        type: string
+        examples: [trabajos]
     LeccionId:
       name: leccion_id
       in: path
@@ -1325,6 +1343,11 @@ components:
           type: string
           format: date-time
           description: Solo con `cuenta_bloqueada`; la pantalla de ingreso muestra la hora
+        bloqueado_por:
+          description: Solo con `modulo_bloqueado`; el módulo que hay que terminar
+          oneOf:
+            - $ref: "#/components/schemas/ModuloRef"
+            - type: "null"
         errores:
           type: array
           description: Solo en errores de validación
@@ -1445,11 +1468,17 @@ components:
           $ref: "#/components/schemas/Idioma"
 
     Componente:
+      description: Qué trae una lección (o un módulo), para los íconos
       type: string
-      enum: [video, lectura, terminal, laboratorio, quiz]
+      enum: [video, lectura, practica, quiz]
     EstadoModulo:
+      description: El módulo n+1 se abre al completar el n, así que a lo sumo uno está `en_curso`
       type: string
-      enum: [bloqueado, disponible, en_curso, completo]
+      enum: [completo, en_curso, bloqueado]
+    Practica:
+      description: Las siete prácticas del verificador (`apolo-training verificar <práctica>`)
+      type: string
+      enum: [conexion, terminal, archivos, modulos, memoria, nucleos, paralelo]
 
     CursoResumen:
       type: object
@@ -1457,9 +1486,14 @@ components:
         - id
         - slug
         - titulo
+        - duracion_min
+        - videos
         - avance_pct
         - modulos_total
         - modulos_completos
+        - lecciones_total
+        - lecciones_completas
+        - continuar
         - fallback
       properties:
         id:
@@ -1471,7 +1505,11 @@ components:
         titulo:
           type: string
         descripcion:
-          type: string
+          type: [string, "null"]
+        duracion_min:
+          type: integer
+        videos:
+          type: integer
         avance_pct:
           type: integer
           minimum: 0
@@ -1480,6 +1518,15 @@ components:
           type: integer
         modulos_completos:
           type: integer
+        lecciones_total:
+          type: integer
+        lecciones_completas:
+          type: integer
+        continuar:
+          description: La siguiente lección por hacer (la primera si no ha empezado); null si terminó el curso
+          oneOf:
+            - $ref: "#/components/schemas/LeccionRef"
+            - type: "null"
         fallback:
           type: boolean
     CursoDetalle:
@@ -1492,11 +1539,6 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/ModuloResumen"
-            continuar:
-              description: Lección donde el usuario quedó; null si no ha empezado
-              oneOf:
-                - $ref: "#/components/schemas/LeccionRef"
-                - type: "null"
 
     ModuloResumen:
       type: object
@@ -1505,9 +1547,15 @@ components:
         - slug
         - numero
         - titulo
+        - resumen
+        - duracion_min
         - estado
+        - bloqueado_por
         - lecciones_total
         - lecciones_completas
+        - videos
+        - practicas
+        - preguntas
         - componentes
       properties:
         id:
@@ -1515,6 +1563,7 @@ components:
           format: int64
         slug:
           type: string
+          examples: [m05]
         numero:
           type: integer
           minimum: 0
@@ -1535,6 +1584,13 @@ components:
           type: integer
         lecciones_completas:
           type: integer
+        videos:
+          description: Lecciones con video
+          type: integer
+        practicas:
+          type: integer
+        preguntas:
+          type: integer
         componentes:
           description: Qué trae el módulo, para los íconos de la tarjeta
           type: array
@@ -1545,11 +1601,14 @@ components:
       allOf:
         - $ref: "#/components/schemas/ModuloResumen"
         - type: object
-          required: [curso_id, lecciones, fallback]
+          required: [curso_id, curso, lecciones, fallback]
           properties:
             curso_id:
               type: integer
               format: int64
+            curso:
+              type: string
+              description: Slug del curso
             fallback:
               type: boolean
             lecciones:
@@ -1558,11 +1617,13 @@ components:
                 $ref: "#/components/schemas/LeccionResumen"
     ModuloRef:
       type: object
-      required: [id, numero, titulo]
+      required: [id, slug, numero, titulo]
       properties:
         id:
           type: integer
           format: int64
+        slug:
+          type: string
         numero:
           type: integer
         titulo:
@@ -1575,6 +1636,7 @@ components:
         - slug
         - orden
         - titulo
+        - duracion_min
         - completada
         - componentes
       properties:
@@ -1598,26 +1660,38 @@ components:
             $ref: "#/components/schemas/Componente"
     LeccionRef:
       type: object
-      required: [id, titulo, modulo_numero]
+      required: [id, slug, modulo, modulo_numero, titulo]
       properties:
         id:
           type: integer
           format: int64
-        titulo:
+        slug:
           type: string
+        modulo:
+          type: string
+          description: Slug del módulo; con `slug` arma la ruta de la web
         modulo_numero:
           type: integer
+        titulo:
+          type: string
     Leccion:
       type: object
       required:
         - id
         - slug
+        - curso
         - modulo
         - orden
         - titulo
         - contenido
         - fallback
+        - duracion_min
         - componentes
+        - videos
+        - practicas
+        - quiz_id
+        - anterior
+        - siguiente
         - progreso
       properties:
         id:
@@ -1625,6 +1699,9 @@ components:
           format: int64
         slug:
           type: string
+        curso:
+          type: string
+          description: Slug del curso
         modulo:
           $ref: "#/components/schemas/ModuloRef"
         orden:
@@ -1636,7 +1713,7 @@ components:
           description: |
             Markdown de la lección en el idioma pedido. La app lo sanitiza
             antes de mostrarlo. Las pestañas Apolo II / Apolo III van como
-            bloques del formato que defina la C-01.
+            bloques `::: apolo2` y `::: apolo3` (C-01).
         fallback:
           type: boolean
         duracion_min:
@@ -1646,24 +1723,17 @@ components:
           uniqueItems: true
           items:
             $ref: "#/components/schemas/Componente"
-        video:
-          oneOf:
-            - $ref: "#/components/schemas/VideoRef"
-            - type: "null"
-        escenario:
+        videos:
           description: |
-            Escenario de terminal quemada con el formato de la T-01
-            (content/schema/terminal.schema.json). Trae las salidas en los dos
-            idiomas; la app usa la del idioma de la interfaz.
-          oneOf:
-            - type: object
-              additionalProperties: true
-            - type: "null"
-        lab:
-          description: Laboratorio que se practica en esta lección
-          oneOf:
-            - $ref: "#/components/schemas/LabId"
-            - type: "null"
+            Casi siempre uno, con `sistema = todos`. En la lección de VPN, uno
+            por sistema operativo, y la app muestra el del usuario.
+          type: array
+          items:
+            $ref: "#/components/schemas/VideoLeccion"
+        practicas:
+          type: array
+          items:
+            $ref: "#/components/schemas/Practica"
         quiz_id:
           type: [integer, "null"]
           format: int64
@@ -1672,17 +1742,29 @@ components:
             - $ref: "#/components/schemas/LeccionRef"
             - type: "null"
         siguiente:
+          description: También en el módulo siguiente; si está bloqueado, lo dice el estado del módulo
           oneOf:
             - $ref: "#/components/schemas/LeccionRef"
             - type: "null"
         progreso:
           $ref: "#/components/schemas/ProgresoLeccion"
+    VideoLeccion:
+      type: object
+      required: [sistema, video]
+      properties:
+        sistema:
+          type: string
+          enum: [todos, windows, macos, linux]
+        video:
+          $ref: "#/components/schemas/VideoRef"
     VideoRef:
       type: object
       required:
         - id
         - clave
         - disponible
+        - duracion_seg
+        - url
         - subtitulos
       properties:
         id:
@@ -1696,7 +1778,8 @@ components:
         duracion_seg:
           type: [integer, "null"]
         url:
-          type: string
+          type: [string, "null"]
+          description: null mientras no esté disponible
           examples: [/api/media/7]
         subtitulos:
           type: array
@@ -1715,10 +1798,11 @@ components:
       required:
         - leccion_id
         - video_posicion_seg
+        - video_max_seg
         - video_completo
-        - terminal_completa
         - quiz_aprobado
         - completada
+        - completada_en
       properties:
         leccion_id:
           type: integer
@@ -1730,8 +1814,6 @@ components:
           type: integer
           minimum: 0
         video_completo:
-          type: boolean
-        terminal_completa:
           type: boolean
         quiz_aprobado:
           type: boolean

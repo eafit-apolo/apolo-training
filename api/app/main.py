@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from app.core.config import Settings, obtener_settings
 from app.core.db import crear_engine, crear_sessionmaker
 from app.core.errores import registrar_manejadores
-from app.routers import auth, perfil, salud
+from app.routers import auth, contenido, perfil, salud
 
 PREFIJO = "/api"
 
@@ -45,4 +45,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(salud.router, prefix=PREFIJO)
     app.include_router(auth.router, prefix=PREFIJO)
     app.include_router(perfil.router, prefix=PREFIJO)
+    app.include_router(contenido.router, prefix=PREFIJO)
     return app

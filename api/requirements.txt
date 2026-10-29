@@ -10,3 +10,6 @@ pyjwt==2.15.1
 gunicorn==26.2.0
 uvicorn==0.54.0
 uvicorn-worker==0.4.0
+# Importador de contenido (B-04): front matter YAML y los esquemas de content/schema/.
+pyyaml==6.0.3
+jsonschema==4.26.0
