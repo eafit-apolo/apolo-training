@@ -83,14 +83,15 @@ la hora de desbloqueo, cuenta dada de baja, sin conexión (VPN), sesión vencida
    para no rehacerla cuando haya otro.
 4. **Módulos bloqueados.** Se ven (título, duración, contenido) pero no se
    abren hasta completar el anterior. El laboratorio no bloquea: solo las
-   lecciones.
+   lecciones. Instructores y admins sí los abren, para revisar el contenido,
+   con un aviso de que los estudiantes los ven bloqueados.
 5. **Qué trae cada módulo:** video, terminal quemada, laboratorio y número de
    preguntas, tal como en la tabla de módulos del plan.
 
 **API:** `GET /cursos`, `GET /cursos/{curso}`, `GET /cursos/{curso}/modulos/{modulo}`
 (por slug: `induccion`, `m05`).
 **Estados:** sin empezar (sin barra «Continuar»), curso terminado (la barra
-lleva a Mi progreso).
+lleva a Mi progreso), la API no responde («No pudimos cargar el curso»).
 
 ## 03 Lección
 

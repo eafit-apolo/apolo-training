@@ -46,6 +46,10 @@
     </section>
   }
 
+  @if (fallo() && !cursos().length) {
+    <p class="error" role="alert">{{ 'errorCarga.mensaje' | transloco }}</p>
+  }
+
   <h2>{{ 'cursos.lista' | transloco }}</h2>
   <ul class="cursos">
     @for (curso of cursos(); track curso.id) {

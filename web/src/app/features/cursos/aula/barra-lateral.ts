@@ -10,7 +10,7 @@ import { EstadoModulo } from '../curso/estado-modulo';
 /**
  * Barra lateral del aula: avance del curso, todos los módulos con su estado y
  * su avance, y las lecciones del módulo abierto. Los bloqueados no son
- * enlaces. La página actual lleva `aria-current="page"`.
+ * enlaces (salvo para instructores y admins). La página actual lleva `aria-current="page"`.
  */
 @Component({
   selector: 'at-barra-lateral',

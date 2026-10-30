@@ -43,7 +43,7 @@ src/
 ├── index.html, main.ts
 ├── styles.scss            # tema de Material, foco visible y estilos comunes (at-contenedor, at-oculto)
 ├── styles/_theme-colors.scss  # paleta generada desde #001B89 (no editar a mano)
-├── testing/               # textos reales y axe para las pruebas (no entra al build)
+├── testing/               # textos, sesión, contenido y axe para las pruebas (no entra al build)
 └── app/
     ├── app.ts, app.config.ts, app.routes.ts
     ├── core/
@@ -54,7 +54,7 @@ src/
     └── features/          # una carpeta por sección, cargada aparte (lazy)
         ├── cuenta/        # 01 ingresar y cambiar la clave (sin menú)
         ├── cursos/        # 02 catálogo y curso; 03 módulo y lección, con la barra lateral
-        │   └── datos/     # tipos, CatalogoService, armarCurso() y los datos de ejemplo
+        │   └── datos/     # API de contenido, CatalogoService, armarCurso() y tipos
         ├── progreso/      # 04 mi progreso
         ├── panel/         # 05 panel de instructor
         └── admin/         # 06 administración de usuarios
@@ -79,11 +79,20 @@ se ven, pero no son enlaces, y abrirlos por dirección muestra qué terminar.
 Las pantallas del aula reciben los parámetros de sus rutas padre
 (`paramsInheritanceStrategy: 'always'` en `app.config.ts`).
 
-**Datos de ejemplo.** Mientras no exista la API de contenido (B-04), los
-cursos salen de `features/cursos/datos/datos-ejemplo.ts` y el avance de cada
-usuario de ejemplo de la API (`api/app/datos_ejemplo.py`) se calcula con
-`armarCurso()`: Ana va en el módulo 5, Bruno no ha empezado, Carla
-(instructora) va a mitad del 7 y Diego (admin) terminó.
+**Contenido (B-04).** Los cursos salen de la API de contenido
+(`GET /api/cursos` y `GET /api/cursos/{curso}`, ver `api/openapi.yaml`), en el
+idioma de la interfaz. `CatalogoService` los pide una vez por usuario antes de
+abrir la ruta (`datos/cargar.ts`), los vuelve a pedir al cambiar el idioma y
+los descarta al cambiar de usuario. Los estados de los módulos y el avance los
+calcula la API; `armarCurso()` solo los pasa a los tipos de las pantallas. Los
+instructores y admins abren los módulos bloqueados, con un aviso de que los
+estudiantes los ven bloqueados. Si la API falla, la pantalla lo dice en vez de
+quedar vacía.
+
+En local, `migrar` importa `content/` (ver `deploy/README.md`). Las pruebas no
+usan la API: `testing/contenido.ts` tiene un curso de 8 módulos y el avance de
+cada usuario de ejemplo (Ana va en el módulo 5, Bruno no ha empezado, Carla
+(instructora) va a mitad del 7 y Diego (admin) terminó).
 
 **Adaptable.** Celular hasta 599 px (desde 360), tableta hasta 1023 y
 escritorio desde 1024. Por debajo de 840 px el menú pasa al botón ☰; por

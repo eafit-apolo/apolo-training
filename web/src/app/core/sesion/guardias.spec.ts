@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { ANA, BRUNO, CARLA, DIEGO, entrarComo } from '../../../testing/sesion';
+import { contenidoDePrueba } from '../../../testing/contenido';
 import { traduccionesDePrueba } from '../../../testing/transloco';
 import { opcionesRouter } from '../../app.config';
 import { routes } from '../../app.routes';
@@ -20,6 +21,7 @@ describe('Guardias de ruta', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter(routes, ...opcionesRouter),
+        contenidoDePrueba(),
       ],
     });
   });

@@ -17,7 +17,7 @@
       <li [class]="m.estado">
         <div class="modulo">
           <at-estado-modulo [estado]="m.estado" [compacto]="true" />
-          @if (m.estado === 'bloqueado') {
+          @if (!m.abierto) {
             <span class="titulo">{{ m.numero }} · {{ m.titulo }}</span>
             <span class="at-oculto">{{ 'estado.abreAl' | transloco: { n: m.numero - 1 } }}</span>
           } @else {
@@ -43,7 +43,7 @@
           }
         </div>
 
-        @if (m.id === abierto() && m.estado !== 'bloqueado') {
+        @if (m.id === abierto() && m.abierto) {
           <ol class="lecciones">
             @for (l of m.lecciones; track l.id) {
               <li>

@@ -19,9 +19,12 @@ import { Bloqueado } from '../modulo/bloqueado';
       <at-migas [migas]="migas()" />
       <h1>{{ l.numero }} · {{ l.titulo }}</h1>
       @let m = datosModulo();
-      @if (m && m.estado === 'bloqueado') {
+      @if (m && !m.abierto) {
         <at-bloqueado [curso]="datosCurso()" [modulo]="m" />
       } @else {
+        @if (m?.estado === 'bloqueado') {
+          <p class="aviso-rol" role="note">{{ 'estado.abiertoPorRol' | transloco }}</p>
+        }
         <p class="meta">
           <at-icono nombre="duracion" />
           {{ 'cursos.minutos' | transloco: { n: l.duracion } }} ·
@@ -49,6 +52,13 @@ import { Bloqueado } from '../modulo/bloqueado';
 
     .hecha {
       color: var(--at-verde);
+    }
+
+    .aviso-rol {
+      margin: 0 0 16px;
+      padding: 8px 12px;
+      border-left: 4px solid var(--mat-sys-tertiary);
+      background: var(--mat-sys-surface-container);
     }
 
     .cuerpo {
