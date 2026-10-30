@@ -2,22 +2,19 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { problemasDeAccesibilidad } from '../../../../testing/axe';
 import { traduccionesDePrueba } from '../../../../testing/transloco';
+import { cursoDe } from '../../../../testing/contenido';
 import { armarCurso } from '../datos/armar';
-import { CURSOS_EJEMPLO, PROGRESO_EJEMPLO } from '../datos/datos-ejemplo';
 import { BarraLateral } from './barra-lateral';
 
 describe('BarraLateral', () => {
-  async function crear(username: string, abierto: string) {
+  async function crear(username: string, abierto: string, instructor = false) {
     await TestBed.configureTestingModule({
       imports: [BarraLateral, traduccionesDePrueba()],
       // El comodín recibe las navegaciones de los clics.
       providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
     const fixture = TestBed.createComponent(BarraLateral);
-    fixture.componentRef.setInput(
-      'curso',
-      armarCurso(CURSOS_EJEMPLO[0], new Set(PROGRESO_EJEMPLO[username])),
-    );
+    fixture.componentRef.setInput('curso', armarCurso(cursoDe(username), instructor));
     fixture.componentRef.setInput('abierto', abierto);
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
@@ -55,13 +52,20 @@ describe('BarraLateral', () => {
   it('avisa al elegir un enlace (en celular el aula cierra el panel)', async () => {
     const raiz = await crear('ana', 'm05');
     const fixture = TestBed.createComponent(BarraLateral);
-    fixture.componentRef.setInput('curso', armarCurso(CURSOS_EJEMPLO[0], new Set()));
+    fixture.componentRef.setInput('curso', armarCurso(cursoDe('bruno')));
     let avisos = 0;
     fixture.componentInstance.navego.subscribe(() => avisos++);
     await fixture.whenStable();
     (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('.curso a')?.click();
     expect(avisos).toBe(1);
     expect(raiz.querySelector('.curso a')?.getAttribute('href')).toBe('/cursos/induccion');
+  });
+
+  it('a un instructor le abre los bloqueados (para revisar el contenido)', async () => {
+    const raiz = await crear('ana', 'm06', true);
+    const m06 = modulos(raiz)[6];
+    expect(m06.querySelector('a')?.getAttribute('href')).toBe('/cursos/induccion/m06');
+    expect(m06.querySelectorAll('.lecciones a').length).toBeGreaterThan(0);
   });
 
   it('no tiene problemas de accesibilidad (axe)', async () => {

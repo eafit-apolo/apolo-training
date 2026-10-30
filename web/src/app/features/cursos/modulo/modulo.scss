@@ -45,3 +45,11 @@
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-body-small);
 }
+
+// Instructores y admins ven los módulos bloqueados; el aviso lo recuerda.
+.aviso-rol {
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border-left: 4px solid var(--mat-sys-tertiary);
+  background: var(--mat-sys-surface-container);
+}

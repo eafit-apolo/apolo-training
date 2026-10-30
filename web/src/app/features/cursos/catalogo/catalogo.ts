@@ -27,7 +27,9 @@ import { CatalogoService } from '../datos/catalogo';
 })
 export class Catalogo {
   protected readonly usuario = inject(SesionService).usuario;
-  protected readonly cursos = inject(CatalogoService).cursos;
+  private readonly catalogo = inject(CatalogoService);
+  protected readonly cursos = this.catalogo.cursos;
+  protected readonly fallo = this.catalogo.error;
   protected readonly plural = plural;
 
   /** El curso para «Continuar»: el primero sin terminar, o el primero si todos terminaron. */

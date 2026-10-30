@@ -14,6 +14,7 @@ import {
   escribir,
   ponerCsrf,
 } from '../../../testing/sesion';
+import { contenidoDePrueba } from '../../../testing/contenido';
 import { traduccionesDePrueba } from '../../../testing/transloco';
 import { opcionesRouter } from '../../app.config';
 import { routes } from '../../app.routes';
@@ -80,6 +81,7 @@ describe('Cambiar la clave (pantalla 01)', () => {
         provideHttpClient(withInterceptors([interceptorSesion])),
         provideHttpClientTesting(),
         provideRouter(routes, ...opcionesRouter),
+        contenidoDePrueba(),
       ],
     });
     api = TestBed.inject(HttpTestingController);

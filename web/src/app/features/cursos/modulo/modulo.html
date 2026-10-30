@@ -2,9 +2,12 @@
   <at-migas [migas]="migas()" />
   <h1>{{ 'cursos.modulo' | transloco: { n: m.numero, titulo: m.titulo } }}</h1>
 
-  @if (m.estado === 'bloqueado') {
+  @if (!m.abierto) {
     <at-bloqueado [curso]="datosCurso()" [modulo]="m" />
   } @else {
+    @if (m.estado === 'bloqueado') {
+      <p class="aviso-rol" role="note">{{ 'estado.abiertoPorRol' | transloco }}</p>
+    }
     <p class="resumen">{{ m.resumen }}</p>
     <ul class="at-etiquetas">
       <li>{{ 'cursos.minutos' | transloco: { n: m.duracion } }}</li>

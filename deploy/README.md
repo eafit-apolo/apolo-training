@@ -180,7 +180,14 @@ Las pruebas usan su propia base para no tocar tus datos de desarrollo.
 ### Cuando cambian las dependencias
 
 - `api/requirements*.txt`: con `--build` (ya va en el comando de siempre) la
-  imagen se reconstruye sola.
+  imagen se reconstruye sola. `pruebas` va aparte (es «a pedido»), así que la
+  primera vez después del cambio córrelo también con `--build`; si no, usa la
+  imagen vieja y falla al importar el paquete nuevo:
+
+  ```bash
+  docker compose -f deploy/compose.dev.yaml run --rm --build pruebas
+  ```
+
 - `web/package-lock.json`: el contenedor `web` se detiene con un aviso. Hay
   que renovar el `node_modules` del contenedor con `-V`:
 

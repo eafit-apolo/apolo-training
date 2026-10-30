@@ -36,6 +36,10 @@
   "noEncontrada": {
     "mensaje": "Esta dirección no existe. Revisa el enlace o vuelve a Cursos."
   },
+  "errorCarga": {
+    "titulo": "No pudimos cargar el curso",
+    "mensaje": "Revisa tu conexión a la VPN de EAFIT y vuelve a cargar la página."
+  },
   "cluster": {
     "apolo2": "Apolo II",
     "apolo3": "Apolo III"
@@ -62,7 +66,8 @@
     "bloqueadoPagina": "Este módulo se abre cuando termines el módulo {{n}}.",
     "irAlModulo": "Ir al módulo {{n}} · {{titulo}}",
     "leccionCompleta": "Completa",
-    "leccionPendiente": "Pendiente"
+    "leccionPendiente": "Pendiente",
+    "abiertoPorRol": "Este módulo está bloqueado para los estudiantes: lo ves porque eres instructor o admin."
   },
   "cursos": {
     "hola": "Hola, {{nombre}}",

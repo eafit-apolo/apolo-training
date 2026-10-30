@@ -76,6 +76,8 @@ const ALTO_ENCABEZADO = { tableta: 67, celular: 59 };
           <router-outlet />
         </mat-sidenav-content>
       </mat-sidenav-container>
+    } @else if (fallo()) {
+      <at-pagina-pendiente titulo="errorCarga.titulo" mensaje="errorCarga.mensaje" />
     } @else {
       <at-pagina-pendiente titulo="paginas.noEncontrada" mensaje="noEncontrada.mensaje" />
     }
@@ -126,6 +128,7 @@ export class Aula {
   private readonly catalogo = inject(CatalogoService);
   private readonly lateral = viewChild<MatSidenav>('lateral');
   protected readonly datos = computed(() => this.catalogo.curso(this.curso()));
+  protected readonly fallo = this.catalogo.error;
 
   private readonly pantalla = inject(BreakpointObserver);
   protected readonly escritorio = this.coincide(ESCRITORIO);

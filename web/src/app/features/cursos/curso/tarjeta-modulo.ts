@@ -8,7 +8,8 @@ import { EstadoModulo } from './estado-modulo';
 
 /**
  * Tarjeta de un módulo en la grilla del curso. Un módulo bloqueado se ve
- * (título, duración, qué trae) pero no es un enlace.
+ * (título, duración, qué trae) pero no es un enlace, salvo para instructores
+ * y admins (`abierto`).
  */
 @Component({
   selector: 'at-tarjeta-modulo',
@@ -20,7 +21,7 @@ import { EstadoModulo } from './estado-modulo';
       <at-estado-modulo [estado]="m.estado" [compacto]="m.estado === 'bloqueado'" />
     </div>
     <h3>
-      @if (m.estado === 'bloqueado') {
+      @if (!m.abierto) {
         <span class="at-oculto">{{ 'cursos.moduloCorto' | transloco: { n: m.numero } }}</span>
         {{ m.titulo }}
       } @else {

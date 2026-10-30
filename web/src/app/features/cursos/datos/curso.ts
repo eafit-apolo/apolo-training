@@ -1,40 +1,11 @@
 /**
- * Tipos del catálogo tal como los usan las pantallas. El contenido sale de
- * `content/` (C-01) y el avance, del usuario. Mientras no exista la API de
- * contenido (B-04) se arman en el navegador con `armarCurso()`; con la B-04
- * los traerá la API y estos tipos se alinean con `api/openapi.yaml`.
+ * Tipos del catálogo tal como los usan las pantallas. Salen de la API de
+ * contenido (B-04, `GET /api/cursos/{curso}`) con `armarCurso()`.
  */
 
-/** Una lección como está en `content/es/mNN/<slug>.md`. */
-export interface ContenidoLeccion {
-  readonly slug: string;
-  readonly titulo: string;
-  /** Minutos. */
-  readonly duracion: number;
-  readonly video: boolean;
-  /** Prácticas verificadas con `apolo-training verificar` (la graduación cuenta como una). */
-  readonly practicas: number;
-  readonly preguntas: number;
-}
-
-/** Un módulo como está en `content/es/mNN/_modulo.md`, con sus lecciones en orden. */
-export interface ContenidoModulo {
-  readonly numero: number;
-  readonly titulo: string;
-  readonly resumen: string;
-  readonly lecciones: readonly ContenidoLeccion[];
-}
-
-export interface ContenidoCurso {
-  readonly id: string;
-  readonly titulo: string;
-  readonly descripcion: string;
-  readonly modulos: readonly ContenidoModulo[];
-}
-
 /**
- * El módulo n+1 se abre al completar el n (B-04), así que hay a lo sumo un
- * módulo «en curso»: el primero sin terminar.
+ * El módulo n+1 se abre al completar el n, así que hay a lo sumo un módulo
+ * «en curso»: el primero sin terminar.
  */
 export type EstadoModulo = 'completo' | 'en-curso' | 'bloqueado';
 
@@ -61,6 +32,11 @@ export interface Modulo {
   readonly practicas: number;
   readonly preguntas: number;
   readonly estado: EstadoModulo;
+  /**
+   * Si se puede entrar: no está bloqueado, o el usuario es instructor o
+   * admin, que abren los bloqueados para revisar el contenido.
+   */
+  readonly abierto: boolean;
   readonly lecciones: readonly Leccion[];
   /** Lecciones completas. */
   readonly hechas: number;
@@ -76,7 +52,7 @@ export interface Curso {
   readonly modulosCompletos: number;
   /** Porcentaje de lecciones completas, de 0 a 100. */
   readonly avance: number;
-  /** Primera lección sin completar del módulo en curso; `null` si terminó el curso. */
+  /** La siguiente lección por hacer (la primera si no ha empezado); `null` si terminó. */
   readonly continuar: Leccion | null;
   readonly empezado: boolean;
 }

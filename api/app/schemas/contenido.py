@@ -64,11 +64,14 @@ class ModuloResumen(BaseModel):
     componentes: list[Componente]
 
 
-class ModuloDetalle(ModuloResumen):
+class ModuloConLecciones(ModuloResumen):
+    lecciones: list[LeccionResumen]
+
+
+class ModuloDetalle(ModuloConLecciones):
     curso_id: int
     curso: str
     fallback: bool
-    lecciones: list[LeccionResumen]
 
 
 class CursoResumen(BaseModel):
@@ -89,7 +92,9 @@ class CursoResumen(BaseModel):
 
 
 class CursoDetalle(CursoResumen):
-    modulos: list[ModuloResumen]
+    # Con las lecciones de cada módulo: la web arma todo el curso (catálogo,
+    # grilla, barra lateral) con una sola petición.
+    modulos: list[ModuloConLecciones]
 
 
 class Subtitulo(BaseModel):

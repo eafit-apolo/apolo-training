@@ -37,6 +37,7 @@ export class Curso {
 
   private readonly catalogo = inject(CatalogoService);
   protected readonly datos = computed(() => this.catalogo.curso(this.curso()));
+  protected readonly fallo = this.catalogo.error;
   protected readonly plural = plural;
 
   protected readonly migas = computed<readonly Miga[]>(() => [

@@ -6,7 +6,8 @@ import { Router, TitleStrategy, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { problemasDeAccesibilidad } from '../testing/axe';
-import { ANA, BRUNO, DIEGO, entrarComo } from '../testing/sesion';
+import { ANA, BRUNO, CARLA, DIEGO, entrarComo } from '../testing/sesion';
+import { ContenidoApiDePrueba, contenidoDePrueba } from '../testing/contenido';
 import { traduccionesDePrueba } from '../testing/transloco';
 import { opcionesRouter } from './app.config';
 import { routes } from './app.routes';
@@ -21,6 +22,7 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter(routes, ...opcionesRouter),
+        contenidoDePrueba(),
         { provide: TitleStrategy, useClass: TituloTraducido },
       ],
     });
@@ -128,6 +130,33 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
     const ir = raiz.querySelector<HTMLAnchorElement>('at-bloqueado a');
     expect(ir?.getAttribute('href')).toBe('/cursos/induccion/m05');
     expect(raiz.querySelector('.lecciones')).toBeNull();
+  });
+
+  it('una instructora abre un módulo bloqueado, con un aviso', async () => {
+    entrarComo(CARLA);
+    const { raiz, h1 } = await abrir('/cursos/induccion/m08');
+    expect(h1).toBe('Módulo 8 · Cierre y quiz final');
+    expect(raiz.querySelector('at-bloqueado')).toBeNull();
+    expect(raiz.querySelector('.aviso-rol')?.textContent).toContain(
+      'bloqueado para los estudiantes',
+    );
+    expect(raiz.querySelector('.lecciones a')).not.toBeNull();
+  });
+
+  it('el contenido se pide una vez por usuario, no en cada pantalla', async () => {
+    const api = TestBed.inject(ContenidoApiDePrueba);
+    await abrir('/cursos/induccion/m05');
+    await TestBed.inject(Router).navigateByUrl('/cursos/induccion/m05/trabajos');
+    await TestBed.inject(Router).navigateByUrl('/cursos/induccion');
+    expect(api.pedidos).toEqual(['cursos/induccion?lang=es']);
+  });
+
+  it('si la API de contenido falla, la pantalla lo dice', async () => {
+    const api = TestBed.inject(ContenidoApiDePrueba);
+    vi.spyOn(api, 'curso').mockRejectedValue(new Error('sin red'));
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { h1 } = await abrir('/cursos/induccion');
+    expect(h1).toBe('No pudimos cargar el curso');
   });
 
   it('una lección de un módulo bloqueado tampoco se abre', async () => {

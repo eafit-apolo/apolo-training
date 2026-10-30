@@ -130,3 +130,10 @@
     height: 96px;
   }
 }
+
+.error {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}

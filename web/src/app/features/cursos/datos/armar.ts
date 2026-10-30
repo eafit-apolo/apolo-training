@@ -1,85 +1,62 @@
-import type {
-  ContenidoCurso,
-  ContenidoModulo,
-  Curso,
-  EstadoModulo,
-  Leccion,
-  Modulo,
-} from './curso';
+import type { CursoDetalleApi, EstadoModuloApi, ModuloApi } from './api';
+import type { Curso, EstadoModulo, Leccion, Modulo } from './curso';
 
-/** `m05` para el módulo 5, como las carpetas de `content/es/`. */
-export function idModulo(numero: number): string {
-  return `m${String(numero).padStart(2, '0')}`;
-}
+const ESTADOS: Record<EstadoModuloApi, EstadoModulo> = {
+  completo: 'completo',
+  en_curso: 'en-curso',
+  bloqueado: 'bloqueado',
+};
 
-function suma<T>(lista: readonly T[], valor: (item: T) => number): number {
-  return lista.reduce((total, item) => total + valor(item), 0);
-}
-
-function armarModulo(
-  contenido: ContenidoModulo,
-  completas: ReadonlySet<string>,
-  anteriorCompleto: boolean,
-): Modulo {
-  const id = idModulo(contenido.numero);
-  const lecciones: Leccion[] = contenido.lecciones.map((l, i) => ({
-    id: `${id}/${l.slug}`,
-    modulo: id,
+function armarModulo(api: ModuloApi, puedeVerBloqueados: boolean): Modulo {
+  const lecciones: Leccion[] = api.lecciones.map((l, i) => ({
+    id: `${api.slug}/${l.slug}`,
+    modulo: api.slug,
     slug: l.slug,
-    numero: `${contenido.numero}.${i + 1}`,
+    numero: `${api.numero}.${i + 1}`,
     titulo: l.titulo,
-    duracion: l.duracion,
-    completa: anteriorCompleto && completas.has(`${id}/${l.slug}`),
+    duracion: l.duracion_min,
+    completa: l.completada,
   }));
-  const hechas = lecciones.filter((l) => l.completa).length;
-  let estado: EstadoModulo = 'en-curso';
-  if (!anteriorCompleto) {
-    estado = 'bloqueado';
-  } else if (hechas === lecciones.length) {
-    estado = 'completo';
-  }
+  const estado = ESTADOS[api.estado];
   return {
-    id,
-    numero: contenido.numero,
-    titulo: contenido.titulo,
-    resumen: contenido.resumen,
-    duracion: suma(contenido.lecciones, (l) => l.duracion),
-    videos: contenido.lecciones.filter((l) => l.video).length,
-    practicas: suma(contenido.lecciones, (l) => l.practicas),
-    preguntas: suma(contenido.lecciones, (l) => l.preguntas),
+    id: api.slug,
+    numero: api.numero,
+    titulo: api.titulo,
+    resumen: api.resumen,
+    duracion: api.duracion_min,
+    videos: api.videos,
+    practicas: api.practicas,
+    preguntas: api.preguntas,
     estado,
+    abierto: estado !== 'bloqueado' || puedeVerBloqueados,
     lecciones,
-    hechas,
+    hechas: api.lecciones_completas,
   };
 }
 
 /**
- * Arma el curso con el estado de cada módulo a partir de las lecciones
- * completas (`mNN/slug`). Es la regla de la B-04: el módulo n+1 se abre al
- * completar el n. Una lección marcada en un módulo bloqueado no cuenta.
+ * Pasa el curso de la API (B-04) a los tipos de las pantallas. Los estados y
+ * el avance los calcula la API con la regla de desbloqueo; aquí solo se
+ * numeran las lecciones («5.1») y se marca qué módulos se pueden abrir.
  */
-export function armarCurso(contenido: ContenidoCurso, completas: ReadonlySet<string>): Curso {
-  const modulos: Modulo[] = [];
-  let anteriorCompleto = true;
-  for (const m of contenido.modulos) {
-    const modulo = armarModulo(m, completas, anteriorCompleto);
-    modulos.push(modulo);
-    anteriorCompleto = modulo.estado === 'completo';
-  }
-  const lecciones = modulos.flatMap((m) => m.lecciones);
-  const hechas = lecciones.filter((l) => l.completa).length;
-  const enCurso = modulos.find((m) => m.estado === 'en-curso');
+export function armarCurso(api: CursoDetalleApi, puedeVerBloqueados = false): Curso {
+  const modulos = api.modulos.map((m) => armarModulo(m, puedeVerBloqueados));
+  const continuar = api.continuar;
   return {
-    id: contenido.id,
-    titulo: contenido.titulo,
-    descripcion: contenido.descripcion,
-    duracion: suma(modulos, (m) => m.duracion),
-    videos: suma(modulos, (m) => m.videos),
+    id: api.slug,
+    titulo: api.titulo,
+    descripcion: api.descripcion ?? '',
+    duracion: api.duracion_min,
+    videos: api.videos,
     modulos,
-    modulosCompletos: modulos.filter((m) => m.estado === 'completo').length,
-    avance: lecciones.length ? Math.round((100 * hechas) / lecciones.length) : 0,
-    continuar: enCurso?.lecciones.find((l) => !l.completa) ?? null,
-    empezado: hechas > 0,
+    modulosCompletos: api.modulos_completos,
+    avance: api.avance_pct,
+    continuar: continuar
+      ? (modulos
+          .find((m) => m.id === continuar.modulo)
+          ?.lecciones.find((l) => l.slug === continuar.slug) ?? null)
+      : null,
+    empezado: api.lecciones_completas > 0,
   };
 }
 

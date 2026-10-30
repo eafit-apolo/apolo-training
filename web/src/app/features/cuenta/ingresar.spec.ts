@@ -6,6 +6,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { problemasDeAccesibilidad } from '../../../testing/axe';
 import { ANA, BRUNO, botonCon, borrarCookies, errorApi, escribir } from '../../../testing/sesion';
+import { contenidoDePrueba } from '../../../testing/contenido';
 import { traduccionesDePrueba } from '../../../testing/transloco';
 import { opcionesRouter } from '../../app.config';
 import { routes } from '../../app.routes';
@@ -24,6 +25,7 @@ describe('Ingresar (pantalla 01)', () => {
         provideHttpClient(withInterceptors([interceptorSesion])),
         provideHttpClientTesting(),
         provideRouter(routes, ...opcionesRouter),
+        contenidoDePrueba(),
       ],
     });
     api = TestBed.inject(HttpTestingController);

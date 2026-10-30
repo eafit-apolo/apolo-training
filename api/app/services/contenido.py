@@ -268,7 +268,12 @@ async def obtener_curso(
     datos = await _buscar(bd, slug, usuario)
     t = Textos(idioma)
     resumen = _resumen(datos, t)
-    modulos = [_modulo(datos, m, t) for m in datos.modulos]
+    modulos = [
+        esquemas.ModuloConLecciones(
+            **_modulo(datos, m, t).model_dump(), lecciones=_lecciones(datos, m, t)
+        )
+        for m in datos.modulos
+    ]
     return esquemas.CursoDetalle(**resumen, modulos=modulos, fallback=t.fallback)
 
 
@@ -279,16 +284,10 @@ def _armado(datos: _Curso, slug: str) -> _ModuloArmado:
     return armado
 
 
-async def obtener_modulo(
-    bd: AsyncSession, curso: str, modulo: str, usuario: Usuario, idioma: Idioma
-) -> esquemas.ModuloDetalle:
-    """Un módulo bloqueado también se ve (título y lecciones); lo que no se
-    abre son sus lecciones."""
-    datos = await _buscar(bd, curso, usuario)
-    armado = _armado(datos, modulo)
-    t = Textos(idioma)
-    resumen = _modulo(datos, armado, t)
-    lecciones = [
+def _lecciones(
+    datos: _Curso, armado: _ModuloArmado, t: Textos
+) -> list[esquemas.LeccionResumen]:
+    return [
         esquemas.LeccionResumen(
             id=leccion.id,
             slug=leccion.slug,
@@ -300,11 +299,21 @@ async def obtener_modulo(
         )
         for leccion in armado.lecciones
     ]
+
+
+async def obtener_modulo(
+    bd: AsyncSession, curso: str, modulo: str, usuario: Usuario, idioma: Idioma
+) -> esquemas.ModuloDetalle:
+    """Un módulo bloqueado también se ve (título y lecciones); lo que no se
+    abre son sus lecciones."""
+    datos = await _buscar(bd, curso, usuario)
+    armado = _armado(datos, modulo)
+    t = Textos(idioma)
     return esquemas.ModuloDetalle(
-        **resumen.model_dump(),
+        **_modulo(datos, armado, t).model_dump(),
+        lecciones=_lecciones(datos, armado, t),
         curso_id=datos.curso.id,
         curso=datos.curso.slug,
-        lecciones=lecciones,
         fallback=t.fallback,
     )
 

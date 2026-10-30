@@ -1536,9 +1536,10 @@ components:
           required: [modulos]
           properties:
             modulos:
+              description: Con las lecciones de cada módulo, para que la web arme el curso con una sola petición
               type: array
               items:
-                $ref: "#/components/schemas/ModuloResumen"
+                $ref: "#/components/schemas/ModuloConLecciones"
 
     ModuloResumen:
       type: object
@@ -1597,11 +1598,21 @@ components:
           uniqueItems: true
           items:
             $ref: "#/components/schemas/Componente"
-    ModuloDetalle:
+    ModuloConLecciones:
       allOf:
         - $ref: "#/components/schemas/ModuloResumen"
         - type: object
-          required: [curso_id, curso, lecciones, fallback]
+          required: [lecciones]
+          properties:
+            lecciones:
+              type: array
+              items:
+                $ref: "#/components/schemas/LeccionResumen"
+    ModuloDetalle:
+      allOf:
+        - $ref: "#/components/schemas/ModuloConLecciones"
+        - type: object
+          required: [curso_id, curso, fallback]
           properties:
             curso_id:
               type: integer
@@ -1611,10 +1622,6 @@ components:
               description: Slug del curso
             fallback:
               type: boolean
-            lecciones:
-              type: array
-              items:
-                $ref: "#/components/schemas/LeccionResumen"
     ModuloRef:
       type: object
       required: [id, slug, numero, titulo]

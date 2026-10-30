@@ -68,6 +68,9 @@ async def test_sin_avance_solo_el_modulo_0_esta_abierto(
 
     assert estados(curso) == {"m00": "en_curso", "m01": "bloqueado", "m02": "bloqueado"}
     m01 = curso["modulos"][1]
+    # Las lecciones de cada módulo vienen con el curso (la web hace una sola petición).
+    assert [leccion["slug"] for leccion in m01["lecciones"]] == ["vpn", "ssh"]
+    assert m01["lecciones"][0]["completada"] is False
     assert m01["bloqueado_por"]["slug"] == "m00"
     assert curso["modulos"][0]["bloqueado_por"] is None
     assert curso["continuar"] == {
@@ -90,6 +93,7 @@ async def test_completar_un_modulo_abre_el_siguiente(
     curso = (await cliente_bd.get(CURSO)).json()
 
     assert estados(curso) == {"m00": "completo", "m01": "en_curso", "m02": "bloqueado"}
+    assert curso["modulos"][0]["lecciones"][0]["completada"] is True
     assert curso["continuar"]["slug"] == "vpn"
     assert curso["modulos_completos"] == 1
     assert curso["avance_pct"] == 25

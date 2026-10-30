@@ -53,7 +53,7 @@ export class Modulo {
   protected readonly siguiente = computed(() => {
     const curso = this.datosCurso();
     const modulo = this.datos();
-    if (!curso || !modulo || modulo.estado === 'bloqueado') {
+    if (!curso || !modulo || !modulo.abierto) {
       return null;
     }
     const leccion = modulo.lecciones.find((l) => !l.completa) ?? modulo.lecciones[0];

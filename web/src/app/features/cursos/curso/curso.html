@@ -53,6 +53,8 @@
       }
     </ol>
   </div>
+} @else if (fallo()) {
+  <at-pagina-pendiente titulo="errorCarga.titulo" mensaje="errorCarga.mensaje" />
 } @else {
   <at-pagina-pendiente titulo="paginas.noEncontrada" mensaje="noEncontrada.mensaje" />
 }
