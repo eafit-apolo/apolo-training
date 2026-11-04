@@ -1,0 +1,134 @@
+@if (datos(); as l) {
+  <at-migas [migas]="migas()" />
+  <h1>{{ l.numero }} · {{ l.titulo }}</h1>
+  @let m = datosModulo();
+  @if (m && (!m.abierto || bloqueadoEnApi())) {
+    <at-bloqueado [curso]="datosCurso()" [modulo]="m" />
+  } @else {
+    @if (m?.estado === 'bloqueado') {
+      <p class="aviso" role="note">{{ 'estado.abiertoPorRol' | transloco }}</p>
+    }
+    <p class="meta">
+      <at-icono nombre="duracion" />
+      {{ 'cursos.minutos' | transloco: { n: l.duracion } }} ·
+      <at-icono [nombre]="l.completa ? 'completo' : 'pendiente'" [class.hecha]="l.completa" />
+      {{ (l.completa ? 'estado.leccionCompleta' : 'estado.leccionPendiente') | transloco }}
+    </p>
+
+    @if (respuesta.error()) {
+      <div class="estado" role="alert">
+        <p class="titulo">{{ 'leccion.error.titulo' | transloco }}</p>
+        <p>{{ 'leccion.error.mensaje' | transloco }}</p>
+        <button type="button" mat-stroked-button (click)="respuesta.reload()">
+          <at-icono nombre="reintentar" />
+          {{ 'leccion.error.reintentar' | transloco }}
+        </button>
+      </div>
+    } @else if (cuerpo(); as c) {
+      @if (c.fallback) {
+        <p class="aviso" role="note">
+          <at-icono nombre="traducir" />
+          {{ 'leccion.sinTraduccion' | transloco }}
+        </p>
+      }
+
+      @if (c.videos.length) {
+        <section [attr.aria-label]="'leccion.video.titulo' | transloco">
+          <at-videos [videos]="c.videos" />
+        </section>
+      }
+
+      <div class="texto-leccion" [attr.lang]="c.fallback ? 'es' : null">
+        <at-bloques [bloques]="bloques()" />
+      </div>
+
+      @if (practicas().length) {
+        <section class="tarjeta">
+          <h2><at-icono nombre="terminal" /> {{ 'leccion.practica.titulo' | transloco }}</h2>
+          <p>{{ 'leccion.practica.texto' | transloco }}</p>
+          @for (p of practicas(); track p.codigo) {
+            <at-codigo [bloque]="p" />
+          }
+          <p>{{ 'leccion.practica.resultado' | transloco }}</p>
+        </section>
+      }
+
+      @if (c.quiz_id !== null) {
+        <section class="tarjeta">
+          <h2><at-icono nombre="quiz" /> {{ 'leccion.quiz.titulo' | transloco }}</h2>
+          <p>{{ 'leccion.quiz.pendiente' | transloco }}</p>
+        </section>
+      }
+
+      <div class="completar">
+        @if (c.progreso.completada) {
+          <p #hecha class="hecha" role="status" tabindex="-1">
+            <at-icono nombre="completo" />
+            {{ 'leccion.completar.hecha' | transloco }}
+          </p>
+        } @else if (m?.estado !== 'bloqueado') {
+          @if (puedeMarcar()) {
+            <button
+              type="button"
+              mat-flat-button
+              [attr.aria-disabled]="guardando()"
+              (click)="completar()"
+            >
+              <at-icono nombre="hecho" />
+              {{
+                (guardando() ? 'leccion.completar.guardando' : 'leccion.completar.boton')
+                  | transloco
+              }}
+            </button>
+          } @else {
+            <p>{{ 'leccion.completar.conVideo' | transloco }}</p>
+          }
+          @if (errorCompletar(); as error) {
+            <p class="error" role="alert">{{ error | transloco }}</p>
+          }
+        }
+      </div>
+
+      <nav class="vecinas" [attr.aria-label]="'leccion.navegacion' | transloco">
+        @if (anterior(); as a) {
+          <a class="vecina" [routerLink]="a.ruta">
+            <at-icono nombre="atras" />
+            <span>
+              <small>{{ 'leccion.anterior' | transloco }}</small>
+              {{ a.numero }} · {{ a.titulo }}
+            </span>
+          </a>
+        }
+        @if (siguiente(); as s) {
+          @if (s.abierta) {
+            <a class="vecina siguiente" [routerLink]="s.ruta">
+              <span>
+                <small>{{ 'leccion.siguiente' | transloco }}</small>
+                {{ s.numero }} · {{ s.titulo }}
+              </span>
+              <at-icono nombre="avanzar" />
+            </a>
+          } @else {
+            <p class="vecina siguiente cerrada">
+              <span>
+                <small>{{ 'leccion.siguiente' | transloco }}</small>
+                {{ s.numero }} · {{ s.titulo }}
+                <small>{{ 'estado.bloqueadoHasta' | transloco: { n: s.falta } }}</small>
+              </span>
+              <at-icono nombre="bloqueado" />
+            </p>
+          }
+        }
+      </nav>
+    } @else if (cuerpo() === null) {
+      <p>{{ 'noEncontrada.mensaje' | transloco }}</p>
+    } @else {
+      <div class="estado" role="status">
+        <mat-progress-bar mode="indeterminate" [attr.aria-label]="'leccion.cargando' | transloco" />
+        <p class="at-oculto">{{ 'leccion.cargando' | transloco }}</p>
+      </div>
+    }
+  }
+} @else {
+  <at-pagina-pendiente titulo="paginas.noEncontrada" mensaje="noEncontrada.mensaje" />
+}

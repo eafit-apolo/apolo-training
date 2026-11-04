@@ -14,7 +14,9 @@
     "admin": "Administration"
   },
   "idioma": {
-    "etiqueta": "Interface language"
+    "etiqueta": "Interface language",
+    "es": "Spanish",
+    "en": "English"
   },
   "paginas": {
     "ingresar": "Sign in",
@@ -38,7 +40,7 @@
   },
   "errorCarga": {
     "titulo": "We couldn't load the course",
-    "mensaje": "Check your EAFIT VPN connection and reload the page."
+    "mensaje": "Check your connection (outside EAFIT, the VPN) and reload the page. If it keeps failing, write to apolo@eafit.edu.co."
   },
   "cluster": {
     "apolo2": "Apolo II",
@@ -125,7 +127,50 @@
     "cerrar": "Close modules"
   },
   "leccion": {
-    "pendiente": "The lesson content (video, summary, practice and quiz) is still under construction."
+    "cargando": "Loading the lesson…",
+    "sinTraduccion": "This lesson isn't available in English yet, so it's shown in Spanish.",
+    "error": {
+      "titulo": "We couldn't load the lesson",
+      "mensaje": "Check your connection (outside EAFIT, the VPN) and try again. If it keeps failing, write to apolo@eafit.edu.co.",
+      "reintentar": "Try again"
+    },
+    "pestanas": "Choose the cluster",
+    "tuCluster": "(your cluster)",
+    "copiar": "Copy",
+    "copiado": "Copied",
+    "noCopiado": "Couldn't copy",
+    "avisoCopiado": "Copied to the clipboard",
+    "salida": "output",
+    "video": {
+      "titulo": "Video",
+      "sistemas": "Choose your operating system",
+      "tuSistema": "(your system)",
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux",
+      "pendiente": "Video coming soon",
+      "pendienteTexto": "Meanwhile, the summary below has the commands from the video."
+    },
+    "practica": {
+      "titulo": "Check your practice",
+      "texto": "Follow the steps in the Practice section in a terminal connected over SSH to the practice VM. When you finish, check it:",
+      "resultado": "The result will show up in My progress."
+    },
+    "quiz": {
+      "titulo": "Quiz",
+      "pendiente": "This lesson's quiz will be here very soon."
+    },
+    "completar": {
+      "boton": "Mark as complete",
+      "guardando": "Saving…",
+      "hecha": "You completed this lesson",
+      "conVideo": "This lesson is completed by watching the video.",
+      "requisitos": "Finish the video to complete this lesson.",
+      "error": "We couldn't save your progress. Try again."
+    },
+    "navegacion": "Previous and next lesson",
+    "anterior": "Previous",
+    "siguiente": "Next"
   },
   "cuenta": {
     "mostrarClave": "Show password",
@@ -185,7 +230,7 @@
     "cuenta_bloqueada_sin_hora": "Your account is locked after several failed attempts. Try again in 15 minutes.",
     "cuenta_inactiva": "Your account has been deactivated. If you think this is a mistake, write to {{correo}}.",
     "demasiadas_peticiones": "Too many attempts in a row. Wait a minute and try again.",
-    "sin_conexion": "We couldn't reach the platform. Check your EAFIT VPN connection and try again.",
+    "sin_conexion": "We couldn't reach the platform. Check your connection (outside EAFIT, the VPN) and try again.",
     "inesperado": "Something went wrong on our side. Try again in a few minutes.",
     "clave_temporal_incorrecta": "The temporary password is not correct.",
     "clave_actual_incorrecta": "The current password is not correct.",

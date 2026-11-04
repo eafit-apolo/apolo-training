@@ -14,7 +14,9 @@
     "admin": "Administración"
   },
   "idioma": {
-    "etiqueta": "Idioma de la interfaz"
+    "etiqueta": "Idioma de la interfaz",
+    "es": "Español",
+    "en": "Inglés"
   },
   "paginas": {
     "ingresar": "Ingresar",
@@ -38,7 +40,7 @@
   },
   "errorCarga": {
     "titulo": "No pudimos cargar el curso",
-    "mensaje": "Revisa tu conexión a la VPN de EAFIT y vuelve a cargar la página."
+    "mensaje": "Revisa tu conexión (fuera de EAFIT, la VPN) y vuelve a cargar la página. Si sigue fallando, escribe a apolo@eafit.edu.co."
   },
   "cluster": {
     "apolo2": "Apolo II",
@@ -125,7 +127,50 @@
     "cerrar": "Cerrar los módulos"
   },
   "leccion": {
-    "pendiente": "El contenido de la lección (video, resumen, práctica y quiz) todavía está en construcción."
+    "cargando": "Cargando la lección…",
+    "sinTraduccion": "Esta lección todavía no está traducida: la ves en español.",
+    "error": {
+      "titulo": "No pudimos cargar la lección",
+      "mensaje": "Revisa tu conexión (fuera de EAFIT, la VPN) e inténtalo de nuevo. Si sigue fallando, escribe a apolo@eafit.edu.co.",
+      "reintentar": "Reintentar"
+    },
+    "pestanas": "Elige el clúster",
+    "tuCluster": "(tu clúster)",
+    "copiar": "Copiar",
+    "copiado": "Copiado",
+    "noCopiado": "No se pudo copiar",
+    "avisoCopiado": "Copiado al portapapeles",
+    "salida": "salida",
+    "video": {
+      "titulo": "Video",
+      "sistemas": "Elige tu sistema operativo",
+      "tuSistema": "(tu sistema)",
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux",
+      "pendiente": "Video en preparación",
+      "pendienteTexto": "Mientras tanto, el resumen de abajo tiene los comandos del video."
+    },
+    "practica": {
+      "titulo": "Verifica tu práctica",
+      "texto": "Sigue los pasos de la sección Práctica en una terminal conectada por SSH a la VM de práctica. Al terminar, verifica:",
+      "resultado": "El resultado aparecerá en Mi progreso."
+    },
+    "quiz": {
+      "titulo": "Quiz",
+      "pendiente": "El quiz de esta lección estará aquí muy pronto."
+    },
+    "completar": {
+      "boton": "Marcar como completada",
+      "guardando": "Guardando…",
+      "hecha": "Completaste esta lección",
+      "conVideo": "Esta lección se completa al ver el video.",
+      "requisitos": "Termina el video para completar esta lección.",
+      "error": "No pudimos guardar tu avance. Inténtalo de nuevo."
+    },
+    "navegacion": "Lección anterior y siguiente",
+    "anterior": "Anterior",
+    "siguiente": "Siguiente"
   },
   "cuenta": {
     "mostrarClave": "Mostrar la contraseña",
@@ -185,7 +230,7 @@
     "cuenta_bloqueada_sin_hora": "Tu cuenta quedó bloqueada por varios intentos fallidos. Vuelve a intentarlo en 15 minutos.",
     "cuenta_inactiva": "Tu cuenta está dada de baja. Si crees que es un error, escribe a {{correo}}.",
     "demasiadas_peticiones": "Demasiados intentos seguidos. Espera un minuto y vuelve a intentarlo.",
-    "sin_conexion": "No pudimos comunicarnos con la plataforma. Revisa tu conexión a la VPN de EAFIT e inténtalo de nuevo.",
+    "sin_conexion": "No pudimos comunicarnos con la plataforma. Revisa tu conexión (fuera de EAFIT, la VPN) e inténtalo de nuevo.",
     "inesperado": "Algo falló de nuestro lado. Inténtalo de nuevo en unos minutos.",
     "clave_temporal_incorrecta": "La contraseña temporal no es correcta.",
     "clave_actual_incorrecta": "La contraseña actual no es correcta.",

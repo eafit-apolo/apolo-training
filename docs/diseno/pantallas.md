@@ -97,6 +97,23 @@ lleva a Mi progreso), la API no responde («No pudimos cargar el curso»).
 
 ![Wireframe de la lección y del laboratorio con terminal real](wireframes/03-leccion.svg)
 
+**Desde la F-04, las capturas `capturas/f04-*.png` muestran el cuerpo de la
+lección:** el texto con sus pestañas Apolo II / Apolo III (abre la del
+perfil), los bloques de comandos con «Copiar» (las salidas dicen «salida» y no
+se copian), el espacio del video («Video en preparación» mientras no se suba;
+en la lección de VPN, uno por sistema operativo con el del navegador marcado),
+«Verifica tu práctica», el espacio del quiz, «Marcar como completada» y
+anterior / siguiente («Siguiente» hacia un módulo bloqueado no es enlace y dice
+qué terminar). En inglés, una lección sin traducir sale en español con un
+aviso. Las capturas usan la lección de muestra de las pruebas
+(`web/src/testing/leccion-muestra.ts`), cargada como módulo 1.
+
+- El Markdown no acepta HTML: si una lección lo trae, se ve como texto. Angular
+  sanitiza además todo lo que pinta.
+- «Marcar como completada» sale si la lección no tiene un video ya subido; con
+  video, se completa al verlo (F-05, B-06). Hasta la B-06 el quiz no la
+  bloquea. Un instructor puede leer un módulo bloqueado, pero no completarlo.
+
 **A · Lección con video, lectura, terminal quemada y quiz**
 
 1. **Qué falta para completarla.** Se arma con lo que trae la lección (ver
