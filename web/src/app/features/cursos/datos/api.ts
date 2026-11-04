@@ -74,6 +74,61 @@ export interface CursoDetalleApi extends CursoResumenApi {
   readonly modulos: readonly ModuloApi[];
 }
 
+/** Las siete prácticas del verificador (`apolo-training verificar <práctica>`). */
+export type Practica =
+  'conexion' | 'terminal' | 'archivos' | 'modulos' | 'memoria' | 'nucleos' | 'paralelo';
+
+/** `todos`, o un sistema operativo en la lección de VPN. */
+export type SistemaVideo = 'todos' | 'windows' | 'macos' | 'linux';
+
+export interface VideoRefApi {
+  readonly id: number;
+  readonly clave: string;
+  /** `false` mientras no se haya subido el MP4 («Video en preparación»). */
+  readonly disponible: boolean;
+  readonly duracion_seg: number | null;
+  readonly url: string | null;
+  readonly subtitulos: readonly { readonly idioma: Idioma; readonly url: string }[];
+}
+
+export interface VideoLeccionApi {
+  readonly sistema: SistemaVideo;
+  readonly video: VideoRefApi;
+}
+
+export interface ProgresoLeccionApi {
+  readonly leccion_id: number;
+  readonly video_posicion_seg: number;
+  readonly video_max_seg: number;
+  readonly video_completo: boolean;
+  readonly quiz_aprobado: boolean;
+  readonly completada: boolean;
+  readonly completada_en: string | null;
+}
+
+/** Esquema `Leccion`: el cuerpo de la lección (F-04). */
+export interface LeccionApi {
+  readonly id: number;
+  readonly slug: string;
+  readonly curso: string;
+  readonly modulo: ModuloRefApi;
+  readonly orden: number;
+  readonly titulo: string;
+  /** Markdown con pestañas `::: apolo2` / `::: apolo3` (C-01). */
+  readonly contenido: string;
+  /** No hay traducción: el contenido viene en español. */
+  readonly fallback: boolean;
+  readonly duracion_min: number;
+  readonly componentes: readonly Componente[];
+  readonly videos: readonly VideoLeccionApi[];
+  readonly practicas: readonly Practica[];
+  readonly quiz_id: number | null;
+  /** También entre módulos; si el de la siguiente está bloqueado, lo dice el catálogo. */
+  readonly anterior: LeccionRefApi | null;
+  readonly siguiente: LeccionRefApi | null;
+  readonly progreso: ProgresoLeccionApi;
+}
+
 /**
  * Las rutas de lectura de contenido (`GET /api/cursos…`). Va aparte de
  * `CatalogoService` para que las pruebas la reemplacen por datos de ejemplo.
@@ -102,5 +157,38 @@ export class ContenidoApi {
       }
       throw error;
     }
+  }
+
+  /**
+   * Una lección; `null` si no existe (404). Un estudiante en un módulo
+   * bloqueado recibe 403 `modulo_bloqueado`, que sale como error.
+   */
+  async leccion(
+    curso: string,
+    modulo: string,
+    leccion: string,
+    idioma: Idioma,
+  ): Promise<LeccionApi | null> {
+    const ruta = [curso, 'lecciones', modulo, leccion].map(encodeURIComponent).join('/');
+    try {
+      return await firstValueFrom(
+        this.http.get<LeccionApi>(`${API}/cursos/${ruta}`, { params: { lang: idioma } }),
+      );
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * `POST /api/lecciones/{id}/completar` (el interceptor pone el CSRF). 409
+   * `requisitos_pendientes` si tiene un video subido sin ver.
+   */
+  completar(leccionId: number): Promise<ProgresoLeccionApi> {
+    return firstValueFrom(
+      this.http.post<ProgresoLeccionApi>(`${API}/lecciones/${leccionId}/completar`, null),
+    );
   }
 }

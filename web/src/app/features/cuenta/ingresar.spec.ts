@@ -144,11 +144,11 @@ describe('Ingresar (pantalla 01)', () => {
     expect(alerta(raiz)).toContain(texto);
   });
 
-  it('sin conexión (VPN caída) lo dice', async () => {
+  it('sin conexión lo dice, con la VPN como una de las causas', async () => {
     const { raiz, listo } = await abrir();
     (await ingresar(raiz, listo)).error(new ProgressEvent('error'));
     await listo();
-    expect(alerta(raiz)).toContain('VPN de EAFIT');
+    expect(alerta(raiz)).toContain('Revisa tu conexión (fuera de EAFIT, la VPN)');
   });
 
   it('con ?motivo=vencida avisa que la sesión terminó, hasta el primer intento', async () => {

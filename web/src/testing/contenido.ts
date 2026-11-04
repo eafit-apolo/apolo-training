@@ -1,14 +1,21 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Provider } from '@angular/core';
+import type { Rol } from '../app/core/sesion/sesion';
 import { SesionService } from '../app/core/sesion/sesion';
 import type {
   CursoDetalleApi,
   CursoResumenApi,
+  LeccionApi,
   LeccionRefApi,
   ModuloApi,
   ModuloRefApi,
+  Practica,
+  ProgresoLeccionApi,
+  VideoLeccionApi,
 } from '../app/features/cursos/datos/api';
 import { ContenidoApi } from '../app/features/cursos/datos/api';
+import { MUESTRA_EN, MUESTRA_ES } from './leccion-muestra';
 
 // Los datos de ejemplo de la F-02, ahora solo para las pruebas: con ellos se
 // arma lo que respondería la API de contenido (B-04) a cada usuario de ejemplo.
@@ -347,12 +354,154 @@ export function resumenDe(curso: CursoDetalleApi): CursoResumenApi {
   return resumen as CursoResumenApi;
 }
 
+/** Las prácticas de cada lección de ejemplo (content/mapa.md). */
+const PRACTICAS_EJEMPLO: Readonly<Record<string, readonly Practica[]>> = {
+  'm01/ssh': ['conexion'],
+  'm02/terminal': ['terminal'],
+  'm03/archivos': ['archivos'],
+  'm04/modulos': ['modulos'],
+  'm05/trabajos': ['memoria'],
+  'm06/paralelismo': ['nucleos', 'paralelo'],
+};
+
+/** El texto de una lección en español y, si está traducida, en inglés. */
+export interface TextoLeccion {
+  readonly es: string;
+  readonly en?: string;
+}
+
+/** `m05/trabajos` trae la lección de muestra de la F-04; las demás, un texto corto. */
+export function textosDeEjemplo(): Map<string, TextoLeccion> {
+  return new Map([['m05/trabajos', { es: MUESTRA_ES, en: MUESTRA_EN }]]);
+}
+
+export interface OpcionesLeccion {
+  readonly rol?: Rol;
+  readonly textos?: ReadonlyMap<string, TextoLeccion>;
+  /** Lecciones (`m05/trabajos`) con el video ya subido. */
+  readonly conVideo?: ReadonlySet<string>;
+}
+
+/**
+ * Una lección como la devuelve `GET /api/cursos/induccion/lecciones/{m}/{l}`,
+ * con la misma regla de la API: un estudiante en un módulo bloqueado recibe
+ * 403 `modulo_bloqueado`; instructores y admins entran.
+ */
+export function leccionDeEjemplo(
+  completas: readonly string[],
+  modulo: string,
+  slug: string,
+  idioma: string,
+  opciones: OpcionesLeccion = {},
+): LeccionApi | null {
+  const curso = cursoDeEjemplo(completas);
+  const todas = curso.modulos.flatMap((m) => m.lecciones.map((l) => ({ m, l })));
+  const posicion = todas.findIndex(({ m, l }) => m.slug === modulo && l.slug === slug);
+  if (posicion < 0) {
+    return null;
+  }
+  const { m, l } = todas[posicion];
+  if (m.estado === 'bloqueado' && (opciones.rol ?? 'estudiante') === 'estudiante') {
+    throw new HttpErrorResponse({
+      status: 403,
+      error: { detail: 'bloqueado', codigo: 'modulo_bloqueado', bloqueado_por: m.bloqueado_por },
+    });
+  }
+  const clave = `${modulo}/${slug}`;
+  const ref = (i: number): LeccionRefApi | null => {
+    const vecina = todas[i];
+    return vecina
+      ? {
+          id: vecina.l.id,
+          slug: vecina.l.slug,
+          modulo: vecina.m.slug,
+          modulo_numero: vecina.m.numero,
+          titulo: vecina.l.titulo,
+        }
+      : null;
+  };
+  const texto = (opciones.textos ?? textosDeEjemplo()).get(clave) ?? {
+    es: `## Objetivos\n\nTexto de ${l.titulo}.\n`,
+  };
+  const traducida = idioma === 'en' && texto.en !== undefined;
+  const disponible = opciones.conVideo?.has(clave) ?? false;
+  // Como la API: los sistemas en orden alfabético.
+  const sistemas =
+    clave === 'm01/vpn' ? (['linux', 'macos', 'windows'] as const) : (['todos'] as const);
+  const videos: VideoLeccionApi[] = l.componentes.includes('video')
+    ? sistemas.map((sistema) => {
+        const id = idDe(`video:${clave}:${sistema}`);
+        return {
+          sistema,
+          video: {
+            id,
+            clave: `${modulo}-${slug}${sistema === 'todos' ? '' : `-${sistema}`}`,
+            disponible,
+            duracion_seg: disponible ? 300 : null,
+            url: disponible ? `/api/media/${id}` : null,
+            subtitulos: disponible
+              ? (['es', 'en'] as const).map((i) => ({
+                  idioma: i,
+                  url: `/api/media/${id}/subtitulos/${i}`,
+                }))
+              : [],
+          },
+        };
+      })
+    : [];
+  return {
+    id: l.id,
+    slug,
+    curso: curso.slug,
+    modulo: { id: m.id, slug: m.slug, numero: m.numero, titulo: m.titulo },
+    orden: l.orden,
+    titulo: l.titulo,
+    contenido: traducida ? (texto.en as string) : texto.es,
+    fallback: idioma === 'en' && !traducida,
+    duracion_min: l.duracion_min,
+    componentes: l.componentes,
+    videos,
+    practicas: PRACTICAS_EJEMPLO[clave] ?? [],
+    quiz_id: l.componentes.includes('quiz') ? idDe(`quiz:${clave}`) : null,
+    anterior: ref(posicion - 1),
+    siguiente: ref(posicion + 1),
+    progreso: progresoDe(l.id, l.completada),
+  };
+}
+
+function progresoDe(leccionId: number, completada: boolean): ProgresoLeccionApi {
+  return {
+    leccion_id: leccionId,
+    video_posicion_seg: 0,
+    video_max_seg: 0,
+    video_completo: false,
+    quiz_aprobado: false,
+    completada,
+    completada_en: completada ? '2026-11-04T15:00:00Z' : null,
+  };
+}
+
+/** `m05/trabajos` de una lección por su id numérico. */
+function claveDe(id: number): string | undefined {
+  return [...IDS].find(([clave, valor]) => valor === id && clave.includes('/'))?.[0];
+}
+
 /** ContenidoApi con los datos de ejemplo, para el usuario de la sesión. */
 @Injectable()
 export class ContenidoApiDePrueba {
   private readonly sesion = inject(SesionService);
-  /** Lo que se pidió, para comprobar que no se repite. */
+  /** Lo que se pidió del curso, para comprobar que no se repite. */
   readonly pedidos: string[] = [];
+  /** Las lecciones que se pidieron (`m05/trabajos?lang=es`). */
+  readonly lecciones: string[] = [];
+  /** Los ids que se mandaron a completar. */
+  readonly completadas: number[] = [];
+  /** Texto de cada lección; las pruebas pueden cambiarlo. */
+  readonly textos = textosDeEjemplo();
+  /** Lecciones con el video ya subido. */
+  readonly conVideo = new Set<string>();
+  /** Lo que se completó durante la prueba, además de PROGRESO_EJEMPLO. */
+  private readonly hechas = new Set<string>();
 
   async cursos(idioma: string): Promise<CursoResumenApi[]> {
     this.pedidos.push(`cursos?lang=${idioma}`);
@@ -364,8 +513,46 @@ export class ContenidoApiDePrueba {
     return slug === 'induccion' ? this.armar() : null;
   }
 
+  async leccion(
+    curso: string,
+    modulo: string,
+    slug: string,
+    idioma: string,
+  ): Promise<LeccionApi | null> {
+    this.lecciones.push(`${modulo}/${slug}?lang=${idioma}`);
+    if (curso !== 'induccion') {
+      return null;
+    }
+    return leccionDeEjemplo(this.completas(), modulo, slug, idioma, {
+      rol: this.sesion.usuario()?.rol,
+      textos: this.textos,
+      conVideo: this.conVideo,
+    });
+  }
+
+  /** Como la API (B-04 y F-04): un video subido sin ver da 409. */
+  async completar(leccionId: number): Promise<ProgresoLeccionApi> {
+    this.completadas.push(leccionId);
+    const clave = claveDe(leccionId);
+    if (!clave) {
+      throw new HttpErrorResponse({ status: 404, error: { codigo: 'no_encontrado' } });
+    }
+    if (this.conVideo.has(clave)) {
+      throw new HttpErrorResponse({
+        status: 409,
+        error: { detail: 'falta el video', codigo: 'requisitos_pendientes' },
+      });
+    }
+    this.hechas.add(clave);
+    return progresoDe(leccionId, true);
+  }
+
+  private completas(): string[] {
+    return [...(PROGRESO_EJEMPLO[this.sesion.usuario()?.username ?? ''] ?? []), ...this.hechas];
+  }
+
   private armar(): CursoDetalleApi {
-    return cursoDe(this.sesion.usuario()?.username ?? '');
+    return cursoDeEjemplo(this.completas());
   }
 }
 
