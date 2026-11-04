@@ -119,6 +119,11 @@ cada módulo con la regla de desbloqueo: el n+1 se abre al completar el n
 (`app/services/contenido.py`). Instructores y admins pueden abrir lecciones de
 módulos bloqueados.
 
+`POST /api/lecciones/{id}/completar` es «Marcar como completada» (F-04,
+`app/services/progreso.py`): 409 `requisitos_pendientes` si la lección tiene
+un video ya subido sin ver, y 403 `modulo_bloqueado` si su módulo está
+bloqueado, también para instructores y admins.
+
 ## Pruebas y calidad
 
 Con Docker, desde la raíz del repo (lo mismo que el job `api` del CI, contra

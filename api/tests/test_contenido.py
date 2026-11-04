@@ -313,9 +313,12 @@ async def test_con_ingles_devuelve_el_ingles(
 
     assert leccion["titulo"] == "Welcome"
     assert "Welcome text." in leccion["contenido"]
-    # El módulo no tiene _modulo.md en inglés: su título sale en español.
+    # El módulo no tiene _modulo.md en inglés y la siguiente (m01/vpn) tampoco
+    # está traducida: sus títulos salen en español, pero la lección sí está en
+    # inglés, así que no es fallback (la web no muestra el aviso, F-04).
     assert leccion["modulo"]["titulo"] == "Bienvenida"
-    assert leccion["fallback"] is True
+    assert leccion["siguiente"]["titulo"] == "La VPN"
+    assert leccion["fallback"] is False
     assert en_espanol["titulo"] == "Bienvenida"
     assert en_espanol["fallback"] is False
 
