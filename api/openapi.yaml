@@ -435,10 +435,14 @@ paths:
     post:
       tags: [progreso]
       operationId: completarLeccion
-      summary: Marcar como completada una lección de solo lectura o de laboratorio
+      summary: Marcar como completada una lección
       description: |
-        Si la lección tiene video, terminal quemada o quiz, se completa sola al
-        cumplirlos; esta ruta responde 409 mientras falte alguno.
+        El botón «Marcar como completada» (F-04). Una lección con un video ya
+        subido se completa al verlo (`POST /progreso/video`): aquí responde 409
+        mientras no esté visto. Si el video todavía no se ha subido, se marca
+        a mano. Hasta la B-06, el quiz no la bloquea; las prácticas nunca la
+        bloquean. Exige el módulo abierto, también a instructores y admins
+        (403 `modulo_bloqueado`). Completar dos veces no cambia `completada_en`.
       security:
         - cookieAcceso: []
           csrf: []
@@ -447,7 +451,7 @@ paths:
         - $ref: "#/components/parameters/LeccionId"
       responses:
         "200":
-          description: Progreso de la lección
+          description: Progreso de la lección, ya completada
           content:
             application/json:
               schema:
@@ -455,15 +459,21 @@ paths:
         "401":
           $ref: "#/components/responses/NoAutenticado"
         "403":
-          $ref: "#/components/responses/Prohibido"
-        "404":
-          $ref: "#/components/responses/NoEncontrado"
-        "409":
-          description: "Faltan requisitos (`requisitos_pendientes`)"
+          description: "Módulo bloqueado (`modulo_bloqueado`, con `bloqueado_por`), clave por cambiar (`debe_cambiar_clave`) o CSRF inválido (`csrf_invalido`)"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "409":
+          description: "Tiene un video subido que falta ver (`requisitos_pendientes`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /progreso/video:
     post:
@@ -1723,6 +1733,10 @@ components:
             bloques `::: apolo2` y `::: apolo3` (C-01).
         fallback:
           type: boolean
+          description: |
+            El título y el texto de la lección vinieron en español porque no
+            están traducidos. Los títulos del módulo y de las lecciones vecinas
+            no cuentan.
         duracion_min:
           type: integer
         componentes:

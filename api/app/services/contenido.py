@@ -318,6 +318,69 @@ async def obtener_modulo(
     )
 
 
+def error_bloqueado(armado: _ModuloArmado, t: Textos) -> ErrorApi:
+    """403 `modulo_bloqueado` con el módulo que hay que terminar."""
+    anterior = _ref_modulo(armado.anterior, t) if armado.anterior else None
+    return ErrorApi(
+        403,
+        "modulo_bloqueado",
+        "Este módulo se abre al completar el anterior",
+        extra={"bloqueado_por": anterior.model_dump() if anterior else None},
+    )
+
+
+def progreso_de(
+    fila: ProgresoLeccion | None, leccion_id: int, completada: bool
+) -> esquemas.ProgresoLeccion:
+    """El progreso de una lección; `completada` solo cuenta en un módulo abierto."""
+    return esquemas.ProgresoLeccion(
+        leccion_id=leccion_id,
+        video_posicion_seg=fila.video_posicion_seg if fila else 0,
+        video_max_seg=fila.video_max_seg if fila else 0,
+        video_completo=fila.video_completo if fila else False,
+        quiz_aprobado=fila.quiz_aprobado if fila else False,
+        completada=completada,
+        completada_en=fila.completada_en if fila and completada else None,
+    )
+
+
+@dataclass
+class LeccionArmada:
+    """Una lección con su módulo y su curso, armados para el usuario."""
+
+    datos: _Curso
+    modulo: _ModuloArmado
+    leccion: Leccion
+
+    def videos(self) -> list[Video]:
+        return [video for _, video in self.datos.videos.get(self.leccion.id, [])]
+
+
+async def leccion_por_id(
+    bd: AsyncSession, leccion_id: int, usuario: Usuario
+) -> LeccionArmada:
+    """Para las rutas de escritura, que usan el id: 404 si la lección no está
+    publicada o su curso tampoco."""
+    curso = await bd.scalar(
+        select(Curso)
+        .join(Modulo, Modulo.curso_id == Curso.id)
+        .join(Leccion, Leccion.modulo_id == Modulo.id)
+        .where(
+            Leccion.id == leccion_id,
+            Leccion.publicada.is_(True),
+            Curso.publicado.is_(True),
+        )
+    )
+    if curso is None:
+        raise ErrorApi(404, "no_encontrado", "No existe esa lección")
+    datos = await _armar(bd, curso, usuario)
+    for armado in datos.modulos:
+        for leccion in armado.lecciones:
+            if leccion.id == leccion_id:
+                return LeccionArmada(datos=datos, modulo=armado, leccion=leccion)
+    raise ErrorApi(404, "no_encontrado", "No existe esa lección")
+
+
 def _video(video: Video) -> esquemas.VideoRef:
     disponible = video.archivo is not None
     subtitulos = [
@@ -352,41 +415,29 @@ async def obtener_leccion(
         raise ErrorApi(404, "no_encontrado", "No existe esa lección")
     t = Textos(idioma)
     if armado.estado == "bloqueado" and usuario.rol not in ROLES_SIN_BLOQUEO:
-        anterior = _ref_modulo(armado.anterior, t) if armado.anterior else None
-        raise ErrorApi(
-            403,
-            "modulo_bloqueado",
-            "Este módulo se abre al completar el anterior",
-            extra={"bloqueado_por": anterior.model_dump() if anterior else None},
-        )
+        raise error_bloqueado(armado, t)
 
     # Anterior y siguiente en todo el curso, también entre módulos. La web sabe
     # por el estado de cada módulo si la siguiente ya se puede abrir.
+    # `fallback` es de la lección (su título y su texto): que el módulo o una
+    # vecina no estén traducidos no la vuelve «sin traducir» (F-04).
+    otros = Textos(idioma)
     todas = [(m.modulo, x) for m, x in datos.lecciones()]
     posicion = next(i for i, (_, x) in enumerate(todas) if x.id == actual.id)
-    anterior_ref = _ref_leccion(*todas[posicion - 1], t) if posicion > 0 else None
+    anterior_ref = _ref_leccion(*todas[posicion - 1], otros) if posicion > 0 else None
     siguiente_ref = (
-        _ref_leccion(*todas[posicion + 1], t) if posicion + 1 < len(todas) else None
+        _ref_leccion(*todas[posicion + 1], otros) if posicion + 1 < len(todas) else None
     )
 
-    fila = datos.progreso.get(actual.id)
-    progreso = esquemas.ProgresoLeccion(
-        leccion_id=actual.id,
-        video_posicion_seg=fila.video_posicion_seg if fila else 0,
-        video_max_seg=fila.video_max_seg if fila else 0,
-        video_completo=fila.video_completo if fila else False,
-        quiz_aprobado=fila.quiz_aprobado if fila else False,
-        completada=actual.id in armado.completas,
-        completada_en=fila.completada_en
-        if fila and actual.id in armado.completas
-        else None,
+    progreso = progreso_de(
+        datos.progreso.get(actual.id), actual.id, actual.id in armado.completas
     )
     quiz = datos.quizzes.get(actual.id)
     return esquemas.Leccion(
         id=actual.id,
         slug=actual.slug,
         curso=datos.curso.slug,
-        modulo=_ref_modulo(armado.modulo, t),
+        modulo=_ref_modulo(armado.modulo, otros),
         orden=actual.orden,
         titulo=t(actual.titulo_es, actual.titulo_en),
         contenido=t(actual.contenido_es, actual.contenido_en),

@@ -258,6 +258,10 @@ videos, prácticas de la VM (`practicas`, una lista: `m06/paralelismo` tiene
 | quiz                            | un intento con 80 % o más (`quiz_aprobado`) |
 | solo texto, o texto y prácticas | el usuario pulsa «Marcar como completada»   |
 
+Un video que todavía no se ha subido no cuenta: esa lección se marca a mano,
+como una de solo texto (F-04). Mientras no haya calificación de quizzes
+(B-06), el quiz tampoco bloquea y la lección se marca a mano.
+
 Las prácticas **no** bloquean la lección ni el módulo siguiente: su resultado
 llega desde la VM cada 5 minutos y cuenta para aprobar el curso, no para
 navegar.

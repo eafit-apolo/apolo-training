@@ -139,6 +139,8 @@ class Leccion(BaseModel):
     titulo: str
     # Markdown; la web lo sanitiza antes de mostrarlo (F-04).
     contenido: str
+    # El título y el texto de la lección vinieron en español (F-04): los del
+    # módulo y de las lecciones vecinas no cuentan.
     fallback: bool
     duracion_min: int
     componentes: list[Componente]
