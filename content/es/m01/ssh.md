@@ -53,14 +53,14 @@ quiz:
       - texto: La nueva que acabas de poner en la plataforma.
 
       # Incorrecta
-      - texto: La de la VPN.
+      - texto: La de la VPN y tu clúster.
 
     explicacion: >-
       La contraseña de la plataforma y la de la VM de práctica empiezan iguales,
       con la temporal, pero son dos contraseñas distintas. Cada una se cambia en
       su primer ingreso y desde ahí no dependen la una de la otra: cambiar la de
-      la plataforma no cambia la de la VM. La VPN y tu clúster real tienen sus
-      propias credenciales, las que te dio el equipo de Apolo.
+      la plataforma no cambia la de la VM. La VPN y tu clúster real usan otra:
+      tu contraseña de Apolo, la misma para los dos.
 ---
 
 ## Objetivos
@@ -140,6 +140,8 @@ passwd: all authentication tokens updated successfully.
    al menos 8 caracteres y mezcla mayúsculas, minúsculas, números y símbolos.
 3. La conexión se cierra sola. Vuelve a conectarte con la contraseña nueva.
 
+En tu clúster, esa contraseña nueva también es la de la VPN desde ahora.
+
 Cuando el prompt cambia a `[<usuario>@<servidor> ~]$`, todo lo que escribas
 corre en el servidor, no en tu computador. Para salir:
 
@@ -147,15 +149,15 @@ corre en el servidor, no en tu computador. Para salir:
 exit
 ```
 
-### 5. Una contraseña por lugar
+### 5. Qué contraseña pide cada lugar
 
-| Dónde                       | Qué contraseña                                                     |
-| --------------------------- | ------------------------------------------------------------------ |
-| VPN                         | La de la VPN, que te dio el equipo de Apolo.                       |
-| Tu clúster (Apolo II o III) | La de tu cuenta del clúster, que te dio el equipo de Apolo.        |
-| VM de práctica              | La del curso: empieza con la temporal y la cambias en la práctica. |
-| Esta plataforma             | La del curso: empieza con la misma temporal y la cambiaste aquí.   |
+| Dónde            | Qué contraseña                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------------ |
+| VPN y tu clúster | Tu contraseña de Apolo, la misma para los dos. La temporal la cambias en tu primer ingreso al clúster. |
+| VM de práctica   | La del curso: empieza con la temporal del curso y la cambias en la práctica.                           |
+| Esta plataforma  | La del curso: empieza con la misma temporal del curso y ya la cambiaste aquí.                          |
 
+Son dos cuentas: la de Apolo (VPN y clúster) y la del curso (VM y plataforma).
 La de la VM y la de la plataforma empiezan iguales, pero cada una se cambia por
 separado y desde ahí son independientes.
 

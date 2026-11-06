@@ -20,15 +20,19 @@ Al terminar podrás:
 ## Resumen
 
 Apolo II, Apolo III y la VM de práctica solo aceptan conexiones desde la red de
-Apolo. La VPN pone tu computador en esa red, estés donde estés. Entras con el
-usuario y la contraseña de la VPN que te dio el equipo de Apolo.
+Apolo. La VPN pone tu computador en esa red, estés donde estés.
+
+Entras con tu usuario y contraseña de Apolo, los mismos de tu clúster. La
+primera vez usas la contraseña temporal que te dio el equipo de Apolo. Cuando la
+cambies en tu primer ingreso al clúster (lección siguiente), la VPN también te
+pedirá la nueva.
 
 Arriba está el video de tu sistema operativo. Estos son sus pasos:
 
 ### Windows
 
 1. En el navegador, abre <https://leto.omega.eafit.edu.co> e inicia sesión con
-   tu usuario y contraseña de la VPN.
+   tu usuario y contraseña de Apolo.
 2. Descarga GlobalProtect para Windows e instálalo con las opciones que trae.
 3. Abre GlobalProtect desde el ícono que aparece junto al reloj, en la barra de
    tareas. En **Portal** escribe `leto.omega.eafit.edu.co` y conéctate.
@@ -38,7 +42,7 @@ Arriba está el video de tu sistema operativo. Estos son sus pasos:
 ### macOS
 
 1. En el navegador, abre <https://leto.omega.eafit.edu.co> e inicia sesión con
-   tu usuario y contraseña de la VPN.
+   tu usuario y contraseña de Apolo.
 2. Descarga GlobalProtect para macOS e instálalo.
 3. Si macOS avisa que bloqueó software del desarrollador, abre **Configuración
    del Sistema → Privacidad y seguridad** y pulsa **Permitir**.
@@ -67,7 +71,7 @@ protocolo que GlobalProtect.
    ```
 
    Primero te pide la contraseña de tu computador (por `sudo`) y luego tu
-   usuario y contraseña de la VPN.
+   usuario y contraseña de Apolo.
 
 3. Cuando te devuelve el prompt, la VPN está encendida. Con `--background`
    sigue corriendo aunque cierres la terminal.
@@ -95,8 +99,9 @@ La guía completa, con capturas de cada paso, está en apolo-docs:
   por completo y ábrelo otra vez.
 - **Después de suspender el computador, la VPN no vuelve a conectar:** cierra
   el cliente y ábrelo de nuevo.
-- **La VPN rechaza tu usuario o contraseña:** usa los de la VPN que te dio el
-  equipo de Apolo, no los de esta plataforma.
+- **La VPN rechaza tu usuario o contraseña:** usa tu usuario y contraseña de
+  Apolo, los mismos de tu clúster, no los de esta plataforma. Si ya cambiaste
+  la contraseña temporal en el clúster, la VPN te pide la nueva.
 - **En Linux, `openconnect: command not found`:** no quedó instalado. Repite el
   paso 1 con el comando de tu distribución.
 - **En Linux, la VPN no responde después de suspender el computador:** apágala
