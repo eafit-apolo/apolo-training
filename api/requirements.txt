@@ -13,3 +13,6 @@ uvicorn-worker==0.4.0
 # Importador de contenido (B-04): front matter YAML y los esquemas de content/schema/.
 pyyaml==6.0.3
 jsonschema==4.26.0
+# Videos (B-05): lee el formato y la duración de un MP4 subido. Trae FFmpeg
+# dentro del paquete, así que no hace falta instalar ffprobe con apt.
+av==19.0.2

@@ -8,6 +8,7 @@ que pasaron.
 
 import os
 from collections.abc import AsyncIterator, Callable
+from pathlib import Path
 
 import pytest
 from fastapi import FastAPI
@@ -25,23 +26,32 @@ SECRETO_PRUEBAS = "pruebas-" * 4
 
 
 @pytest.fixture
-def settings_con_base() -> Settings:
+def settings_con_base(tmp_path: Path) -> Settings:
     if not os.environ.get("API_DATABASE_URL"):
         pytest.fail(
             "Falta API_DATABASE_URL. Corre las pruebas con "
             "`docker compose -f deploy/compose.dev.yaml run --rm pruebas` "
             "desde la raíz del repo (ver deploy/README.md)."
         )
-    return Settings(version="pruebas", secreto=SECRETO_PRUEBAS)
+    # Los videos que suba una prueba quedan en su carpeta temporal (B-05), y
+    # la entrega es la de la 117 aunque tengas API_MEDIA_ENTREGA en el entorno.
+    return Settings(
+        version="pruebas",
+        secreto=SECRETO_PRUEBAS,
+        media_dir=tmp_path / "media",
+        media_entrega="nginx",
+    )
 
 
 @pytest.fixture
-def settings_sin_base() -> Settings:
+def settings_sin_base(tmp_path: Path) -> Settings:
     return Settings(
         database_url=URL_SIN_BASE,
         db_timeout=2,
         version="pruebas",
         secreto=SECRETO_PRUEBAS,
+        media_dir=tmp_path / "media",
+        media_entrega="nginx",
     )
 
 

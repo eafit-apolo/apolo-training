@@ -1,6 +1,8 @@
 """Configuración de la API, leída solo de variables de entorno (prefijo API_)."""
 
 from functools import lru_cache
+from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,6 +31,13 @@ class Settings(BaseSettings):
     # Cookies con Secure. Solo se apaga para probar desde otro equipo por http
     # (Safari descarta las cookies Secure fuera de https y de localhost).
     cookies_seguras: bool = True
+    # Videos y subtítulos subidos desde el panel (B-05). En la 117, un volumen
+    # que la API escribe y nginx lee (W-06).
+    media_dir: Path = Path("/srv/apolo-training/media")
+    # Cómo se entregan: `nginx` (la 117) responde con X-Accel-Redirect y nginx
+    # manda el archivo; `api` lo manda la API misma, con Range (desarrollo, donde
+    # no hay nginx delante).
+    media_entrega: Literal["nginx", "api"] = "nginx"
 
     @field_validator("secreto")
     @classmethod

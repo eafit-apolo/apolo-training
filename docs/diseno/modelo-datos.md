@@ -268,9 +268,13 @@ navegar.
 
 **videos.** Una fila por video, identificada por `clave` (`m05-trabajos`), con
 el patrón de `ClaveVideo` del contrato. El importador crea la fila sin archivo
-y el instructor sube el MP4 y los VTT desde el panel con esa clave. Mientras no
-haya archivo, la lección muestra «Video pendiente». Las rutas son relativas a
-`/srv/apolo-training/media`.
+y el instructor sube el MP4 y los VTT desde el panel con esa clave (B-05).
+Mientras no haya archivo, la lección muestra «Video pendiente». Las rutas son
+relativas a `/srv/apolo-training/media` (`API_MEDIA_DIR`): cada subida lleva un
+nombre nuevo en la carpeta del módulo
+(`m05/m05-trabajos-20261105T140312-a1b2.mp4`, y los VTT
+`m05/m05-trabajos-20261105T141020-c3d4.es.vtt`) y el archivo anterior se borra
+al guardar el nuevo. `duracion_seg` la lee la API del MP4 al subirlo.
 
 **lecciones_videos.** Qué video se muestra en cada lección. Casi siempre es
 uno, con `sistema = 'todos'`. En la lección de VPN (`m01/vpn`) hay uno por
@@ -316,11 +320,11 @@ Cuando un admin aplica la QOS normal en el clúster real, marca
 
 **auditoria.** Solo agrega filas. Acciones previstas: `login_ok`,
 `login_fallido`, `cuenta_bloqueada`, `cambio_clave`, `reuso_refresh`, `alta`,
-`baja`, `reinicio_clave`, `cambio_rol`, `video_subido`, `graduacion_enviada`,
-`graduacion_revisada`, `qos_aplicada`, `sincronizacion_rechazada`. Nunca guarda
-contraseñas, tokens ni lo que se escribe en una terminal. Un `login_fallido`
-con un usuario que no existe no guarda lo que se escribió (podría ser la clave
-en el campo equivocado).
+`baja`, `reinicio_clave`, `cambio_rol`, `video_subido`, `subtitulos_subidos`,
+`graduacion_enviada`, `graduacion_revisada`, `qos_aplicada`,
+`sincronizacion_rechazada`. Nunca guarda contraseñas, tokens ni lo que se
+escribe en una terminal. Un `login_fallido` con un usuario que no existe no
+guarda lo que se escribió (podría ser la clave en el campo equivocado).
 
 ## Cuándo se aprueba el curso
 

@@ -24,15 +24,17 @@ se corrige el contrato en el mismo PR.
 
 Todas llevan el prefijo `API_`. No hay archivo `.env`: se leen del entorno.
 
-| Variable              | Obligatoria     | Qué es                                                                    |
-| --------------------- | --------------- | ------------------------------------------------------------------------- |
-| `API_DATABASE_URL`    | sí              | `postgresql+asyncpg://usuario:clave@host:puerto/base`                     |
-| `API_DB_TIMEOUT`      | no (3)          | Segundos que `/api/health` espera a PostgreSQL                            |
-| `API_VERSION`         | no (`dev`)      | Versión que informa `/api/health`; la imagen la recibe del build          |
-| `API_DOCS`            | no (`false`)    | Publica `/api/docs` y `/api/openapi.json` (solo desarrollo)               |
-| `API_DATOS_EJEMPLO`   | no (`false`)    | Deja correr `python -m app.datos_ejemplo` (solo desarrollo)               |
-| `API_SECRETO`         | sí, para la API | 32 caracteres o más; firma la sesión. Cambiarlo cierra todas              |
-| `API_COOKIES_SEGURAS` | no (`true`)     | Cookies con `Secure`; `false` solo para probar por http desde otro equipo |
+| Variable              | Obligatoria                      | Qué es                                                                             |
+| --------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
+| `API_DATABASE_URL`    | sí                               | `postgresql+asyncpg://usuario:clave@host:puerto/base`                              |
+| `API_DB_TIMEOUT`      | no (3)                           | Segundos que `/api/health` espera a PostgreSQL                                     |
+| `API_VERSION`         | no (`dev`)                       | Versión que informa `/api/health`; la imagen la recibe del build                   |
+| `API_DOCS`            | no (`false`)                     | Publica `/api/docs` y `/api/openapi.json` (solo desarrollo)                        |
+| `API_DATOS_EJEMPLO`   | no (`false`)                     | Deja correr `python -m app.datos_ejemplo` (solo desarrollo)                        |
+| `API_SECRETO`         | sí, para la API                  | 32 caracteres o más; firma la sesión. Cambiarlo cierra todas                       |
+| `API_COOKIES_SEGURAS` | no (`true`)                      | Cookies con `Secure`; `false` solo para probar por http desde otro equipo          |
+| `API_MEDIA_DIR`       | no (`/srv/apolo-training/media`) | Carpeta de los videos y subtítulos subidos (B-05)                                  |
+| `API_MEDIA_ENTREGA`   | no (`nginx`)                     | `nginx` (`X-Accel-Redirect`, la 117) o `api` (la API manda el archivo; desarrollo) |
 
 En la imagen además: `WEB_CONCURRENCY` (workers de gunicorn, 2 por defecto) y
 `GUNICORN_CMD_ARGS` para opciones extra.
@@ -124,6 +126,56 @@ módulos bloqueados.
 un video ya subido sin ver, y 403 `modulo_bloqueado` si su módulo está
 bloqueado, también para instructores y admins.
 
+## Videos y subtítulos (B-05)
+
+Un instructor o admin sube el MP4 y los VTT de cada video por su clave, la del
+front matter de la lección (`m05-trabajos`); el importador ya creó la fila.
+Rutas en `app/routers/panel.py` y `app/routers/medios.py`; lógica en
+`app/services/medios.py` y `app/services/video_formato.py`.
+
+- **El archivo va como cuerpo del PUT**, no como formulario: la API lo escribe
+  mientras llega en `media/.subiendo/` (el mismo volumen, así moverlo no copia
+  nada) y corta al pasar 2 GiB (413 `archivo_muy_grande`). Un formulario
+  multipart da 415 con la pista. Lo que quede ahí de una subida que no terminó
+  (un worker que se reinició) se borra al día siguiente, con la próxima subida.
+- **Formato:** [PyAV](https://pypi.org/project/av/) (el paquete `av`, que trae
+  FFmpeg adentro) lee el contenedor, los códecs y la duración. Se acepta lo que
+  reproduce cualquier navegador: MP4 con H.264 de 8 bits 4:2:0, perfil
+  Baseline, Main o High, y audio AAC o sin audio; si no, 415
+  `video_formato_invalido` y `detail` dice qué trae el archivo. Los VTT: hasta
+  1 MiB, en UTF-8 y empezando por `WEBVTT` (415 `vtt_invalido`).
+- Cada subida lleva un nombre nuevo en la carpeta del módulo
+  (`m05/m05-trabajos-20261105T140312-a1b2.mp4`) y el archivo anterior se borra
+  al guardar: quien esté viendo el video viejo no recibe pedazos del nuevo.
+  Queda en la auditoría (`video_subido`, `subtitulos_subidos`).
+- **Entrega:** `GET /api/media/{id}` y `/api/media/{id}/subtitulos/{idioma}`
+  validan la sesión, como el resto de la API, y con `API_MEDIA_ENTREGA=nginx`
+  responden vacías con `X-Accel-Redirect: /media-interno/<archivo>`: nginx
+  manda el archivo con Range desde una `location` interna (W-05). Con `api`
+  (el compose de desarrollo) lo manda la API misma con `FileResponse`, que
+  también entiende Range. Cualquier sesión puede pedir un video, aunque su
+  lección esté en un módulo bloqueado.
+- Con un video subido, su lección ya no se marca a mano: se completa al verlo
+  (B-06). En desarrollo, un video de prueba deja esa lección así hasta la B-06.
+
+Mientras no exista la pantalla del panel (F-08), se sube con curl. Como todo
+PUT, necesita la sesión y la cabecera CSRF (con el compose de desarrollo, en
+`http://localhost:8000`):
+
+```bash
+J=$(mktemp)
+curl -s -c "$J" -H 'Content-Type: application/json' \
+  -d '{"username":"carla","clave":"apolo-training-dev"}' \
+  http://localhost:8000/api/auth/login >/dev/null
+CSRF=$(awk '$6=="csrf"{print $7}' "$J")
+
+curl -s -b "$J" http://localhost:8000/api/panel/videos   # las claves que hay
+curl -s -b "$J" -H "X-CSRF-Token: $CSRF" -H 'Content-Type: video/mp4' \
+  -T video.mp4 http://localhost:8000/api/panel/videos/m00-bienvenida
+curl -s -b "$J" -H "X-CSRF-Token: $CSRF" -H 'Content-Type: text/vtt' \
+  -T es.vtt http://localhost:8000/api/panel/videos/m00-bienvenida/subtitulos/es
+```
+
 ## Pruebas y calidad
 
 Con Docker, desde la raíz del repo (lo mismo que el job `api` del CI, contra
@@ -145,7 +197,9 @@ En CI, el job `api` de `.github/workflows/calidad.yml` levanta PostgreSQL 16,
 aplica las migraciones, corre `alembic check` y pytest. ruff lo corre el job
 `pre-commit`, y el job `content` valida `content/` con
 `python -m app.importar --revisar`. Las pruebas del importador también leen el
-`content/` real (por eso el servicio `pruebas` lo monta).
+`content/` real (por eso el servicio `pruebas` lo monta). Las de videos (B-05)
+generan MP4 de pocos KB con PyAV (`tests/ayuda_medios.py`), así que no hay
+videos en el repo, y guardan lo subido en una carpeta temporal.
 
 ## Reglas de ruff
 

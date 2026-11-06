@@ -53,3 +53,20 @@ async def test_docs_solo_si_se_activan(
     respuesta = await cliente.get("/api/openapi.json")
 
     assert respuesta.status_code == esperado
+
+
+def test_medios_por_defecto_los_de_la_117(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("API_MEDIA_DIR", raising=False)
+    monkeypatch.delenv("API_MEDIA_ENTREGA", raising=False)
+    settings = Settings(database_url="postgresql+asyncpg://nadie@localhost/nada")
+
+    assert str(settings.media_dir) == "/srv/apolo-training/media"
+    assert settings.media_entrega == "nginx"
+
+
+def test_entrega_de_medios_solo_nginx_o_api(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("API_DATABASE_URL", "postgresql+asyncpg://nadie@localhost/nada")
+    monkeypatch.setenv("API_MEDIA_ENTREGA", "apache")
+
+    with pytest.raises(ValidationError, match="media_entrega"):
+        Settings()

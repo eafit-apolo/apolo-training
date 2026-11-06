@@ -608,9 +608,15 @@ paths:
       operationId: obtenerVideo
       summary: Video MP4 (solo con sesión)
       description: |
-        La API valida la sesión y responde con `X-Accel-Redirect`; nginx
-        entrega el archivo desde una ubicación interna, con soporte de `Range`
-        para adelantar.
+        La API valida la sesión y responde vacía con
+        `X-Accel-Redirect: /media-interno/<archivo>`; nginx entrega el archivo
+        desde esa `location` interna, con soporte de `Range` para adelantar
+        (B-05, W-05). En desarrollo, sin nginx delante
+        (`API_MEDIA_ENTREGA=api`), la API manda el archivo ella misma, también
+        con `Range`. Cualquier sesión puede pedirlo, aunque su lección esté en
+        un módulo bloqueado: el bloqueo es para ir en orden, no para esconder.
+        Responde con `Cache-Control: private, no-cache`, para que un video
+        reemplazado no salga del caché.
       security:
         - cookieAcceso: []
       x-roles: [estudiante, instructor, admin]
@@ -639,14 +645,21 @@ paths:
                 format: binary
         "401":
           $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
         "404":
           $ref: "#/components/responses/NoEncontrado"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /media/{video_id}/subtitulos/{idioma}:
     get:
       tags: [medios]
       operationId: obtenerSubtitulos
       summary: Subtítulos WebVTT del video
+      description: |
+        Igual que `obtenerVideo`. Se pueden pedir aunque el MP4 todavía no se
+        haya subido; la lección solo los lista cuando el video está.
       security:
         - cookieAcceso: []
       x-roles: [estudiante, instructor, admin]
@@ -662,8 +675,12 @@ paths:
                 type: string
         "401":
           $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
         "404":
           $ref: "#/components/responses/NoEncontrado"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /panel/resumen:
     get:
@@ -690,6 +707,9 @@ paths:
       tags: [panel]
       operationId: listarVideos
       summary: Videos del curso con el estado de archivo y subtítulos
+      description: |
+        Todos los que creó el importador, por clave, con o sin archivo. Los
+        títulos de las lecciones van en el idioma del perfil.
       security:
         - cookieAcceso: []
       x-roles: [instructor, admin]
@@ -713,9 +733,16 @@ paths:
       operationId: subirVideo
       summary: Subir o reemplazar el MP4 de un video
       description: |
-        Hasta 2 GB. La API verifica con ffprobe que sea H.264 + AAC y guarda la
-        duración. La clave (por ejemplo `m05-trabajos`) la crea el importador de
-        contenido a partir del front matter de la lección.
+        El archivo va **como cuerpo** del PUT, no como formulario
+        (`curl -T video.mp4`): la API lo escribe mientras llega y corta al pasar
+        los 2 GiB. Lee el formato con PyAV y acepta lo que reproduce cualquier
+        navegador: contenedor MP4, video H.264 de 8 bits 4:2:0 con perfil
+        Baseline, Main o High, y audio AAC o sin audio. Guarda la duración.
+
+        La clave (por ejemplo `m05-trabajos`) la crea el importador de
+        contenido a partir del front matter de la lección. Cada subida lleva
+        un nombre nuevo (`m05/m05-trabajos-20261105T140312-a1b2.mp4`) y el
+        archivo anterior se borra. Queda en la auditoría (`video_subido`).
       security:
         - cookieAcceso: []
           csrf: []
@@ -725,17 +752,10 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          video/mp4:
             schema:
-              type: object
-              required: [archivo]
-              properties:
-                archivo:
-                  type: string
-                  format: binary
-            encoding:
-              archivo:
-                contentType: video/mp4
+              type: string
+              format: binary
       responses:
         "200":
           description: Video guardado
@@ -750,23 +770,32 @@ paths:
         "404":
           $ref: "#/components/responses/NoEncontrado"
         "413":
-          description: "Archivo de más de 2 GB (`archivo_muy_grande`)"
+          description: "Archivo de más de 2 GiB (`archivo_muy_grande`)"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "415":
-          description: "No es H.264 + AAC (`video_formato_invalido`)"
+          description: |
+            No es un MP4 con H.264 y AAC que el navegador pueda reproducir, o
+            llegó como formulario (`video_formato_invalido`). `detail` dice qué
+            trae el archivo.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /panel/videos/{clave}/subtitulos/{idioma}:
     put:
       tags: [panel]
       operationId: subirSubtitulos
       summary: Subir o reemplazar el VTT de un idioma
+      description: |
+        El archivo va como cuerpo del PUT (`curl -T es.vtt`), hasta 1 MiB, en
+        UTF-8 y empezando por la línea `WEBVTT`. Se puede subir antes que el
+        video. Queda en la auditoría (`subtitulos_subidos`).
       security:
         - cookieAcceso: []
           csrf: []
@@ -777,17 +806,9 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          text/vtt:
             schema:
-              type: object
-              required: [archivo]
-              properties:
-                archivo:
-                  type: string
-                  format: binary
-            encoding:
-              archivo:
-                contentType: text/vtt
+              type: string
       responses:
         "200":
           description: Subtítulos guardados
@@ -801,12 +822,20 @@ paths:
           $ref: "#/components/responses/Prohibido"
         "404":
           $ref: "#/components/responses/NoEncontrado"
-        "415":
-          description: "No es un WebVTT válido (`vtt_invalido`)"
+        "413":
+          description: "Archivo de más de 1 MiB (`archivo_muy_grande`)"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "415":
+          description: "No es un WebVTT en UTF-8 (`vtt_invalido`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /panel/graduaciones:
     get:
