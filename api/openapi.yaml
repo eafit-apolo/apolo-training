@@ -480,6 +480,17 @@ paths:
       tags: [progreso]
       operationId: reportarVideo
       summary: Reportar el segundo actual del video (cada 15 s)
+      description: |
+        El reproductor (F-05) lo manda cada 15 s mientras el video corre, al
+        pausar, al terminar y al salir de la lección. `video_posicion_seg` es
+        el último segundo reportado (de ahí se reanuda, aunque haya
+        retrocedido) y `video_max_seg`, lo más lejos que llegó; el segundo se
+        recorta a la duración del video. Cuando lo más lejos pasa el 90 % de la
+        duración del video que se está viendo (`video_id`: en la lección de VPN
+        hay uno por sistema), `video_completo` y la lección queda completa
+        (hasta la B-06 el quiz no la bloquea). Nada de eso vuelve atrás. Exige
+        el módulo abierto, también a instructores y admins (403
+        `modulo_bloqueado`, como `completarLeccion`).
       security:
         - cookieAcceso: []
           csrf: []
@@ -500,9 +511,17 @@ paths:
         "401":
           $ref: "#/components/responses/NoAutenticado"
         "403":
-          $ref: "#/components/responses/Prohibido"
+          description: "Módulo bloqueado (`modulo_bloqueado`, con `bloqueado_por`), clave por cambiar (`debe_cambiar_clave`) o CSRF inválido (`csrf_invalido`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
-          $ref: "#/components/responses/NoEncontrado"
+          description: "La lección no existe o no está publicada, o ese video no es de la lección o no se ha subido (`no_encontrado`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "422":
           $ref: "#/components/responses/ErrorValidacion"
 
@@ -1875,14 +1894,21 @@ components:
             - type: "null"
     ProgresoVideoEntrada:
       type: object
-      required: [leccion_id, segundo]
+      required: [leccion_id, video_id, segundo]
       properties:
         leccion_id:
           type: integer
           format: int64
+          minimum: 1
+        video_id:
+          description: El video que se está viendo; el 90 % se mide con su duración.
+          type: integer
+          format: int64
+          minimum: 1
         segundo:
           type: integer
           minimum: 0
+          maximum: 2147483647
     ProgresoTerminalEntrada:
       type: object
       required: [leccion_id]

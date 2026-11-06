@@ -272,7 +272,7 @@ sequenceDiagram
   API-->>N: X-Accel-Redirect /media-interno/m05/m05-trabajos-20261105T140312-a1b2.mp4
   N-->>W: 206 con el fragmento pedido
   loop cada 15 s mientras se reproduce
-    W->>API: POST /api/progreso/video {leccion_id, segundo}
+    W->>API: POST /api/progreso/video {leccion_id, video_id, segundo}
     API->>DB: video_posicion_seg, video_max_seg
   end
   API->>DB: si video_max_seg ≥ 90 % y lo demás está cumplido, completada_en
@@ -293,7 +293,7 @@ sequenceDiagram
   con PyAV (415 si no es MP4 con H.264 y AAC), lo mueve a la carpeta del
   módulo con un nombre nuevo, actualiza `videos` y borra el archivo anterior.
   Los VTT van igual por `PUT /api/panel/videos/{clave}/subtitulos/{idioma}`.
-  Con un video subido, su lección se completa al verlo (B-06).
+  Con un video subido, su lección se completa al verlo (F-05).
 
 ## 7. Carga del contenido
 

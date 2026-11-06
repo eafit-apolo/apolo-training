@@ -297,8 +297,12 @@ navegador antes de que el usuario responda (B-06).
 Intentos ilimitados; cuenta el mejor.
 
 **progreso_lecciones.** Una fila por usuario y lección, creada en el primer
-reporte. `video_posicion_seg` es donde se reanuda; `video_max_seg` es lo más
-lejos que llegó. `completada_en` se llena una sola vez.
+reporte. `video_posicion_seg` es donde se reanuda (el último segundo
+reportado, aunque haya retrocedido); `video_max_seg` es lo más lejos que llegó.
+El reporte (`POST /api/progreso/video`, cada 15 s, F-05) dice qué video se
+está viendo: en la lección de VPN el avance es de la lección, pero el 90 % se
+mide con la duración de ese video. `video_completo` y `completada_en` no
+vuelven atrás; `completada_en` se llena una sola vez.
 
 **practicas.** El último estado conocido de cada una de las siete prácticas del
 verificador por usuario, tal como lo envía la VM de práctica (V-05). Solo las

@@ -5,9 +5,9 @@ español y con `fallback = true`.
 """
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.valores import PRACTICAS
 
@@ -126,6 +126,23 @@ class ProgresoLeccion(BaseModel):
     quiz_aprobado: bool
     completada: bool
     completada_en: datetime | None
+
+
+# Los ids son bigint y los segundos, integer de PostgreSQL: un número fuera de
+# rango es un 422, no un error de la base.
+IdBigint = Annotated[int, Field(ge=1, le=2**63 - 1)]
+
+
+class ProgresoVideoEntrada(BaseModel):
+    """El reporte del reproductor cada 15 s (F-05)."""
+
+    model_config = ConfigDict(title="ProgresoVideoEntrada")
+
+    leccion_id: IdBigint
+    # El video que se está viendo: en la lección de VPN hay uno por sistema, y
+    # el 90 % se mide con su duración.
+    video_id: IdBigint
+    segundo: Annotated[int, Field(ge=0, le=2**31 - 1)]
 
 
 class Leccion(BaseModel):
