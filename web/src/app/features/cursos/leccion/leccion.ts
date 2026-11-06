@@ -25,7 +25,7 @@ import { Icono } from '../../../shared/icono';
 import type { Miga } from '../../../shared/migas';
 import { Migas } from '../../../shared/migas';
 import { PaginaPendiente } from '../../../shared/pagina-pendiente';
-import type { LeccionApi, LeccionRefApi } from '../datos/api';
+import type { LeccionApi, LeccionRefApi, ProgresoLeccionApi } from '../datos/api';
 import { ContenidoApi } from '../datos/api';
 import { CatalogoService } from '../datos/catalogo';
 import { Bloqueado } from '../modulo/bloqueado';
@@ -174,8 +174,8 @@ export class Leccion {
   protected readonly siguiente = computed(() => this.vecina(this.cuerpo()?.siguiente));
 
   /**
-   * Se marca a mano si no tiene un video ya subido (decisión del 4-nov; con
-   * video, se completa al verlo: F-05 y B-06). El quiz todavía no la bloquea.
+   * Se marca a mano si no tiene un video ya subido (decisión del 4-nov); con
+   * video, se completa al ver el 90 % (F-05). El quiz todavía no la bloquea.
    */
   protected readonly puedeMarcar = computed(() => {
     const cuerpo = this.cuerpo();
@@ -184,6 +184,8 @@ export class Leccion {
   protected readonly guardando = signal(false);
   /** Clave del mensaje de error al completar. */
   protected readonly errorCompletar = signal<string | null>(null);
+  /** Clave del aviso para lectores de pantalla cuando el video completa la lección. */
+  protected readonly anuncio = signal<string | null>(null);
   private readonly avisoHecha = viewChild<ElementRef<HTMLElement>>('hecha');
 
   constructor() {
@@ -195,6 +197,7 @@ export class Leccion {
       untracked(() => {
         this.cluster.reiniciar();
         this.errorCompletar.set(null);
+        this.anuncio.set(null);
       });
     });
     // El catálogo creía abierto un módulo que la API dice bloqueado: se pone al día.
@@ -233,6 +236,21 @@ export class Leccion {
       );
     } finally {
       this.guardando.set(false);
+    }
+  }
+
+  /**
+   * Lo que respondió la API al reporte del video. El reproductor ya recarga
+   * el catálogo cuando la lección se completa; aquí, el estado de la pantalla.
+   */
+  protected alReportarVideo(progreso: ProgresoLeccionApi): void {
+    const antes = this.cuerpo();
+    if (antes?.id !== progreso.leccion_id) {
+      return;
+    }
+    this.respuesta.value.update((l) => (l?.id === progreso.leccion_id ? { ...l, progreso } : l));
+    if (progreso.completada && !antes.progreso.completada) {
+      this.anuncio.set('leccion.completar.alVer');
     }
   }
 

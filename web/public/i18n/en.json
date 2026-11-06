@@ -149,7 +149,17 @@
       "macos": "macOS",
       "linux": "Linux",
       "pendiente": "Video coming soon",
-      "pendienteTexto": "Meanwhile, the summary below has the commands from the video."
+      "pendienteTexto": "Meanwhile, the summary below has the commands from the video.",
+      "velocidad": "Speed",
+      "normal": "Normal",
+      "subtitulos": "Subtitles",
+      "sinSubtitulos": "Off",
+      "retomado": "You picked up where you left off ({{tiempo}}).",
+      "desdeInicio": "Start over",
+      "error": {
+        "titulo": "We couldn't load the video",
+        "mensaje": "Check your connection (outside EAFIT, the VPN) and try again."
+      }
     },
     "practica": {
       "titulo": "Check your practice",
@@ -164,9 +174,10 @@
       "boton": "Mark as complete",
       "guardando": "Saving…",
       "hecha": "You completed this lesson",
-      "conVideo": "This lesson is completed by watching the video.",
+      "conVideo": "This lesson is completed by watching 90% of the video.",
       "requisitos": "Finish the video to complete this lesson.",
-      "error": "We couldn't save your progress. Try again."
+      "error": "We couldn't save your progress. Try again.",
+      "alVer": "You watched the video: lesson completed."
     },
     "navegacion": "Previous and next lesson",
     "anterior": "Previous",

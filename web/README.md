@@ -32,6 +32,11 @@ npm run format    # prettier sobre web/ (el pre-commit hace lo mismo)
 `.npmrc` fija versiones exactas al instalar algo nuevo (`save-exact`) y exige
 la versión de Node de `engines` (`engine-strict`).
 
+Si las pruebas fallan de una forma que no se explica con el código (por
+ejemplo, después de cambiar de rama), borra la caché de módulos de Vitest y
+vuelve a correrlas: `rm -rf node_modules/.vitest-cache`. Puede servir una
+versión vieja de un archivo que ya cambió.
+
 `ng serve` envía `/api` a la API (`proxy.conf.mjs`), así la web y la API
 comparten origen como en producción. Con `npm start` en tu equipo apunta a
 `http://localhost:8000`; para otra dirección, `API_URL=http://localhost:8001 npm start`.
@@ -70,7 +75,7 @@ archivo de rutas de la sección.
 /cursos                           catálogo: saludo, «Continuar» y los cursos
 /cursos/:curso                    el curso y la grilla de módulos
 /cursos/:curso/:modulo            el módulo y sus lecciones      ┐ con la barra
-/cursos/:curso/:modulo/:leccion   la lección (su cuerpo es de la F-04) ┘ lateral
+/cursos/:curso/:modulo/:leccion   la lección (F-04; video, F-05)       ┘ lateral
 ```
 
 `:modulo` y `:leccion` son el id del contenido (`m05/trabajos`, ver

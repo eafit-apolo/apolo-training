@@ -12,6 +12,7 @@ import type {
   ModuloRefApi,
   Practica,
   ProgresoLeccionApi,
+  ProgresoVideoEntradaApi,
   VideoLeccionApi,
 } from '../app/features/cursos/datos/api';
 import { ContenidoApi } from '../app/features/cursos/datos/api';
@@ -545,6 +546,32 @@ export class ContenidoApiDePrueba {
     }
     this.hechas.add(clave);
     return progresoDe(leccionId, true);
+  }
+
+  /** Los reportes del reproductor (F-05), en orden. */
+  readonly reportes: { entrada: ProgresoVideoEntradaApi; alSalir: boolean }[] = [];
+
+  /** Como la API (F-05): al 90 % de los 300 s del video la lección queda completa. */
+  async reportarVideo(
+    entrada: ProgresoVideoEntradaApi,
+    alSalir = false,
+  ): Promise<ProgresoLeccionApi> {
+    this.reportes.push({ entrada, alSalir });
+    const clave = claveDe(entrada.leccion_id);
+    if (!clave || !this.conVideo.has(clave)) {
+      throw new HttpErrorResponse({ status: 404, error: { codigo: 'no_encontrado' } });
+    }
+    const segundo = Math.min(entrada.segundo, 300);
+    const visto = segundo >= 270;
+    if (visto) {
+      this.hechas.add(clave);
+    }
+    return {
+      ...progresoDe(entrada.leccion_id, this.completas().includes(clave)),
+      video_posicion_seg: segundo,
+      video_max_seg: segundo,
+      video_completo: visto,
+    };
   }
 
   private completas(): string[] {

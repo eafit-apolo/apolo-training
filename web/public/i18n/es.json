@@ -149,7 +149,17 @@
       "macos": "macOS",
       "linux": "Linux",
       "pendiente": "Video en preparación",
-      "pendienteTexto": "Mientras tanto, el resumen de abajo tiene los comandos del video."
+      "pendienteTexto": "Mientras tanto, el resumen de abajo tiene los comandos del video.",
+      "velocidad": "Velocidad",
+      "normal": "Normal",
+      "subtitulos": "Subtítulos",
+      "sinSubtitulos": "Desactivados",
+      "retomado": "Seguiste donde ibas ({{tiempo}}).",
+      "desdeInicio": "Ver desde el inicio",
+      "error": {
+        "titulo": "No pudimos cargar el video",
+        "mensaje": "Revisa tu conexión (fuera de EAFIT, la VPN) e inténtalo de nuevo."
+      }
     },
     "practica": {
       "titulo": "Verifica tu práctica",
@@ -164,9 +174,10 @@
       "boton": "Marcar como completada",
       "guardando": "Guardando…",
       "hecha": "Completaste esta lección",
-      "conVideo": "Esta lección se completa al ver el video.",
+      "conVideo": "Esta lección se completa al ver el 90 % del video.",
       "requisitos": "Termina el video para completar esta lección.",
-      "error": "No pudimos guardar tu avance. Inténtalo de nuevo."
+      "error": "No pudimos guardar tu avance. Inténtalo de nuevo.",
+      "alVer": "Viste el video: completaste esta lección."
     },
     "navegacion": "Lección anterior y siguiente",
     "anterior": "Anterior",
