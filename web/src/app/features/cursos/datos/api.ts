@@ -106,6 +106,14 @@ export interface ProgresoLeccionApi {
   readonly completada_en: string | null;
 }
 
+/** Esquema `ProgresoVideoEntrada`: el reporte del reproductor cada 15 s (F-05). */
+export interface ProgresoVideoEntradaApi {
+  readonly leccion_id: number;
+  /** El que se está viendo: en la lección de VPN hay uno por sistema. */
+  readonly video_id: number;
+  readonly segundo: number;
+}
+
 /** Esquema `Leccion`: el cuerpo de la lección (F-04). */
 export interface LeccionApi {
   readonly id: number;
@@ -189,6 +197,18 @@ export class ContenidoApi {
   completar(leccionId: number): Promise<ProgresoLeccionApi> {
     return firstValueFrom(
       this.http.post<ProgresoLeccionApi>(`${API}/lecciones/${leccionId}/completar`, null),
+    );
+  }
+
+  /**
+   * `POST /api/progreso/video` (F-05): dónde va el usuario en el video. Al
+   * pasar el 90 % la respuesta viene con la lección completada. `alSalir` es
+   * para el último reporte al cerrar la pestaña: el navegador lo termina de
+   * mandar aunque la página ya no exista (`keepalive`, con `withFetch()`).
+   */
+  reportarVideo(entrada: ProgresoVideoEntradaApi, alSalir = false): Promise<ProgresoLeccionApi> {
+    return firstValueFrom(
+      this.http.post<ProgresoLeccionApi>(`${API}/progreso/video`, entrada, { keepalive: alSalir }),
     );
   }
 }

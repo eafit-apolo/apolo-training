@@ -168,7 +168,8 @@ nginx delante de la API con la `location /media-interno/` y levantar la API con
 en la misma terminal.
 
 Un video subido deja su lección sin «Marcar como completada»: se completa al
-verlo, y eso llega con la B-06 y la F-05.
+ver el 90 % en el reproductor (F-05). Con un video de prueba, adelántalo casi
+hasta el final y pausa.
 
 ### Tareas de cada día
 

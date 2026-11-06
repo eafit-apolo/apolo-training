@@ -34,7 +34,13 @@
 
       @if (c.videos.length) {
         <section [attr.aria-label]="'leccion.video.titulo' | transloco">
-          <at-videos [videos]="c.videos" />
+          <at-videos
+            [videos]="c.videos"
+            [leccionId]="c.id"
+            [progreso]="c.progreso"
+            [guardar]="m?.estado !== 'bloqueado'"
+            (reportado)="alReportarVideo($event)"
+          />
         </section>
       }
 
@@ -59,6 +65,14 @@
           <p>{{ 'leccion.quiz.pendiente' | transloco }}</p>
         </section>
       }
+
+      <!-- Al completarse viendo el video el foco se queda en el video: el aviso
+           va por aquí, que ya existía antes de cambiar. -->
+      <p class="at-oculto anuncio" aria-live="polite">
+        @if (anuncio(); as a) {
+          {{ a | transloco }}
+        }
+      </p>
 
       <div class="completar">
         @if (c.progreso.completada) {

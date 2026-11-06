@@ -6,11 +6,12 @@ import {
   inject,
   input,
   linkedSignal,
+  output,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { IdiomaService } from '../../../core/i18n/idioma';
 import { Icono } from '../../../shared/icono';
-import type { SistemaVideo, VideoLeccionApi } from '../datos/api';
+import type { ProgresoLeccionApi, SistemaVideo, VideoLeccionApi } from '../datos/api';
+import { Reproductor } from './reproductor';
 
 type Sistema = Exclude<SistemaVideo, 'todos'>;
 
@@ -36,12 +37,12 @@ export function sistemaDe(navegador: Navigator | undefined): Sistema | null {
 /**
  * El espacio del video, arriba de la lección. Casi siempre es uno; en la de
  * VPN hay uno por sistema operativo y se abre el del navegador. Mientras no se
- * haya subido el MP4 (B-05), «Video en preparación». El reproductor completo
- * (subtítulos, velocidad, reanudar y avance) es de la F-05.
+ * haya subido el MP4 (B-05), «Video en preparación»; si ya está, el
+ * reproductor (F-05).
  */
 @Component({
   selector: 'at-videos',
-  imports: [TranslocoPipe, Icono],
+  imports: [TranslocoPipe, Icono, Reproductor],
   template: `
     @let lista = videos();
     @if (lista.length > 1) {
@@ -60,19 +61,18 @@ export function sistemaDe(navegador: Navigator | undefined): Sistema | null {
         }
       </div>
     }
-    @if (actual(); as v) {
+    <!-- Un reproductor por video: al cambiar de sistema se arma otro y el anterior
+         reporta dónde iba. -->
+    @for (v of mostrado(); track v.video.id) {
       @if (v.video.disponible && v.video.url) {
-        <video controls preload="metadata" [src]="v.video.url">
-          @for (s of v.video.subtitulos; track s.idioma) {
-            <track
-              kind="subtitles"
-              [src]="s.url"
-              [attr.srclang]="s.idioma"
-              [label]="'idioma.' + s.idioma | transloco"
-              [default]="s.idioma === 'en' && idioma.actual() === 'en'"
-            />
-          }
-        </video>
+        <at-reproductor
+          [video]="v.video"
+          [leccionId]="leccionId()"
+          [progreso]="progreso()"
+          [retomar]="v.sistema === inicial()"
+          [guardar]="guardar()"
+          (reportado)="reportado.emit($event)"
+        />
       } @else {
         <div class="pendiente">
           <at-icono nombre="video" />
@@ -122,14 +122,6 @@ export function sistemaDe(navegador: Navigator | undefined): Sistema | null {
       font: var(--mat-sys-body-small);
     }
 
-    video {
-      display: block;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: 12px;
-      background: #000;
-    }
-
     .pendiente {
       display: flex;
       align-items: center;
@@ -160,15 +152,30 @@ export class Videos {
       [...lista].sort((a, b) => ORDEN.indexOf(a.sistema) - ORDEN.indexOf(b.sistema)),
   });
 
-  protected readonly idioma = inject(IdiomaService);
+  readonly leccionId = input.required<number>();
+  readonly progreso = input.required<ProgresoLeccionApi>();
+  /** `false` en un módulo bloqueado que un instructor está leyendo. */
+  readonly guardar = input(true);
+  readonly reportado = output<ProgresoLeccionApi>();
+
   protected readonly propio = sistemaDe(inject(DOCUMENT).defaultView?.navigator);
 
   /** El del navegador si la lección lo tiene; si no, el primero. */
-  protected readonly elegido = linkedSignal<SistemaVideo | undefined>(() => {
+  protected readonly inicial = computed(() => {
     const lista = this.videos();
     return (lista.find((v) => v.sistema === this.propio) ?? lista[0])?.sistema;
   });
-  protected readonly actual = computed(() =>
-    this.videos().find((v) => v.sistema === this.elegido()),
+
+  /**
+   * El elegido. Si la lista vuelve a llegar (al cambiar el idioma, o tras un
+   * reporte) y todavía tiene el que eligió el usuario, se queda ese.
+   */
+  protected readonly elegido = linkedSignal<readonly VideoLeccionApi[], SistemaVideo | undefined>({
+    source: this.videos,
+    computation: (lista, previo) =>
+      previo && lista.some((v) => v.sistema === previo.value) ? previo.value : this.inicial(),
+  });
+  protected readonly mostrado = computed(() =>
+    this.videos().filter((v) => v.sistema === this.elegido()),
   );
 }

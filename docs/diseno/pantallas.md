@@ -111,8 +111,22 @@ aviso. Las capturas usan la lección de muestra de las pruebas
 - El Markdown no acepta HTML: si una lección lo trae, se ve como texto. Angular
   sanitiza además todo lo que pinta.
 - «Marcar como completada» sale si la lección no tiene un video ya subido; con
-  video, se completa al verlo (F-05, B-06). Hasta la B-06 el quiz no la
+  video, se completa al ver el 90 % (F-05). Hasta la B-06 el quiz no la
   bloquea. Un instructor puede leer un módulo bloqueado, pero no completarlo.
+
+**Desde la F-05, las capturas `capturas/f05-*.png` muestran el reproductor:**
+los controles del navegador (teclado, pantalla completa y celular funcionan
+solos) y, debajo, la velocidad (0,75x a 2x) y los subtítulos (desactivados,
+español o inglés). Con la interfaz en inglés los subtítulos en inglés vienen
+prendidos y en español, apagados; lo que el usuario elija se recuerda en el
+navegador para cada idioma, y cambiar ES/EN cambia la pista sin recargar el
+video. Retoma donde iba («Seguiste donde ibas (2:00) · Ver desde el inicio»),
+salvo al principio o si ya vio el 90 %. Reporta el segundo cada 15 s mientras
+corre, al pausar y al salir; al 90 % la lección queda completa sin mover el
+foco (lo anuncia a los lectores de pantalla). Si el video falla, por ejemplo
+porque la sesión venció en una pausa larga, renueva la sesión y sigue en el
+mismo segundo; si no puede, «No pudimos cargar el video · Reintentar». Las
+capturas usan un video de prueba de 2 minutos en `m00/bienvenida`.
 
 **A · Lección con video, lectura, terminal quemada y quiz**
 

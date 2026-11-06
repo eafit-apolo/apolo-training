@@ -9,6 +9,8 @@ import { ContenidoApiDePrueba, contenidoDePrueba } from '../../../../testing/con
 import { MUESTRA_ES, MUESTRA_PELIGROSA } from '../../../../testing/leccion-muestra';
 import { ANA, CARLA, botonCon, entrarComo } from '../../../../testing/sesion';
 import { traduccionesDePrueba } from '../../../../testing/transloco';
+import type { Simulacion } from '../../../../testing/video';
+import { cargarVideo, pausarVideo, simularVideos } from '../../../../testing/video';
 import { opcionesRouter } from '../../../app.config';
 import { routes } from '../../../app.routes';
 import { IdiomaService } from '../../../core/i18n/idioma';
@@ -277,7 +279,103 @@ describe('Lección (F-04)', () => {
 
       const video = raiz.querySelector('video');
       expect(video?.getAttribute('src')).toMatch(/^\/api\/media\/\d+$/);
+      expect(video?.hasAttribute('playsinline')).toBe(true);
       expect(video?.querySelectorAll('track')).toHaveLength(2);
+      expect(raiz.querySelector('at-reproductor .controles')?.textContent).toContain('Velocidad');
+    });
+
+    describe('con el reproductor (F-05)', () => {
+      let simulacion: Simulacion;
+
+      beforeEach(() => {
+        simulacion = simularVideos();
+        api.conVideo.add('m05/trabajos');
+      });
+
+      afterEach(() => simulacion.restaurar());
+
+      it('al ver el 90 % la lección queda completa, sin sacar el foco del video', async () => {
+        const recargar = vi.spyOn(TestBed.inject(CatalogoService), 'recargar');
+        const raiz = await abrir(TRABAJOS);
+        const video = raiz.querySelector('video') as HTMLVideoElement;
+        const estado = simulacion.de(video);
+        cargarVideo(video);
+        // jsdom no deja enfocar un <video>: el foco va en un control del reproductor.
+        const velocidad = raiz.querySelector('at-reproductor select') as HTMLSelectElement;
+        velocidad.focus();
+
+        estado.tiempo = 280;
+        pausarVideo(estado, video);
+        const final = await listo();
+
+        expect(api.reportes.map((r) => r.entrada.segundo)).toEqual([280]);
+        expect(recargar).toHaveBeenCalled();
+        expect(final.querySelector('.completar .hecha')?.textContent?.trim()).toBe(
+          'Completaste esta lección',
+        );
+        expect(final.querySelector('.anuncio')?.textContent?.trim()).toBe(
+          'Viste el video: completaste esta lección.',
+        );
+        expect(document.activeElement).toBe(velocidad);
+        expect(final.querySelector('.meta')?.textContent).toContain('Completa');
+        // El mismo video: la respuesta no lo vuelve a armar.
+        expect(final.querySelector('video')).toBe(video);
+      });
+
+      it('al cambiar el idioma los subtítulos cambian sin recargar el video (DoD 2)', async () => {
+        const raiz = await abrir(TRABAJOS);
+        const video = raiz.querySelector('video') as HTMLVideoElement;
+        const estado = simulacion.de(video);
+        cargarVideo(video);
+        expect(estado.pistas.map((p) => p.mode)).toEqual(['disabled', 'disabled']);
+
+        await TestBed.inject(IdiomaService).cambiar('en');
+        const final = await listo();
+
+        expect(final.querySelector('video')).toBe(video);
+        expect(estado.cargas).toBe(0);
+        expect(estado.pistas.find((p) => p.language === 'en')?.mode).toBe('showing');
+        expect(final.querySelector('at-reproductor label')?.textContent).toContain('Speed');
+      });
+
+      it('en la VPN, cambiar de sistema arma otro reproductor y el anterior reporta dónde iba', async () => {
+        vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(
+          'Mozilla/5.0 (X11; Linux x86_64) Chrome/140',
+        );
+        api.conVideo.add('m01/vpn');
+        const raiz = await abrir('/cursos/induccion/m01/vpn');
+        const linux = raiz.querySelector('video') as HTMLVideoElement;
+        cargarVideo(linux);
+        simulacion.de(linux).tiempo = 50;
+
+        (raiz.querySelectorAll('at-videos .sistemas button')[0] as HTMLButtonElement).click();
+        const final = await listo();
+
+        const windows = final.querySelector('video');
+        expect(windows).not.toBe(linux);
+        expect(windows?.getAttribute('src')).not.toBe(linux.getAttribute('src'));
+        expect(api.reportes).toHaveLength(1);
+        expect(api.reportes[0].entrada.segundo).toBe(50);
+        expect(`/api/media/${api.reportes[0].entrada.video_id}`).toBe(linux.getAttribute('src'));
+      });
+
+      it('una instructora en un módulo bloqueado ve el video, pero no reporta', async () => {
+        // Una instructora sin avance: el módulo 5 está bloqueado para ella.
+        entrarComo({ ...CARLA, username: 'bruno' });
+        const raiz = await abrir(TRABAJOS);
+        expect(raiz.querySelector('.aviso')?.textContent).toContain(
+          'bloqueado para los estudiantes',
+        );
+        const video = raiz.querySelector('video') as HTMLVideoElement;
+        const estado = simulacion.de(video);
+        cargarVideo(video);
+
+        estado.tiempo = 280;
+        pausarVideo(estado, video);
+        await listo();
+
+        expect(api.reportes).toEqual([]);
+      });
     });
   });
 
@@ -333,7 +431,7 @@ describe('Lección (F-04)', () => {
 
       expect(raiz.querySelector('.completar button')).toBeNull();
       expect(raiz.querySelector('.completar')?.textContent?.trim()).toBe(
-        'Esta lección se completa al ver el video.',
+        'Esta lección se completa al ver el 90 % del video.',
       );
     });
 

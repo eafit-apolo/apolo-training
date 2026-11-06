@@ -119,6 +119,16 @@ export class SesionService {
   }
 
   /**
+   * Comprueba que la sesión siga viva con `GET /api/me`: si `at` venció, el
+   * interceptor la renueva (y si no se puede, lleva a /ingresar). La usa el
+   * reproductor (F-05): el `<video>` pide el archivo sin pasar por el
+   * interceptor, así que tras una pausa larga su petición da 401.
+   */
+  async comprobar(): Promise<void> {
+    await firstValueFrom(this.http.get<Usuario>(`${API}/me`));
+  }
+
+  /**
    * El interceptor no pudo renovar la sesión: se olvida el perfil y se va a
    * /ingresar con «Tu sesión terminó» y la página para volver. Al arrancar la
    * app (antes de la primera navegación) solo se olvida: las guardias llevan a
