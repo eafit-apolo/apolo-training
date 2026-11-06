@@ -263,12 +263,13 @@ sequenceDiagram
   participant API as API
   participant DB as PostgreSQL
 
-  W->>API: GET /api/lecciones/42?lang=en
-  API-->>W: lección con video (id, duración, subtítulos es y en)
+  W->>N: GET /api/cursos/induccion/lecciones/m05/trabajos?lang=en
+  N->>API: proxy
+  API-->>W: lección con video (id, url, duración, subtítulos es y en)
   W->>N: GET /api/media/7 (con Range)
   N->>API: proxy
-  API->>API: valida la sesión
-  API-->>N: X-Accel-Redirect /media-interno/m05/m05-trabajos-es.mp4
+  API->>API: valida la sesión (cookie at)
+  API-->>N: X-Accel-Redirect /media-interno/m05/m05-trabajos-20261105T140312-a1b2.mp4
   N-->>W: 206 con el fragmento pedido
   loop cada 15 s mientras se reproduce
     W->>API: POST /api/progreso/video {leccion_id, segundo}
@@ -278,9 +279,21 @@ sequenceDiagram
 ```
 
 - Los subtítulos en inglés se activan solos si la interfaz está en inglés (F-05)
-  y se pueden apagar.
+  y se pueden apagar. Se piden igual: `GET /api/media/7/subtitulos/en`.
 - El reporte cada 15 s pasa por el interceptor, así que también mantiene viva la
-  cookie de acceso mientras el video corre.
+  cookie de acceso mientras el video corre. Tras una pausa de más de 15 minutos,
+  la siguiente petición del video da 401: el reproductor renueva la sesión y
+  vuelve al segundo donde iba (F-05).
+- `/media-interno/` es una `location` `internal` de nginx (W-05): desde afuera
+  da 404, así que nadie baja un video sin pasar por la API. En desarrollo no
+  hay nginx y la API manda el archivo ella misma (`API_MEDIA_ENTREGA=api`).
+- **Subida (B-05):** un instructor o admin manda el MP4 como cuerpo de
+  `PUT /api/panel/videos/{clave}` (la clave sale del front matter). La API lo
+  escribe mientras llega en `media/.subiendo/`, lee el formato y la duración
+  con PyAV (415 si no es MP4 con H.264 y AAC), lo mueve a la carpeta del
+  módulo con un nombre nuevo, actualiza `videos` y borra el archivo anterior.
+  Los VTT van igual por `PUT /api/panel/videos/{clave}/subtitulos/{idioma}`.
+  Con un video subido, su lección se completa al verlo (B-06).
 
 ## 7. Carga del contenido
 

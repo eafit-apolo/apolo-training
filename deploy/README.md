@@ -100,7 +100,7 @@ en tu equipo; dentro de Docker, la API la sigue encontrando en `db:5432`.
 | --------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `db`      | PostgreSQL 16 con `apolo_training` y `apolo_training_test` (volumen `db`)                                                         |
 | `migrar`  | `alembic upgrade head`, los usuarios de ejemplo y `content/` (B-04), y termina; la API arranca solo si salió bien                 |
-| `api`     | uvicorn con `--reload` (etapa `dev` de `api/Dockerfile`), `API_DOCS=true`                                                         |
+| `api`     | uvicorn con `--reload` (etapa `dev` de `api/Dockerfile`), `API_DOCS=true`; los videos subidos en el volumen `media` (B-05)        |
 | `web`     | `ng serve` (etapa `dev` de `web/Dockerfile`); envía `/api` al servicio API                                                        |
 | `pruebas` | Lo mismo que el job `api` del CI (migraciones de ida y vuelta, `alembic check` y pytest), contra `apolo_training_test` (a pedido) |
 
@@ -139,7 +139,7 @@ docker compose -f deploy/compose.dev.yaml run --rm migrar
 Si un archivo no cumple los esquemas, `migrar` sale con error y dice cuál
 (`docker compose -f deploy/compose.dev.yaml logs migrar`). Para solo validar:
 `docker compose -f deploy/compose.dev.yaml run --rm --no-deps migrar python -m app.importar --revisar`.
-Los videos quedan «pendientes» hasta que se suban desde el panel (B-05).
+Los videos quedan «pendientes» hasta que se suban (ver «Videos»).
 
 Desde la B-03 se puede entrar con ellos (`POST /api/auth/login`). Si cambias la
 clave de `bruno` o bloqueas a alguien con 5 intentos fallidos, `down -v` y `up`
@@ -151,6 +151,24 @@ Las cookies de la sesión llevan `Secure`: Chrome y Firefox las aceptan en
 equipo, como el celular) las descarta. Para esa prueba, levanta el entorno con
 `API_COOKIES_SEGURAS=false` en la misma terminal y vuelve a levantarlo sin la
 variable al terminar.
+
+### Videos
+
+Mientras no esté la pantalla del panel (F-08), un video se sube con curl como
+`carla` (instructora); los pasos están en
+[api/README.md](../api/README.md#videos-y-subtítulos-b-05). Los archivos quedan
+en el volumen `media`: `down` los conserva y `down -v` los borra junto con la
+base.
+
+Aquí no hay nginx delante, así que la API manda el video ella misma, con Range
+(`API_MEDIA_ENTREGA=api` en este compose). En la 117 lo manda nginx
+(`X-Accel-Redirect`, W-05). Para probar ese camino en tu equipo hace falta un
+nginx delante de la API con la `location /media-interno/` y levantar la API con
+`API_MEDIA_ENTREGA=nginx docker compose -f deploy/compose.dev.yaml up -d api`
+en la misma terminal.
+
+Un video subido deja su lección sin «Marcar como completada»: se completa al
+verlo, y eso llega con la B-06 y la F-05.
 
 ### Tareas de cada día
 
@@ -212,7 +230,9 @@ docker compose -f deploy/compose.dev.yaml --profile imagenes down
 ```
 
 `web-imagen` solo sirve la app: `/api` lo reparte el nginx de borde de la 117,
-que no está en este entorno. Puertos: `API_IMAGEN_PUERTO` (8001),
+que no está en este entorno. `api-imagen` tiene su propio volumen de videos
+(`media-imagen`): subir uno a `localhost:8001` comprueba que el usuario de la
+imagen (uid 10001) puede escribir ahí. Puertos: `API_IMAGEN_PUERTO` (8001),
 `WEB_IMAGEN_PUERTO` (8080) y `TERMINAL_IMAGEN_PUERTO` (8002).
 
 `terminal-imagen` abre SSH de verdad hacia la VM de práctica, así que necesita
@@ -246,6 +266,9 @@ la VPN y la llave revisada de la VM; los pasos están en
   `docker compose -f deploy/compose.dev.yaml logs migrar`. La API no arranca
   hasta que las migraciones y la importación del contenido pasen; un error del
   importador dice el archivo de `content/` y el campo.
+- **El video no carga y `/api/media/…` responde 200 vacío**: la API está con
+  `API_MEDIA_ENTREGA=nginx` sin un nginx delante. Vuelve a levantarla sin esa
+  variable.
 - **La base de pruebas no existe**: el script que la crea
   (`dev/initdb/10-base-pruebas.sh`) solo corre con el volumen vacío. Si tu
   volumen es anterior, bórralo con `down -v`.

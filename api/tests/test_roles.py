@@ -9,8 +9,8 @@ cubren solas las que lleguen después (panel en la B-05, admin en la B-08):
 - un estudiante recibe 403 en toda ruta cuyos roles no lo incluyen;
 - quien debe cambiar la clave recibe 403 en todo menos /auth/*, GET y PATCH /me.
 
-Mientras no haya rutas de panel ni de admin, las dos rutas de prueba de abajo
-demuestran que el mecanismo funciona.
+Mientras no haya rutas de admin (B-08), las dos rutas de prueba de abajo
+demuestran que el mecanismo funciona; las de panel existen desde la B-05.
 """
 
 import re
