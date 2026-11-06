@@ -126,6 +126,15 @@ módulos bloqueados.
 un video ya subido sin ver, y 403 `modulo_bloqueado` si su módulo está
 bloqueado, también para instructores y admins.
 
+`POST /api/progreso/video` es el reporte del reproductor (F-05, mismo
+archivo), con `leccion_id`, `video_id` y `segundo`: cada 15 s mientras el
+video corre, al pausar, al terminar y al salir de la lección. Guarda dónde se
+reanuda (`video_posicion_seg`, el último segundo) y lo más lejos que llegó
+(`video_max_seg`); al pasar el 90 % de la duración de ese video la lección
+queda completa (el quiz no bloquea hasta la B-06). Todo en una sola sentencia
+(`INSERT … ON CONFLICT`), así dos pestañas a la vez no se pisan. Con el módulo
+bloqueado, 403 para todos los roles, igual que completar.
+
 ## Videos y subtítulos (B-05)
 
 Un instructor o admin sube el MP4 y los VTT de cada video por su clave, la del
@@ -156,7 +165,7 @@ Rutas en `app/routers/panel.py` y `app/routers/medios.py`; lógica en
   también entiende Range. Cualquier sesión puede pedir un video, aunque su
   lección esté en un módulo bloqueado.
 - Con un video subido, su lección ya no se marca a mano: se completa al verlo
-  (B-06). En desarrollo, un video de prueba deja esa lección así hasta la B-06.
+  (F-05, ver abajo).
 
 Mientras no exista la pantalla del panel (F-08), se sube con curl. Como todo
 PUT, necesita la sesión y la cabecera CSRF (con el compose de desarrollo, en

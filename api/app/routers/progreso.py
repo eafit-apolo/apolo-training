@@ -1,6 +1,6 @@
-"""Rutas de progreso: completarLeccion del contrato (F-04).
+"""Rutas de progreso: completarLeccion (F-04) y reportarVideo (F-05) del contrato.
 
-`POST /api/progreso/video` y los quizzes llegan con la B-06.
+Los quizzes llegan con la B-06.
 """
 
 from typing import Annotated
@@ -10,7 +10,7 @@ from fastapi import APIRouter, Path
 from app.core.auth import UsuarioDep, con_roles
 from app.core.db import SesionDep
 from app.models.valores import ROLES
-from app.schemas.contenido import ProgresoLeccion
+from app.schemas.contenido import ProgresoLeccion, ProgresoVideoEntrada
 from app.services import progreso
 
 router = APIRouter(tags=["progreso"])
@@ -29,3 +29,15 @@ async def completar_leccion(
     leccion_id: LeccionId, usuario: UsuarioDep, bd: SesionDep
 ) -> ProgresoLeccion:
     return await progreso.completar_leccion(bd, leccion_id, usuario)
+
+
+@router.post(
+    "/progreso/video",
+    operation_id="reportarVideo",
+    summary="Reportar el segundo actual del video (cada 15 s)",
+    **con_roles(*ROLES),
+)
+async def reportar_video(
+    entrada: ProgresoVideoEntrada, usuario: UsuarioDep, bd: SesionDep
+) -> ProgresoLeccion:
+    return await progreso.reportar_video(bd, entrada, usuario)
