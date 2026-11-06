@@ -38,19 +38,21 @@ la interfaz y la versión en inglés del contenido usen siempre la misma palabra
 
 ## Software y archivos
 
-| Español                 | Inglés               | Nota                                                                |
-| ----------------------- | -------------------- | ------------------------------------------------------------------- |
-| módulo (de software)    | module               | El de Lmod. No confundir con «módulo del curso».                    |
-| cargar (un módulo)      | load (a module)      |                                                                     |
-| terminal                | terminal             |                                                                     |
-| carpeta                 | folder               | No «directorio» en el texto.                                        |
-| carpeta personal (home) | home folder          | En español se escribe «home» solo cuando se habla de la ruta (`~`). |
-| ruta                    | path                 |                                                                     |
-| archivo                 | file                 |                                                                     |
-| cuota                   | quota                |                                                                     |
-| subir / descargar       | upload / download    | Desde el punto de vista del computador del usuario.                 |
-| contraseña              | password             |                                                                     |
-| huella del servidor     | host key fingerprint | Lo que pide aceptar `ssh` la primera vez.                           |
+| Español                 | Inglés               | Nota                                                                  |
+| ----------------------- | -------------------- | --------------------------------------------------------------------- |
+| módulo (de software)    | module               | El de Lmod. No confundir con «módulo del curso».                      |
+| cargar (un módulo)      | load (a module)      |                                                                       |
+| terminal                | terminal             |                                                                       |
+| carpeta                 | folder               | No «directorio» en el texto.                                          |
+| carpeta personal (home) | home folder          | En español se escribe «home» solo cuando se habla de la ruta (`~`).   |
+| ruta                    | path                 |                                                                       |
+| archivo                 | file                 |                                                                       |
+| cuota                   | quota                |                                                                       |
+| subir / descargar       | upload / download    | Desde el punto de vista del computador del usuario.                   |
+| contraseña              | password             |                                                                       |
+| huella del servidor     | host key fingerprint | Lo que pide aceptar `ssh` la primera vez.                             |
+| contraseña temporal     | temporary password   | La que llega con la cuenta del curso; se cambia en el primer ingreso. |
+| VPN                     | VPN                  | La de EAFIT, para llegar a la red de Apolo.                           |
 
 ## Curso y plataforma
 
