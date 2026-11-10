@@ -93,6 +93,20 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
+  web:
+    # Build de Angular servido por nginx sin root (web/Dockerfile), en el 8080.
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-web:${TAG:-main}
+    # Sin ports: solo el proxy le llega, por la red interna.
+    networks:
+      - interna
+    # Solo escribe el pid y sus temporales, en /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
 
 networks:
   # internal: sin salida a internet ni a la red de la 117.
