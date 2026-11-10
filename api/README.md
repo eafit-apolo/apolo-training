@@ -24,6 +24,11 @@ se corrige el contrato en el mismo PR.
 
 Todas llevan el prefijo `API_`. No hay archivo `.env`: se leen del entorno.
 
+En la 117 (W-05), `API_DATABASE_URL` y `API_SECRETO` llegan como secretos de
+Compose: los archivos `/run/secrets/api_database_url` y
+`/run/secrets/api_secreto`. La API los lee solo si `/run/secrets` existe, y una
+variable de entorno con el mismo nombre gana sobre el archivo.
+
 | Variable              | Obligatoria                      | Qué es                                                                             |
 | --------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
 | `API_DATABASE_URL`    | sí                               | `postgresql+asyncpg://usuario:clave@host:puerto/base`                              |
