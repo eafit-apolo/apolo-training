@@ -1,4 +1,5 @@
-"""Configuración de la API, leída solo de variables de entorno (prefijo API_)."""
+"""Configuración de la API: variables de entorno (prefijo API_) y, en la 117,
+los secretos de Compose (W-05)."""
 
 from functools import lru_cache
 from pathlib import Path
@@ -7,9 +8,28 @@ from typing import Literal
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Secretos de Compose en la 117 (W-05): un archivo por variable, con su nombre
+# en minúsculas (/run/secrets/api_database_url, /run/secrets/api_secreto).
+CARPETA_SECRETOS = Path("/run/secrets")
+
+
+def carpeta_secretos(ruta: Path) -> Path | None:
+    """La carpeta de secretos solo si existe.
+
+    En desarrollo y en la CI no existe, y pydantic-settings avisaría en cada
+    Settings(); con filterwarnings = error (pytest.ini) se caerían las pruebas.
+    """
+    return ruta if ruta.is_dir() else None
+
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="API_", extra="ignore")
+    # Una variable de entorno gana sobre el archivo del mismo nombre, así que en
+    # desarrollo (compose.dev.yaml) no cambia nada.
+    model_config = SettingsConfigDict(
+        env_prefix="API_",
+        extra="ignore",
+        secrets_dir=carpeta_secretos(CARPETA_SECRETOS),
+    )
 
     # postgresql+asyncpg://usuario:clave@host:puerto/base
     # Es SecretStr para que la clave no salga en logs ni en repr().

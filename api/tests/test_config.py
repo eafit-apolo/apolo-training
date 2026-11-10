@@ -1,9 +1,13 @@
-"""Configuración desde el entorno."""
+"""Configuración desde el entorno y desde los secretos de Compose."""
+
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from app.core.config import Settings
+from app.core.config import CARPETA_SECRETOS, Settings, carpeta_secretos
 from app.main import create_app
 
 
@@ -70,3 +74,75 @@ def test_entrega_de_medios_solo_nginx_o_api(monkeypatch: pytest.MonkeyPatch) -> 
 
     with pytest.raises(ValidationError, match="media_entrega"):
         Settings()
+
+
+# --- Secretos de Compose (W-05) ------------------------------------------------
+
+URL_SECRETA = "postgresql+asyncpg://api:clave-de-la-117@db/apolo_training"
+SECRETO_EN_ARCHIVO = "secreto-de-la-117-" * 3
+
+
+@pytest.fixture
+def secretos(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Una carpeta como /run/secrets de la 117, sin las variables en el entorno."""
+    monkeypatch.delenv("API_DATABASE_URL", raising=False)
+    monkeypatch.delenv("API_SECRETO", raising=False)
+    # Como los deja Compose: un archivo por secreto, con salto de línea al final.
+    (tmp_path / "api_database_url").write_text(URL_SECRETA + "\n")
+    (tmp_path / "api_secreto").write_text(SECRETO_EN_ARCHIVO + "\n")
+    return tmp_path
+
+
+def test_lee_los_secretos_de_compose(secretos: Path) -> None:
+    settings = Settings(_secrets_dir=secretos)
+
+    assert settings.database_url.get_secret_value() == URL_SECRETA
+    assert settings.secreto.get_secret_value() == SECRETO_EN_ARCHIVO
+
+
+def test_la_variable_de_entorno_gana_sobre_el_secreto(
+    secretos: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("API_DATABASE_URL", "postgresql+asyncpg://dev@localhost/dev")
+
+    settings = Settings(_secrets_dir=secretos)
+
+    assert (
+        settings.database_url.get_secret_value()
+        == "postgresql+asyncpg://dev@localhost/dev"
+    )
+    assert settings.secreto.get_secret_value() == SECRETO_EN_ARCHIVO
+
+
+def test_un_secreto_en_archivo_tambien_se_valida(secretos: Path) -> None:
+    (secretos / "api_secreto").write_text("corto\n")
+
+    with pytest.raises(ValidationError, match="32 caracteres"):
+        Settings(_secrets_dir=secretos)
+
+
+def test_carpeta_de_secretos_solo_si_existe(tmp_path: Path) -> None:
+    assert carpeta_secretos(tmp_path) == tmp_path
+    assert carpeta_secretos(tmp_path / "no-existe") is None
+
+
+def test_en_la_117_busca_en_run_secrets() -> None:
+    # La condición se evalúa al importar el módulo. Para verla como en la 117,
+    # se importa en otro proceso haciendo creer que /run/secrets existe.
+    codigo = (
+        "from pathlib import Path\n"
+        "original = Path.is_dir\n"
+        "Path.is_dir = lambda p: str(p) == '/run/secrets' or original(p)\n"
+        "from app.core.config import Settings\n"
+        "print(Settings.model_config['secrets_dir'])\n"
+    )
+    proceso = subprocess.run(  # noqa: S603 (el intérprete de las pruebas, sin shell)
+        [sys.executable, "-c", codigo],
+        cwd=Path(__file__).resolve().parents[1],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    assert Path("/run/secrets") == CARPETA_SECRETOS
+    assert proceso.stdout.strip() == "/run/secrets"
