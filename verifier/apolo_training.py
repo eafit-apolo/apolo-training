@@ -3,7 +3,8 @@
 
 Funciona con Python 3.6 o superior y solo usa la biblioteca estándar.
 Lee el historial de Slurm (sacct) del propio usuario y los archivos de su
-carpeta ~/apolo-training; no necesita permisos especiales.
+carpeta ~/apolo-training; no necesita permisos especiales. Usa squeue solo
+para descartar trabajos fantasma (runaway).
 
 Cada práctica es una función que recibe un Contexto (usuario, HOME, material)
 y devuelve (aprobada, clave_del_mensaje, parámetros). Así la puede reusar el
@@ -188,6 +189,12 @@ MENSAJES = {
         "efi_trabajo": "Trabajo {jobid} ({nombre}): {estado}",
         "efi_reserva": "Núcleos reservados: {cpus} | Duración: {duracion}",
         "efi_espera": "Espera a que termine para ver su eficiencia.",
+        "efi_fantasma": (
+            "El historial de Slurm lo sigue mostrando como RUNNING, pero Slurm ya no"
+            " lo tiene: es un registro que quedó abierto. No sirve para medir nada;"
+            " si lo necesitas, envíalo de nuevo, y avísale al equipo de Apolo para"
+            " que lo cierre."
+        ),
         "efi_corto": (
             "El trabajo no llegó a correr o duró menos de 2 segundos: es muy poco"
             " para medir su eficiencia."
@@ -344,6 +351,11 @@ MENSAJES = {
         "efi_trabajo": "Job {jobid} ({nombre}): {estado}",
         "efi_reserva": "Reserved cores: {cpus} | Duration: {duracion}",
         "efi_espera": "Wait for it to finish to see its efficiency.",
+        "efi_fantasma": (
+            "Slurm's history still shows it as RUNNING, but Slurm no longer has it:"
+            " it is a record that was left open. It cannot be measured; if you need"
+            " it, submit it again, and tell the Apolo team so they can close it."
+        ),
         "efi_corto": (
             "The job did not run or lasted less than 2 seconds: too short to"
             " measure its efficiency."
@@ -391,9 +403,22 @@ class Contexto:
     Solo elige el texto de algunos mensajes; nunca cambia si una práctica se
     aprueba. Por defecto sale de APOLO_TRAINING_CLUSTER; quien verifica como
     root a otro usuario (el reporte de la V-05) debe pasarlo explícito.
+
+    vivos son los JobID que Slurm todavía tiene (los que da squeue). Si no se
+    pasa, se pregunta a squeue la primera vez que hace falta. El reporte de la
+    V-05, que revisa a todos los usuarios, puede pasar el conjunto de una sola
+    llamada a squeue para no repetirla por cada uno.
     """
 
-    def __init__(self, usuario=None, home=None, base=None, entorno=None, cluster=None):
+    def __init__(
+        self,
+        usuario=None,
+        home=None,
+        base=None,
+        entorno=None,
+        cluster=None,
+        vivos=None,
+    ):
         self.entorno = os.environ if entorno is None else entorno
         self.usuario = usuario or getpass.getuser()
         self.home = home or os.path.expanduser("~")
@@ -402,6 +427,8 @@ class Contexto:
             cluster = self.entorno.get(VARIABLE_CLUSTER, "")
         cluster = cluster.strip().lower()
         self.cluster = cluster if cluster in CLUSTERS else None
+        self._vivos = None if vivos is None else set(vivos)
+        self._vivos_consultados = vivos is not None
 
     @property
     def apolo3(self):
@@ -423,13 +450,16 @@ class Contexto:
 
     def sacct(self, *args):
         cmd = ["sacct", "-n", "-P", "-u", self.usuario, "-S", VENTANA] + list(args)
+        # Fechas siempre como 2026-11-09T08:45:53, para poder comparar Submit
+        # aunque el usuario tenga otro SLURM_TIME_FORMAT.
+        entorno = dict(self.entorno, SLURM_TIME_FORMAT="standard")
         try:
             proceso = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
-                env=dict(self.entorno),
+                env=entorno,
                 check=False,
             )
         except OSError:
@@ -437,6 +467,44 @@ class Contexto:
         if proceso.returncode != 0:
             raise ErrorUso("sacct_fallo", codigo=proceso.returncode)
         return [linea.split("|") for linea in proceso.stdout.splitlines() if linea]
+
+    def vivos(self):
+        """JobID que Slurm todavía tiene del usuario, o None si squeue no responde.
+
+        Con -t all salen también los que terminaron hace poco (Slurm los
+        conserva unos minutos), y con -r cada tarea de un arreglo por separado,
+        con el mismo JobID que muestra sacct (1234_5).
+        """
+        if not self._vivos_consultados:
+            self._vivos_consultados = True
+            cmd = ["squeue", "-h", "-r", "-t", "all", "-u", self.usuario, "-o", "%i"]
+            try:
+                proceso = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=True,
+                    env=dict(self.entorno),
+                    check=False,
+                )
+            except OSError:
+                proceso = None
+            if proceso is not None and proceso.returncode == 0:
+                self._vivos = {j.strip() for j in proceso.stdout.split() if j.strip()}
+        return self._vivos
+
+    def fantasma(self, jobid, estado):
+        """Un trabajo que sacct da como RUNNING pero que Slurm ya no tiene.
+
+        Son los runaway de la A-02: quedaron abiertos en la base de datos sin
+        hora de fin y salen en cualquier ventana de fechas, aunque el contador
+        de JobID se haya reiniciado. Si squeue no responde, no se marca nada:
+        es mejor mostrar un trabajo como corriendo que esconder uno real.
+        """
+        if estado != "RUNNING":
+            return False
+        vivos = self.vivos()
+        return vivos is not None and jobid not in vivos
 
 
 # --- Utilidades de sacct --------------------------------------------------
@@ -463,33 +531,79 @@ def megas(v):
     return float(v) if v else 0.0
 
 
+def primer_estado(estado):
+    """'CANCELLED by 1000' -> 'CANCELLED'."""
+    return estado.split()[0] if estado else ""
+
+
+def agrupar(filas):
+    """Junta cada trabajo con sus pasos, en el orden en que los da sacct.
+
+    No agrupa por JobID: en Apolo II el contador se reinició, así que dos
+    trabajos distintos pueden tener el mismo número (V-09). sacct escribe cada
+    trabajo seguido de sus pasos; un paso es del último trabajo con su número
+    que apareció antes. Devuelve una lista de (fila_del_trabajo, filas_de_pasos).
+    """
+    grupos = []
+    for fila in filas:
+        jobid = fila[0]
+        if "." not in jobid:
+            grupos.append((fila, []))
+            continue
+        principal = jobid.split(".")[0]
+        for trabajo, pasos in reversed(grupos):
+            if trabajo[0] == principal:
+                pasos.append(fila)
+                break
+    return grupos
+
+
 def trabajos(ctx, nombre):
-    """Trabajos con ese nombre, agrupando cada trabajo con sus pasos."""
-    res = {}
-    for jobid, estado, cpus, elapsed, totalcpu in ctx.sacct(
+    """Trabajos con ese nombre, cada uno con sus pasos, sin los fantasmas."""
+    res = []
+    filas = ctx.sacct(
         "--name=" + nombre, "-o", "JobID,State,AllocCPUS,Elapsed,TotalCPU"
-    ):
-        t = res.setdefault(
-            jobid.split(".")[0],
+    )
+    for trabajo, pasos in agrupar(filas):
+        jobid, estado, cpus, elapsed, totalcpu = trabajo
+        estado = primer_estado(estado)
+        if ctx.fantasma(jobid, estado):
+            continue
+        res.append(
             {
-                "estado": "",
-                "estados": [],
-                "cpus": 0,
-                "elapsed": 0.0,
-                "cpu_pasos": 0.0,
-                "cpu_trabajo": 0.0,
-            },
+                "estado": estado,
+                "estados": [estado] + [primer_estado(p[1]) for p in pasos],
+                "cpus": int(cpus or 0),
+                "elapsed": segundos(elapsed),
+                "cpu_pasos": sum(segundos(p[4]) for p in pasos),
+                "cpu_trabajo": segundos(totalcpu),
+            }
         )
-        est = estado.split()[0] if estado else ""
-        t["estados"].append(est)
-        if "." in jobid:
-            t["cpu_pasos"] += segundos(totalcpu)
-        else:
-            t["estado"] = est
-            t["cpus"] = int(cpus or 0)
-            t["elapsed"] = segundos(elapsed)
-            t["cpu_trabajo"] = segundos(totalcpu)
-    return list(res.values())
+    return res
+
+
+def buscar_trabajo(ctx, jobid, campos, *extra):
+    """El trabajo JOBID del usuario y sus pasos, aunque el número se repita.
+
+    Con -D, sacct devuelve todos los registros con ese número y no solo el que
+    él considere más reciente; aquí se elige el de envío (Submit) más reciente.
+    Lo usan eficiencia y la graduación (V-07). campos son los de sacct -o, con
+    JobID primero; Submit se agrega al final. Devuelve (trabajo, pasos) como
+    diccionarios campo -> valor, o None si no está. trabajo["fantasma"] dice si
+    Slurm ya no lo tiene aunque sacct lo dé como RUNNING.
+    """
+    campos = list(campos) + ["Submit"]
+    filas = ctx.sacct("-D", "-j", jobid, *extra, "-o", ",".join(campos))
+    candidatos = [
+        (dict(zip(campos, trabajo)), [dict(zip(campos, p)) for p in pasos])
+        for trabajo, pasos in agrupar(filas)
+        if trabajo[0] == jobid
+    ]
+    if not candidatos:
+        return None
+    trabajo, pasos = max(candidatos, key=lambda c: c[0].get("Submit", ""))
+    trabajo["fantasma"] = ctx.fantasma(jobid, primer_estado(trabajo.get("State", "")))
+    return trabajo, pasos
 
 
 def uso_cpu(t):
@@ -698,33 +812,43 @@ def preparar(ctx):
 # --- eficiencia ----------------------------------------------------------
 
 
+CAMPOS_EFICIENCIA = (
+    "JobID",
+    "JobName",
+    "State",
+    "AllocCPUS",
+    "Elapsed",
+    "TotalCPU",
+    "MaxRSS",
+    "ReqMem",
+)
+
+
 def reporte_eficiencia(ctx, idioma, jobid):
     """Resumen al estilo de seff: cuánto de lo reservado usó el trabajo."""
-    filas = ctx.sacct(
-        "-j",
-        jobid,
-        "--units=M",
-        "-o",
-        "JobID,JobName,State,AllocCPUS,Elapsed,TotalCPU,MaxRSS,ReqMem",
-    )
-    trabajo = [f for f in filas if f[0] == jobid]
-    if not trabajo:
+    encontrado = buscar_trabajo(ctx, jobid, CAMPOS_EFICIENCIA, "--units=M")
+    if encontrado is None:
         print(texto(idioma, "efi_no_encontrado", jobid=jobid))
         return 1
-    _, nombre, estado, cpus, elapsed, totalcpu, _, reqmem = trabajo[0]
-    pasos = [f for f in filas if f[0].startswith(jobid + ".")]
+    trabajo, pasos = encontrado
+    estado = trabajo.get("State", "")
+    elapsed = trabajo.get("Elapsed", "")
     t = {
-        "estado": estado.split()[0] if estado else "",
-        "cpus": int(cpus or 0),
+        "estado": primer_estado(estado),
+        "cpus": int(trabajo.get("AllocCPUS") or 0),
         "elapsed": segundos(elapsed),
-        "cpu_pasos": sum(segundos(f[5]) for f in pasos),
-        "cpu_trabajo": segundos(totalcpu),
+        "cpu_pasos": sum(segundos(p.get("TotalCPU", "")) for p in pasos),
+        "cpu_trabajo": segundos(trabajo.get("TotalCPU", "")),
     }
-    memoria = max([megas(f[6]) for f in pasos] or [0.0])
+    memoria = max([megas(p.get("MaxRSS", "")) for p in pasos] or [0.0])
+    nombre = trabajo.get("JobName", "")
+    reqmem = trabajo.get("ReqMem", "")
 
     print(texto(idioma, "efi_trabajo", jobid=jobid, nombre=nombre, estado=estado))
     print(texto(idioma, "efi_reserva", cpus=t["cpus"], duracion=elapsed))
-    if t["estado"] in ("RUNNING", "PENDING"):
+    if trabajo["fantasma"]:
+        print(texto(idioma, "efi_fantasma"))
+    elif t["estado"] in ("RUNNING", "PENDING"):
         print(texto(idioma, "efi_espera"))
     elif t["elapsed"] < 2:
         print(texto(idioma, "efi_corto"))

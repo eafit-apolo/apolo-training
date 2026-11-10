@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""squeue simulado para las pruebas (V-09).
+
+Responde como `squeue -h -o %i`: un JobID por línea. Por defecto da los
+trabajos RUNNING y PENDING del escenario de sacct (SACCT_ESCENARIO), menos los
+marcados con "Fantasma": true, que Slurm ya no tiene. Con SQUEUE_VIVOS (lista
+separada por comas) da justo esos. Si SQUEUE_LOG está definida, anota ahí cada
+llamada; con SQUEUE_CODIGO termina con ese código de error.
+"""
+
+import json
+import os
+import sys
+
+if os.environ.get("SQUEUE_LOG"):
+    with open(os.environ["SQUEUE_LOG"], "a") as f:
+        f.write(json.dumps(sys.argv[1:]) + "\n")
+if os.environ.get("SQUEUE_CODIGO"):
+    sys.exit(int(os.environ["SQUEUE_CODIGO"]))
+
+if "SQUEUE_VIVOS" in os.environ:
+    vivos = [j for j in os.environ["SQUEUE_VIVOS"].split(",") if j]
+else:
+    with open(os.environ["SACCT_ESCENARIO"]) as f:
+        filas = json.load(f)
+    vivos = [
+        f["JobID"]
+        for f in filas
+        if "." not in f["JobID"]
+        and f["State"] in ("RUNNING", "PENDING")
+        and not f.get("Fantasma")
+    ]
+
+for jobid in vivos:
+    print(jobid)
