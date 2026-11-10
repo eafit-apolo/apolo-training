@@ -28,7 +28,7 @@ def home(tmp_path):
 
 @pytest.fixture
 def entorno(tmp_path, home):
-    """Entorno de un usuario de prueba: HOME temporal y el sacct simulado."""
+    """Entorno de un usuario de prueba: HOME temporal y sacct y squeue simulados."""
     env = {k: v for k, v in os.environ.items() if k not in QUITAR}
     env.update(
         {
@@ -37,6 +37,7 @@ def entorno(tmp_path, home):
             "APOLO_TRAINING": REPO,
             "SACCT_ESCENARIO": os.path.join(ESCENARIOS, "nada_hecho.json"),
             "SACCT_LOG": str(tmp_path / "sacct.log"),
+            "SQUEUE_LOG": str(tmp_path / "squeue.log"),
         }
     )
     return env
@@ -88,15 +89,20 @@ def correr(entorno):
     return ejecutar
 
 
+def leer_llamadas(ruta):
+    if not os.path.exists(ruta):
+        return []
+    with open(ruta) as f:
+        return [json.loads(linea) for linea in f]
+
+
 @pytest.fixture
 def llamadas_sacct(entorno):
     """Las llamadas que recibió el sacct simulado, como listas de argumentos."""
+    return lambda: leer_llamadas(entorno["SACCT_LOG"])
 
-    def leer():
-        ruta = entorno["SACCT_LOG"]
-        if not os.path.exists(ruta):
-            return []
-        with open(ruta) as f:
-            return [json.loads(linea) for linea in f]
 
-    return leer
+@pytest.fixture
+def llamadas_squeue(entorno):
+    """Las llamadas que recibió el squeue simulado, como listas de argumentos."""
+    return lambda: leer_llamadas(entorno["SQUEUE_LOG"])

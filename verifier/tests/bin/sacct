@@ -4,6 +4,9 @@
 Lee los trabajos de un escenario en JSON (variable SACCT_ESCENARIO) y responde
 como `sacct -n -P` con los campos de -o, filtrando por --name o -j. Los pasos
 (JobID con punto) siguen el nombre de su trabajo, como en el sacct real.
+Con -j y sin -D, como el sacct real, de cada número solo devuelve el trabajo
+de envío (Submit) más reciente; con -D, todos (V-09). -j de un arreglo trae
+también sus tareas.
 Si SACCT_LOG está definida, anota ahí cada llamada; con SACCT_CODIGO termina
 con ese código de error.
 """
@@ -22,7 +25,7 @@ if os.environ.get("SACCT_CODIGO"):
 with open(os.environ["SACCT_ESCENARIO"]) as f:
     filas = json.load(f)
 
-campos, nombres, jobid = [], None, None
+campos, nombres, jobid, duplicados = [], None, None, False
 i = 0
 while i < len(args):
     a = args[i]
@@ -32,17 +35,44 @@ while i < len(args):
     elif a == "-j":
         jobid = args[i + 1]
         i += 1
+    elif a == "-D":
+        duplicados = True
     elif a.startswith("--name="):
         nombres = a.split("=", 1)[1].split(",")
     elif a in ("-u", "-S", "-E"):
         i += 1
     i += 1
 
-nombre_de = {f["JobID"]: f["JobName"] for f in filas if "." not in f["JobID"]}
+# Cada trabajo con sus pasos, en el orden del escenario (los números se pueden
+# repetir: un paso es del último trabajo con su número).
+grupos = []
 for f in filas:
+    if "." not in f["JobID"]:
+        grupos.append([f])
+        continue
     principal = f["JobID"].split(".")[0]
-    if jobid is not None and principal != jobid:
-        continue
-    if nombres is not None and nombre_de.get(principal) not in nombres:
-        continue
-    print("|".join(f.get(c, "") for c in campos))
+    for g in reversed(grupos):
+        if g[0]["JobID"] == principal:
+            g.append(f)
+            break
+
+if jobid is not None:
+    # Como el sacct real, -j de un arreglo trae también sus tareas (1234_5).
+    grupos = [
+        g
+        for g in grupos
+        if g[0]["JobID"] == jobid or g[0]["JobID"].startswith(jobid + "_")
+    ]
+    if not duplicados:
+        recientes = {}
+        for g in grupos:
+            actual = recientes.get(g[0]["JobID"])
+            if actual is None or g[0].get("Submit", "") > actual[0].get("Submit", ""):
+                recientes[g[0]["JobID"]] = g
+        grupos = [g for g in grupos if recientes[g[0]["JobID"]] is g]
+if nombres is not None:
+    grupos = [g for g in grupos if g[0]["JobName"] in nombres]
+
+for g in grupos:
+    for f in g:
+        print("|".join(f.get(c, "") for c in campos))

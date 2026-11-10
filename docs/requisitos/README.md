@@ -22,7 +22,7 @@ En Apolo III el `cgroup.conf` no se aplica porque el plugin `task/cgroup` no est
 
 ## Qué implica para el curso
 
-- **Verificador:** sigue usando `sacct`, con ajustes (V-09). En Apolo II el contador de JobID se reinició, así que se consulta con `sacct -D -j JOBID -u $USER` o filtrando por fecha. En Apolo III no se puede depender de `TotalCPU` ni de `MaxRSS`; se usan `Elapsed` y `CPUTime`.
+- **Verificador:** sigue usando `sacct`, con los ajustes de la V-09. En Apolo II el contador de JobID se reinició, así que busca por número con `sacct -D -j JOBID -u $USER`, se queda con el envío más reciente y no cuenta los trabajos fantasma (`RUNNING` en `sacct` pero no en `squeue`); detalle en `verifier/README.md`. En Apolo III no se puede depender de `TotalCPU` ni de `MaxRSS`; se usan `Elapsed` y `CPUTime`.
 - **Laboratorios de memoria y núcleos:** se practican en la VM de práctica, donde sí hay cgroups. La lección debe explicar que Apolo III hoy no aplica esos límites.
 - **Ejemplos de comandos:** llevan `-p` explícito, porque Apolo III no tiene partición por defecto (A-04).
 - **numpy:** el candidato común es `py3-numpy/1.26.4` (OpenHPC, Python 3.11). Tiene el mismo nombre en los dos clústeres y funciona en el login y en los nodos. `miniconda3` (25.5.1 y 25.11.1) no trae numpy. Pendiente de decisión (I-07).
