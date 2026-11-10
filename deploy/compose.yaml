@@ -10,6 +10,35 @@
 name: apolo-training
 
 services:
+  proxy:
+    # Único punto de entrada: TLS, la web y el paso a la API y a la terminal.
+    # Versión fijada, como en db; revisa en Docker Hub la estable vigente.
+    image: nginx:1.28-alpine
+    ports:
+      - "80:80" # solo el reto de Let's Encrypt; lo demás da 404
+      - "443:443" # la plataforma; el perimetral lo deja solo a la VPN
+    volumes:
+      # Va en conf.d: la imagen ya trae events y http, y lo incluye ahí.
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
+      # Retos que escribe certbot en el host.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/acme:/var/www/acme:ro,Z
+      # Certificado y llave (600, root) que deja el script de certbot.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/tls:/etc/nginx/tls:ro,Z
+    networks:
+      - interna # la API y la terminal
+      - frontal # publicar el 80 y el 443
+    # Solo escribe su caché y el pid, en memoria.
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /run
+    cap_drop: [ALL]
+    # Lo mínimo para que el proceso principal arranque como root y pase los
+    # workers al usuario nginx.
+    cap_add: [CHOWN, SETUID, SETGID, NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
   db:
     # Versión menor fijada; Debian y no Alpine porque su usuario postgres es el
     # uid 999, el dueño de pgdata en el rol docker.
@@ -69,9 +98,12 @@ networks:
   # internal: sin salida a internet ni a la red de la 117.
   interna:
     internal: true
-  # La única red con salida; solo la usa terminal, para el SSH a la VM de
-  # práctica. DOCKER-USER (rol docker) le bloquea lo mismo que a la VM.
+  # La red de salida de terminal, para el SSH a la VM de práctica.
+  # DOCKER-USER (rol docker) le bloquea lo mismo que a la VM.
   salida: {}
+  # Solo para publicar el 80 y el 443 del proxy. Docker no publica puertos de
+  # un contenedor que solo está en una red internal.
+  frontal: {}
 
 secrets:
   db_password:

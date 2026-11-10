@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+
+LIVE=/etc/letsencrypt/live/training.apolo.eafit.edu.co
+DESTINO=/srv/apolo-training/tls
+
+install -m 600 "$LIVE/fullchain.pem" "$DESTINO/fullchain.pem"
+install -m 600 "$LIVE/privkey.pem" "$DESTINO/privkey.pem"
+
+docker compose -f /srv/apolo-training/compose.yaml exec -T proxy nginx -s reload
