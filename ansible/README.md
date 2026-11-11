@@ -12,9 +12,10 @@ en Ansible Vault, nunca en claro.
 | `roles/base`               | Admins solo con llave y sshd sin root (contraseña solo para `apolo2` y `apolo3`)    |
 | `roles/slurm`              | Slurm de un nodo: munge, MariaDB, slurmdbd, slurmctld y slurmd con cgroups          |
 | `roles/docker`             | Docker Engine y Compose de la plataforma (117), DOCKER-USER y `/srv/apolo-training` |
+| `roles/certbot`            | Certificado TLS de Let's Encrypt de la plataforma y su renovación automática        |
 
-`site.yml` aplica `base` y `slurm` al grupo `practica`, y `base` y `docker` al
-grupo `web` (la 117).
+`site.yml` aplica `base` y `slurm` al grupo `practica`, y `base`, `docker` y
+`certbot` al grupo `web` (la 117).
 
 ## Requisitos
 
@@ -44,9 +45,10 @@ inmediata (`reject`), así que `curl` o `ping` fallan al instante.
 | S1, S2 | Salida    | DNS y NTP institucionales                                                         |
 | —      | Salida    | HTTPS a la 117 (sincronización de laboratorios)                                   |
 | S4     | Salida    | Web (80/443) hasta `base_internet_hasta`; después se cierra sola                  |
+| S5     | Salida    | HTTPS (443) sin fecha, solo en la 117 (`base_salida_https_permanente`)            |
 | D      | Salida    | Rechaza todo lo demás                                                             |
 
-Las IPs están en el Vault y las listas en `group_vars/practica/vars.yml`. Los
+Las IPs están en el Vault y las listas en `group_vars/*/vars.yml`. Los
 códigos son los de la solicitud de firewall. Las reglas F existen porque el
 perimetral no ve el tráfico dentro de la misma subred.
 
@@ -131,12 +133,15 @@ que equivale a ser root.
   la salida de los contenedores.
 - Solo el proxy publica puertos (`443`); `api`, `db` y `terminal` van en la red
   interna del compose sin `ports:`.
-- El proyecto de prueba (`/srv/apolo-training/prueba`) es un nginx en el 443
-  con `restart: unless-stopped`. Cuando llegue el proxy real:
-  `docker_prueba: absent`.
-- La salida web para el repo de Docker y los `docker pull` es la S4, que se
-  cierra en `base_internet_hasta`. **Pendiente:** permiso permanente hacia los
-  registros de imágenes.
+- El proyecto de prueba (`/srv/apolo-training/prueba`) era un nginx en el 443
+  para probar el rol antes del proxy. Con el proxy real (W-05) va
+  `docker_prueba: absent`, que lo baja y borra la carpeta.
+- `docker pull`, el repo de Docker y certbot salen por el 443. En la 117 eso es
+  la S5, sin fecha; la S4 (también el 80) se cierra en `base_internet_hasta`.
+- Los secretos de Compose (`docker_secretos`) se escriben desde el Vault con
+  `no_log`; los de la API son del uid 10001 (usuario `api` de la imagen), modo
+  `0400`. `docker_known_hosts` es la llave de la VM de práctica para el gateway
+  de terminal, con la huella revisada a mano en el comentario.
 
 Verificación en la 117 y desde la VPN:
 
@@ -144,6 +149,38 @@ Verificación en la 117 y desde la VPN:
 docker info && docker compose version     # como administrador, sin sudo
 docker run --rm alpine cat /proc/self/attr/current   # ...container_t...
 sudo iptables -S DOCKER-USER
-sudo reboot   # y luego: docker ps → apolo-training-prueba-proxy-1 Up
-nmap -Pn -p- <ip-de-la-117>               # desde la VPN: solo 22 y 443 abiertos
+nmap -Pn -p- <ip-de-la-117>               # desde la VPN: solo 22, 80 y 443 abiertos
+```
+
+### Certificado TLS (117)
+
+Let's Encrypt con el reto HTTP-01: certbot (en el host, de EPEL) deja el reto
+en `/srv/apolo-training/acme`, el proxy lo sirve en el 80 y Let's Encrypt lo
+pide desde Internet. El certificado queda en `/etc/letsencrypt/live/<dominio>/`
+y el script `/usr/local/sbin/apolo-training-tls-deploy` (deploy hook) copia
+`fullchain.pem` y `privkey.pem` a `/srv/apolo-training/tls` (600, root) y
+recarga nginx. No se monta `/etc/letsencrypt` en el contenedor: ahí también
+está la llave de la cuenta de Let's Encrypt.
+
+| Qué             | Cómo queda                                                  | Por qué                                           |
+| --------------- | ----------------------------------------------------------- | ------------------------------------------------- |
+| Emisión         | `certbot certonly --webroot`, solo si no existe (`creates`) | Idempotente: lo demás lo hace la renovación       |
+| Renovación      | `certbot-renew.timer`, dos veces al día; renueva a 30 días  | El certificado dura 90 días                       |
+| Provisional     | Autofirmado de 30 días, solo si `tls/` está vacío           | En una VM nueva, nginx no arranca sin certificado |
+| Correo de la CA | `vault_certbot_correo`                                      | El repo es público                                |
+| Salida          | 443 a Let's Encrypt por la S5                               | Sin ella la renovación falla en silencio          |
+
+En una VM nueva, el orden es: `site.yml` (deja el provisional; la emisión
+falla porque el proxy aún no corre), levantar el proyecto con
+`docker compose up -d` y volver a correr `site.yml`, que ya emite el
+certificado. Let's Encrypt no envía avisos de vencimiento: la fecha se vigila
+con `certbot certificates`.
+
+Verificación en la 117:
+
+```bash
+sudo certbot certificates                 # VALID: N days
+systemctl list-timers certbot-renew.timer # próxima ejecución
+sudo certbot renew --dry-run              # all simulated renewals succeeded
+sudo nft list chain inet apolo_training salida   # S5 con counter
 ```

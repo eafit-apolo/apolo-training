@@ -1,0 +1,15 @@
+#!/bin/bash
+# {{ ansible_managed }}
+#
+# Deploy hook de certbot: copia el certificado nuevo a la carpeta que lee nginx
+# (600, root) y recarga nginx sin cortar conexiones. Se puede correr a mano
+# para probarlo.
+set -euo pipefail
+
+LIVE=/etc/letsencrypt/live/{{ certbot_dominio }}
+DESTINO={{ certbot_tls_dir }}
+
+install -m 600 "$LIVE/fullchain.pem" "$DESTINO/fullchain.pem"
+install -m 600 "$LIVE/privkey.pem" "$DESTINO/privkey.pem"
+
+docker compose -f {{ certbot_compose }} exec -T proxy nginx -s reload

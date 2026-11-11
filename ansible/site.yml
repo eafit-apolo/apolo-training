@@ -12,3 +12,4 @@
   roles:
     - base
     - docker
+    - certbot # después de docker: usa /srv/apolo-training/tls

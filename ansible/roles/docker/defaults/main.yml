@@ -39,3 +39,5 @@ docker_prueba: present
 # Archivos de /srv/apolo-training/secrets (secrets de Compose): nombre,
 # contenido (desde Vault), dueño y modo.
 docker_secretos: []
+# known_hosts del gateway de terminal (una línea por llave). Vacío: no se escribe.
+docker_known_hosts: ""

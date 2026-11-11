@@ -12,10 +12,13 @@ base_salida_bloqueada:
   - "{{ vault_ip_hipervisor }}"
   - "{{ vault_red_servicios }}"
 
-# S4: salida web para el repo de Docker y los docker pull. PENDIENTE: la
-# plataforma necesita bajar imágenes (Docker Hub, GHCR) siempre; hay que pedir
-# a la coordinación un permiso permanente antes de esta fecha.
+# S4: salida web (80/443) hasta esta fecha, para la instalación inicial.
 base_internet_hasta: "2026-11-27"
+
+# S5: el 443 queda abierto sin fecha. certbot renueva el certificado cada
+# ~60 días, Docker baja las imágenes de GHCR en cada despliegue y dnf usa
+# repositorios https. El perimetral tiene la misma regla (S5, permanente).
+base_salida_https_permanente: true
 
 # Docker filtra el reenvío (ver roles/docker).
 base_reenvio_politica: accept
@@ -49,3 +52,16 @@ ansible_python_interpreter: /usr/bin/python3
 
 # La de group_vars/all es la del admin de la 116.
 ansible_become_password: "{{ ansible_become_password_web }}"
+
+# Llave ED25519 de la VM de práctica para el gateway de terminal. Huella
+# revisada a mano el 2026-11-11 contra la que muestra la propia 116
+# (ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub):
+#   SHA256:+/Ssb7VPPF5ELXWWnY4V4n5bWSZm6ylTHx7FcbFOrlU
+# El nombre tiene que ser el mismo de TERMINAL_SSH_HOST (deploy/compose.yaml).
+docker_known_hosts: >-
+  apolo-training.apolo.eafit.edu.co ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP70FiQkjLEwqF1c+Pdiwn/IowfbHTkAjLEqUtnWDUwY
+
+# Certificado de Let's Encrypt (rol certbot). El dominio es el server_name de
+# deploy/nginx.conf; el correo, el de la cuenta de la CA (en el Vault).
+certbot_dominio: training.apolo.eafit.edu.co
+certbot_correo: "{{ vault_certbot_correo }}"

@@ -27,3 +27,6 @@
 
 - name: Secretos de Compose
   ansible.builtin.import_tasks: secretos.yml
+
+- name: known_hosts del gateway de terminal
+  ansible.builtin.import_tasks: terminal.yml
