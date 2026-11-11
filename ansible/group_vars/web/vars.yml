@@ -27,6 +27,23 @@ docker_salida_bloqueada: "{{ base_salida_bloqueada }}"
 # El proxy real (W-05) publica el 80 y el 443: el proyecto de prueba sobra y
 # chocaría con él.
 docker_prueba: absent
+# Secretos de Compose en /srv/apolo-training/secrets. La API corre como el uid
+# 10001 y Compose monta los archivos tal cual: por eso son suyos y de solo
+# lectura. db_password lo lee postgres al crear la base (arranca como root).
+docker_secretos:
+  - nombre: db_password
+    contenido: "{{ vault_db_password }}"
+    dueno: root
+    modo: "0600"
+  - nombre: api_database_url
+    # La clave es hex: va tal cual en la URL, sin escapar nada.
+    contenido: "postgresql+asyncpg://training:{{ vault_db_password }}@db:5432/training"
+    dueno: "10001"
+    modo: "0400"
+  - nombre: api_secreto
+    contenido: "{{ vault_api_secreto }}"
+    dueno: "10001"
+    modo: "0400"
 
 ansible_python_interpreter: /usr/bin/python3
 

@@ -36,3 +36,6 @@ docker_directorios:
 # Proyecto de prueba: present lo levanta, absent lo quita (cuando llegue el
 # proxy real, que también publica el 443).
 docker_prueba: present
+# Archivos de /srv/apolo-training/secrets (secrets de Compose): nombre,
+# contenido (desde Vault), dueño y modo.
+docker_secretos: []

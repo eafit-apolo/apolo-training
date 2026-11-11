@@ -24,3 +24,6 @@
 
 - name: Proyecto de prueba
   ansible.builtin.import_tasks: prueba.yml
+
+- name: Secretos de Compose
+  ansible.builtin.import_tasks: secretos.yml
