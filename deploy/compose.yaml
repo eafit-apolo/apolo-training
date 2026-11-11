@@ -24,6 +24,9 @@ services:
       - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/acme:/var/www/acme:ro,Z
       # Certificado y llave (600, root) que deja el script de certbot.
       - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/tls:/etc/nginx/tls:ro,Z
+      # Videos que escribe la API; nginx los manda con X-Accel-Redirect.
+      # :z (compartida con api) y solo lectura.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/media:/srv/apolo-training/media:ro,z
     networks:
       - interna # la API y la terminal
       - frontal # publicar el 80 y el 443
@@ -72,7 +75,7 @@ services:
   terminal:
     # Imagen de terminal/Dockerfile que publica la CI (Imágenes). La W-06
     # alinea las etiquetas con las de la API y la web.
-    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-terminal:${TERMINAL_TAG:-main}
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-terminal:${TAG:-main}
     environment:
       TERMINAL_ORIGEN: https://training.apolo.eafit.edu.co
       TERMINAL_API_URL: http://api:8000

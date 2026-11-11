@@ -26,10 +26,10 @@ docker_interfaz_externa: "{{ ansible_facts.default_ipv4.interface }}"
 # Directorios de datos de la plataforma, con etiqueta container_file_t.
 docker_raiz: /srv/apolo-training
 docker_directorios:
-  - { nombre: media, dueno: root, modo: "0755" }
+  - { nombre: media, dueno: "10001", modo: "0755" }
   - { nombre: pgdata, dueno: "999", modo: "0700" } # uid de postgres en la imagen
   - { nombre: backups, dueno: root, modo: "0700" }
-  - { nombre: tls, dueno: root, modo: "0750" } # llaves privadas
+  - { nombre: tls, dueno: root, modo: "0700" } # llaves privadas
   - { nombre: secrets, dueno: root, modo: "0700" } # secrets de Compose (600)
   - { nombre: terminal, dueno: root, modo: "0755" } # known_hosts de la VM de práctica (644)
 

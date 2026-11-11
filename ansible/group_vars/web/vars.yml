@@ -24,6 +24,9 @@ docker_admins: "{{ vault_admins }}"
 docker_443_permitido:
   - "{{ vault_red_vpn }}"
 docker_salida_bloqueada: "{{ base_salida_bloqueada }}"
+# El proxy real (W-05) publica el 80 y el 443: el proyecto de prueba sobra y
+# chocaría con él.
+docker_prueba: absent
 
 ansible_python_interpreter: /usr/bin/python3
 
