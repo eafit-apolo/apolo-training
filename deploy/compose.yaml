@@ -1,9 +1,9 @@
-# La plataforma en la 117. Hoy la base (W-05) y la terminal (T-05); la API, la
-# web y el proxy llegan con la W-06. En la 117 vive en /srv/apolo-training y se
-# corre desde ahí; ver «La plataforma en la 117» en deploy/README.md.
+# La plataforma en la 117: proxy, web, API, terminal y base (W-05). En la 117
+# vive en /srv/apolo-training, junto a nginx.conf, y se corre desde ahí; ver
+# «La plataforma en la 117» en deploy/README.md.
 #
-#   docker compose up -d
-#   docker compose exec db psql -U training -c 'select 1'
+#   docker compose up -d --wait
+#   curl -i https://training.apolo.eafit.edu.co/api/health
 #
 # Los datos y la clave están fuera del repo, en APOLO_TRAINING_RAIZ
 # (/srv/apolo-training por defecto; el rol docker de Ansible crea las carpetas).
@@ -73,8 +73,8 @@ services:
     stop_grace_period: 1m
 
   terminal:
-    # Imagen de terminal/Dockerfile que publica la CI (Imágenes). La W-06
-    # alinea las etiquetas con las de la API y la web.
+    # Imagen de terminal/Dockerfile que publica la CI (Imágenes), con la misma
+    # etiqueta (TAG) que la API y la web.
     image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-terminal:${TAG:-main}
     environment:
       TERMINAL_ORIGEN: https://training.apolo.eafit.edu.co
@@ -86,7 +86,7 @@ services:
       # Llave pública de la VM de práctica, con la huella revisada a mano (ver
       # terminal/README.md). :Z porque es solo de este contenedor.
       - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/terminal/known_hosts:/run/terminal/known_hosts:ro,Z
-    # Sin ports: nginx (W-06) le llega por la red interna.
+    # Sin ports: el proxy le pasa /ws/terminal por la red interna.
     networks:
       - interna # la API
       - salida # el 22 de la VM de práctica

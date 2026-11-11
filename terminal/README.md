@@ -88,7 +88,7 @@ rol `docker`.
 ## La 117
 
 El servicio `terminal` de [`deploy/compose.yaml`](../deploy/compose.yaml) no
-publica puertos: nginx (W-06) le pasa `/ws/terminal` por la red `interna`, y
+publica puertos: el proxy (nginx, W-05) le pasa `/ws/terminal` por la red `interna`, y
 sale a la VM de práctica por la red `salida`. Corre sin root, con el sistema de
 archivos de solo lectura y sin capacidades. Requisitos en la VM de práctica:
 `KbdInteractiveAuthentication yes` para los grupos `apolo2` y `apolo3` (rol
