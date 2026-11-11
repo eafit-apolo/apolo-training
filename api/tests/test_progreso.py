@@ -1,8 +1,9 @@
 """«Marcar como completada» (F-04): POST /api/lecciones/{id}/completar.
 
-El curso de prueba (tests/ayuda_contenido.py): m00/bienvenida (video sin subir
-y quiz), m01/vpn (un video por sistema) y m01/ssh (práctica y quiz), y
-m02/lectura (solo texto).
+El curso de prueba (tests/ayuda_contenido.py), con la bienvenida sin su quiz
+(`SIN_QUIZ`): m00/bienvenida (video sin subir), m01/vpn (un video por
+sistema) y m01/ssh (práctica y quiz), y m02/lectura (solo texto). Lo del quiz
+está en test_quizzes.py.
 """
 
 from datetime import UTC, datetime
@@ -16,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Leccion, ProgresoLeccion, Usuario, Video
 from app.services.contenido_carga import cargar_contenido
 from app.services.contenido_lector import leer_contenido
-from tests.ayuda_contenido import armar_contenido
+from tests.ayuda_contenido import SIN_QUIZ, SSH, armar_contenido, sin_quiz
 from tests.ayuda_sesion import con_csrf, crear_usuario, ingresar
 
 CURSO = "/api/cursos/induccion"
@@ -24,7 +25,7 @@ CURSO = "/api/cursos/induccion"
 
 @pytest.fixture
 async def contenido(tmp_path: Path, sesion_bd: AsyncSession) -> Path:
-    raiz = armar_contenido(tmp_path / "content")
+    raiz = armar_contenido(tmp_path / "content", SIN_QUIZ)
     await cargar_contenido(sesion_bd, leer_contenido(raiz))
     return raiz
 
@@ -163,9 +164,31 @@ async def test_una_leccion_ya_completa_sigue_completa_si_luego_suben_el_video(
     assert segunda.json()["completada_en"] == primera["completada_en"]
 
 
-async def test_el_quiz_y_las_practicas_todavia_no_bloquean(
+async def test_una_leccion_con_quiz_no_se_marca_a_mano(
     cliente_bd: AsyncClient, sesion_bd: AsyncSession, estudiante: Usuario
 ) -> None:
+    for slug in ("bienvenida", "vpn"):
+        assert (await completar(cliente_bd, sesion_bd, slug)).status_code == 200
+
+    # ssh tiene quiz: se completa al aprobarlo (B-06), no con el botón.
+    respuesta = await completar(cliente_bd, sesion_bd, "ssh")
+
+    assert respuesta.status_code == 409
+    assert respuesta.json()["codigo"] == "requisitos_pendientes"
+    curso = (await cliente_bd.get(CURSO)).json()
+    assert estados(curso)["m02"] == "bloqueado"
+
+
+async def test_las_practicas_no_bloquean(
+    cliente_bd: AsyncClient,
+    sesion_bd: AsyncSession,
+    contenido: Path,
+    estudiante: Usuario,
+) -> None:
+    # ssh sin su quiz: le queda la práctica, que no bloquea.
+    raiz = armar_contenido(contenido, {**SIN_QUIZ, "es/m01/ssh.md": sin_quiz(SSH)})
+    await cargar_contenido(sesion_bd, leer_contenido(raiz))
+
     for slug in ("bienvenida", "vpn", "ssh"):
         respuesta = await completar(cliente_bd, sesion_bd, slug)
         assert respuesta.status_code == 200, slug

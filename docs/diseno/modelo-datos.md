@@ -258,9 +258,10 @@ videos, prácticas de la VM (`practicas`, una lista: `m06/paralelismo` tiene
 | quiz                            | un intento con 80 % o más (`quiz_aprobado`) |
 | solo texto, o texto y prácticas | el usuario pulsa «Marcar como completada»   |
 
-Un video que todavía no se ha subido no cuenta: esa lección se marca a mano,
-como una de solo texto (F-04). Mientras no haya calificación de quizzes
-(B-06), el quiz tampoco bloquea y la lección se marca a mano.
+Lo último que se cumpla (video visto o quiz aprobado) completa la lección
+solo; «Marcar como completada» responde 409 en una lección con quiz o con el
+video subido sin ver. Un video que todavía no se ha subido no cuenta: si la
+lección no tiene quiz, se marca a mano, como una de solo texto (F-04).
 
 Las prácticas **no** bloquean la lección ni el módulo siguiente: su resultado
 llega desde la VM cada 5 minutos y cuenta para aprobar el curso, no para
@@ -288,21 +289,25 @@ identifica por ella (`leccion_id` único). El quiz final (8 preguntas, en
 curso y no cambia aunque cambie el texto, así se conservan los intentos. Los
 textos van en los dos idiomas; si falta el inglés, la API devuelve el español
 con `fallback = true`. La columna `opciones.correcta` nunca se envía al
-navegador antes de que el usuario responda (B-06).
+navegador: al calificar, la API dice qué preguntas acertó y su explicación,
+pero no cuál era la opción correcta (B-06).
 
 ### Progreso
 
 **intentos.** Cada envío de un quiz, con las respuestas en `jsonb`
-(`{"<pregunta_id>": [<opcion_id>, ...]}`) y el puntaje calculado en el servidor.
-Intentos ilimitados; cuenta el mejor.
+(`{"<pregunta_id>": [<opcion_id>, ...]}`) y el puntaje calculado en el servidor
+(B-06): una pregunta cuenta si se marcaron exactamente sus opciones correctas
+(sin puntos parciales), el puntaje es el porcentaje de preguntas acertadas y
+`aprobado` si acierta al menos el `umbral` del quiz. Intentos ilimitados; cuenta
+el mejor. Un intento aprobado pone `progreso_lecciones.quiz_aprobado`.
 
 **progreso_lecciones.** Una fila por usuario y lección, creada en el primer
 reporte. `video_posicion_seg` es donde se reanuda (el último segundo
 reportado, aunque haya retrocedido); `video_max_seg` es lo más lejos que llegó.
 El reporte (`POST /api/progreso/video`, cada 15 s, F-05) dice qué video se
 está viendo: en la lección de VPN el avance es de la lección, pero el 90 % se
-mide con la duración de ese video. `video_completo` y `completada_en` no
-vuelven atrás; `completada_en` se llena una sola vez.
+mide con la duración de ese video. `video_completo`, `quiz_aprobado` y
+`completada_en` no vuelven atrás; `completada_en` se llena una sola vez.
 
 **practicas.** El último estado conocido de cada una de las siete prácticas del
 verificador por usuario, tal como lo envía la VM de práctica (V-05). Solo las

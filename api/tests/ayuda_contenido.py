@@ -1,7 +1,8 @@
 """Un content/ de prueba en una carpeta temporal, con los esquemas reales (B-04).
 
 El curso de ejemplo tiene tres módulos: m00 (una lección con video y quiz),
-m01 (VPN con un video por sistema, y SSH con una práctica) y m02 (solo texto).
+m01 (VPN con un video por sistema, y SSH con una práctica y un quiz de varias
+respuestas) y m02 (solo texto).
 """
 
 import shutil
@@ -99,6 +100,20 @@ duracion: 2
 
 Solo texto.
 """
+
+
+def sin_quiz(leccion: str) -> str:
+    """La misma lección sin su quiz."""
+    inicio = leccion.index("quiz:\n")
+    fin = leccion.index("---\n", inicio)
+    return leccion[:inicio] + leccion[fin:]
+
+
+# Para las pruebas de «Marcar como completada» y del video (F-04, F-05), que no
+# son del quiz: con el quiz, la bienvenida solo se completa al aprobarlo
+# (B-06). Las del quiz, y las del video y el quiz juntos, están en
+# test_quizzes.py.
+SIN_QUIZ: dict[str, str | None] = {"es/m00/bienvenida.md": sin_quiz(BIENVENIDA)}
 
 ARCHIVOS: dict[str, str] = {
     "es/_curso.md": CURSO,

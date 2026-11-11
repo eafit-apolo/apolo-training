@@ -111,8 +111,10 @@ aviso. Las capturas usan la lección de muestra de las pruebas
 - El Markdown no acepta HTML: si una lección lo trae, se ve como texto. Angular
   sanitiza además todo lo que pinta.
 - «Marcar como completada» sale si la lección no tiene un video ya subido; con
-  video, se completa al ver el 90 % (F-05). Hasta la B-06 el quiz no la
-  bloquea. Un instructor puede leer un módulo bloqueado, pero no completarlo.
+  video, se completa al ver el 90 % (F-05). Con quiz, se completa al aprobarlo
+  (B-06); hasta que la F-06 traiga el quiz a la web, el botón todavía sale en
+  esas lecciones y la API responde 409. Un instructor puede leer un módulo
+  bloqueado, pero no completarlo.
 
 **Desde la F-05, las capturas `capturas/f05-*.png` muestran el reproductor:**
 los controles del navegador (teclado, pantalla completa y celular funcionan
@@ -140,9 +142,8 @@ capturas usan un video de prueba de 2 minutos en `m00/bienvenida`.
    sigue disponible.
 4. **Bloques de comandos** con botón «Copiar». El Markdown se sanitiza antes de
    mostrarse (F-04).
-5. **Terminal quemada.** Corre en el navegador con el escenario YAML de la T-01:
-   pasos, pista después de dos errores, historial y Tab. Al terminar el último
-   paso llama a `POST /progreso/terminal`.
+5. **Terminal quemada.** Ya no va: se quitó con el mapa del curso (A-12) y la
+   práctica se hace en la VM de práctica (bloque B).
 6. **Quiz** calificado en el servidor. Las opciones llegan sin la marca de la
    correcta.
 7. **Resultado** con puntaje y la explicación de cada pregunta, sin revelar la
@@ -163,8 +164,8 @@ capturas usan un video de prueba de 2 minutos en `m00/bienvenida`.
     2 h (T-05, T-06).
 
 **API:** `GET /cursos/{curso}/lecciones/{modulo}/{leccion}`, `GET /media/{id}`, `GET /media/{id}/subtitulos/{idioma}`,
-`POST /progreso/video`, `POST /progreso/terminal`, `GET /quizzes/{id}`,
-`POST /quizzes/{id}/intentos`, `POST /lecciones/{id}/completar` y el WebSocket
+`POST /progreso/video`, `GET /quizzes/{id}`, `POST /quizzes/{id}/intentos`,
+`POST /lecciones/{id}/completar` y el WebSocket
 `/ws/terminal` ([flujo 3](flujos.md#3-terminal-real)).
 **Estados:** video pendiente (aún no se ha subido), módulo bloqueado (403
 `modulo_bloqueado`), terminal desconectada con el motivo y «Reconectar».

@@ -212,5 +212,5 @@ class Opcion(Base):
     orden: Mapped[int]
     texto_es: Mapped[str] = mapped_column(Text)
     texto_en: Mapped[str | None] = mapped_column(Text)
-    # Nunca sale al navegador antes de que el usuario responda (B-06).
+    # Nunca sale al navegador, ni al calificar (B-06).
     correcta: Mapped[bool] = mapped_column(server_default=false())
