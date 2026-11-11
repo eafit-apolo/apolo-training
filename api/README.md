@@ -127,18 +127,50 @@ cada módulo con la regla de desbloqueo: el n+1 se abre al completar el n
 módulos bloqueados.
 
 `POST /api/lecciones/{id}/completar` es «Marcar como completada» (F-04,
-`app/services/progreso.py`): 409 `requisitos_pendientes` si la lección tiene
-un video ya subido sin ver, y 403 `modulo_bloqueado` si su módulo está
+`app/services/progreso.py`), para las lecciones sin quiz ni video subido: 409
+`requisitos_pendientes` si la lección tiene quiz o un video ya subido sin ver
+(mientras no esté completa), y 403 `modulo_bloqueado` si su módulo está
 bloqueado, también para instructores y admins.
 
 `POST /api/progreso/video` es el reporte del reproductor (F-05, mismo
 archivo), con `leccion_id`, `video_id` y `segundo`: cada 15 s mientras el
 video corre, al pausar, al terminar y al salir de la lección. Guarda dónde se
 reanuda (`video_posicion_seg`, el último segundo) y lo más lejos que llegó
-(`video_max_seg`); al pasar el 90 % de la duración de ese video la lección
-queda completa (el quiz no bloquea hasta la B-06). Todo en una sola sentencia
-(`INSERT … ON CONFLICT`), así dos pestañas a la vez no se pisan. Con el módulo
-bloqueado, 403 para todos los roles, igual que completar.
+(`video_max_seg`); al pasar el 90 % de la duración de ese video, el video
+queda visto y la lección completa si no tiene quiz o si ya lo aprobó. Todo en
+una sola sentencia (`INSERT … ON CONFLICT`), así dos pestañas a la vez no se
+pisan. Con el módulo bloqueado, 403 para todos los roles, igual que completar.
+
+## Quizzes y Mi progreso (B-06)
+
+`GET /api/quizzes/{quiz_id}` da las preguntas del quiz de una lección (el id
+viene en la lección como `quiz_id`) **sin la opción correcta**, con el mejor
+puntaje del usuario. Se lee como la lección: un estudiante recibe 403
+`modulo_bloqueado` si el módulo está bloqueado; instructores y admins pueden
+leerlo.
+
+`POST /api/quizzes/{quiz_id}/intentos` califica en el servidor
+(`app/services/quizzes.py`):
+
+- Hay que responder todas las preguntas, una vez cada una, con opciones de esa
+  pregunta (exactamente una si no es múltiple); si no, 422
+  `respuestas_invalidas`.
+- Una pregunta cuenta si se marcaron exactamente sus opciones correctas, sin
+  puntos parciales. El puntaje es el porcentaje de preguntas acertadas y
+  aprueba si acierta al menos el `umbral` del quiz (0.80): en un quiz de 2
+  preguntas hay que acertar las dos; en el final, 7 de 8.
+- La respuesta dice, por pregunta, si acertó y la explicación, **nunca cuál
+  opción era la correcta**, para que reintentar sirva. Intentos ilimitados;
+  cuenta el mejor.
+- Aprobar marca `quiz_aprobado` y completa la lección si su video subido ya
+  está visto o si no tiene video subido; si falta el video, la completa el
+  reporte que pase el 90 %. Nada de eso vuelve atrás. Exige el módulo abierto
+  a todos los roles, como completar.
+
+`GET /api/me/progreso` da el avance del curso de inducción por módulo y por
+lección: completada, video visto, quiz aprobado y mejor puntaje. Los
+laboratorios, la sincronización, la graduación y el siguiente paso llegan con
+la B-07.
 
 ## Videos y subtítulos (B-05)
 

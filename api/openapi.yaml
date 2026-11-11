@@ -258,7 +258,12 @@ paths:
     get:
       tags: [progreso]
       operationId: obtenerMiProgreso
-      summary: Avance completo del usuario (pantalla Mi progreso)
+      summary: Avance del usuario (pantalla Mi progreso)
+      description: |
+        El avance en el curso de inducción (el primero publicado) por módulo
+        y por lección (B-06). Una lección de un módulo bloqueado no cuenta
+        como completa. Laboratorios, sincronización, graduación, `aprobado` y
+        `siguiente_paso` llegan con la B-07.
       security:
         - cookieAcceso: []
       x-roles: [estudiante, instructor, admin]
@@ -266,7 +271,7 @@ paths:
         - $ref: "#/components/parameters/Lang"
       responses:
         "200":
-          description: Avance por módulo, laboratorios, graduación y siguiente paso
+          description: Avance por módulo y por lección
           content:
             application/json:
               schema:
@@ -437,12 +442,16 @@ paths:
       operationId: completarLeccion
       summary: Marcar como completada una lección
       description: |
-        El botón «Marcar como completada» (F-04). Una lección con un video ya
-        subido se completa al verlo (`POST /progreso/video`): aquí responde 409
-        mientras no esté visto. Si el video todavía no se ha subido, se marca
-        a mano. Hasta la B-06, el quiz no la bloquea; las prácticas nunca la
+        El botón «Marcar como completada» (F-04), para las lecciones sin quiz
+        ni video subido. Una lección con un video ya subido se completa al
+        verlo (`POST /progreso/video`) y una con quiz, al aprobarlo
+        (`POST /quizzes/{quiz_id}/intentos`); con los dos, al cumplir lo
+        último. Aquí responde 409 `requisitos_pendientes` en una lección con
+        quiz o con el video subido sin ver, mientras no esté completa. Si el
+        video todavía no se ha subido, no cuenta. Las prácticas nunca la
         bloquean. Exige el módulo abierto, también a instructores y admins
-        (403 `modulo_bloqueado`). Completar dos veces no cambia `completada_en`.
+        (403 `modulo_bloqueado`). Completar dos veces no cambia
+        `completada_en`.
       security:
         - cookieAcceso: []
           csrf: []
@@ -487,8 +496,8 @@ paths:
         retrocedido) y `video_max_seg`, lo más lejos que llegó; el segundo se
         recorta a la duración del video. Cuando lo más lejos pasa el 90 % de la
         duración del video que se está viendo (`video_id`: en la lección de VPN
-        hay uno por sistema), `video_completo` y la lección queda completa
-        (hasta la B-06 el quiz no la bloquea). Nada de eso vuelve atrás. Exige
+        hay uno por sistema), `video_completo`, y la lección queda completa si
+        no tiene quiz o si ya lo aprobó. Nada de eso vuelve atrás. Exige
         el módulo abierto, también a instructores y admins (403
         `modulo_bloqueado`, como `completarLeccion`).
       security:
@@ -525,44 +534,17 @@ paths:
         "422":
           $ref: "#/components/responses/ErrorValidacion"
 
-  /progreso/terminal:
-    post:
-      tags: [progreso]
-      operationId: reportarTerminal
-      summary: Registrar que el escenario de terminal quemada terminó
-      description: |
-        La terminal quemada corre en el navegador, así que la API confía en
-        este reporte. Es práctica sin riesgo; lo que vale para aprobar son los
-        laboratorios de la VM y los quizzes.
-      security:
-        - cookieAcceso: []
-          csrf: []
-      x-roles: [estudiante, instructor, admin]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ProgresoTerminalEntrada"
-      responses:
-        "200":
-          description: Progreso de la lección
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProgresoLeccion"
-        "401":
-          $ref: "#/components/responses/NoAutenticado"
-        "403":
-          $ref: "#/components/responses/Prohibido"
-        "404":
-          $ref: "#/components/responses/NoEncontrado"
-
   /quizzes/{quiz_id}:
     get:
       tags: [quizzes]
       operationId: obtenerQuiz
       summary: Preguntas del quiz, sin las respuestas correctas
+      description: |
+        El `quiz_id` viene en la lección. Ninguna respuesta de la API dice
+        cuál opción es la correcta. Se lee con las reglas de la lección: un
+        estudiante recibe 403 `modulo_bloqueado` si el módulo está bloqueado;
+        instructores y admins pueden leerlo. Trae el mejor puntaje del
+        usuario (null si no lo ha intentado).
       security:
         - cookieAcceso: []
       x-roles: [estudiante, instructor, admin]
@@ -579,9 +561,17 @@ paths:
         "401":
           $ref: "#/components/responses/NoAutenticado"
         "403":
-          $ref: "#/components/responses/Prohibido"
+          description: "Módulo bloqueado (`modulo_bloqueado`, con `bloqueado_por`) o clave por cambiar (`debe_cambiar_clave`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
-          $ref: "#/components/responses/NoEncontrado"
+          description: "El quiz no existe o su lección no está publicada (`no_encontrado`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /quizzes/{quiz_id}/intentos:
     post:
@@ -589,9 +579,19 @@ paths:
       operationId: enviarIntento
       summary: Enviar respuestas y calificar en el servidor
       description: |
-        Aprueba con 80 % o más. Intentos ilimitados; cuenta el mejor. La
-        respuesta dice qué preguntas acertó y la explicación de cada una, pero
-        no cuál era la opción correcta, para que el reintento tenga sentido.
+        Una pregunta cuenta si se marcaron exactamente sus opciones correctas
+        (todas y solo ellas; sin puntos parciales). El puntaje es el
+        porcentaje de preguntas acertadas y aprueba si acierta al menos el
+        `umbral` (80 %). Intentos ilimitados; cuenta el mejor. La respuesta
+        dice qué preguntas acertó y la explicación de cada una, pero no cuál
+        era la opción correcta, para que el reintento tenga sentido.
+
+        Hay que responder todas las preguntas, una vez cada una, con opciones
+        de esa pregunta (exactamente una si no es múltiple); si no, 422
+        `respuestas_invalidas`. Aprobar marca `quiz_aprobado` y completa la
+        lección si su video subido ya está visto o si no tiene video subido.
+        Exige el módulo abierto, también a instructores y admins (403
+        `modulo_bloqueado`, como `completarLeccion`).
       security:
         - cookieAcceso: []
           csrf: []
@@ -615,11 +615,23 @@ paths:
         "401":
           $ref: "#/components/responses/NoAutenticado"
         "403":
-          $ref: "#/components/responses/Prohibido"
+          description: "Módulo bloqueado (`modulo_bloqueado`, con `bloqueado_por`), clave por cambiar (`debe_cambiar_clave`) o CSRF inválido (`csrf_invalido`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
-          $ref: "#/components/responses/NoEncontrado"
+          description: "El quiz no existe o su lección no está publicada (`no_encontrado`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "422":
-          $ref: "#/components/responses/ErrorValidacion"
+          description: "Datos inválidos (`datos_invalidos`) o respuestas que no corresponden al quiz (`respuestas_invalidas`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /media/{video_id}:
     get:
@@ -1909,14 +1921,6 @@ components:
           type: integer
           minimum: 0
           maximum: 2147483647
-    ProgresoTerminalEntrada:
-      type: object
-      required: [leccion_id]
-      properties:
-        leccion_id:
-          type: integer
-          format: int64
-
     Quiz:
       type: object
       required:
@@ -1925,6 +1929,7 @@ components:
         - umbral
         - es_final
         - fallback
+        - mejor_puntaje
         - preguntas
       properties:
         id:
@@ -1935,6 +1940,7 @@ components:
           format: int64
         umbral:
           type: number
+          description: Parte de las preguntas que hay que acertar (0.8 = 80 %)
           examples: [0.8]
         es_final:
           type: boolean
@@ -1942,6 +1948,7 @@ components:
           type: boolean
         mejor_puntaje:
           type: [number, "null"]
+          description: El mejor puntaje del usuario (0 a 100); null si no lo ha intentado
         preguntas:
           type: array
           items:
@@ -1985,7 +1992,10 @@ components:
       required: [respuestas]
       properties:
         respuestas:
+          description: Una por cada pregunta del quiz, todas
           type: array
+          minItems: 1
+          maxItems: 50
           items:
             type: object
             required: [pregunta_id, opciones]
@@ -1994,7 +2004,10 @@ components:
                 type: integer
                 format: int64
               opciones:
+                description: Las opciones marcadas; exactamente una si la pregunta no es múltiple
                 type: array
+                minItems: 1
+                maxItems: 20
                 items:
                   type: integer
                   format: int64
@@ -2007,20 +2020,24 @@ components:
         - umbral
         - mejor_puntaje
         - preguntas
+        - progreso
       properties:
         id:
           type: integer
           format: int64
         puntaje:
           type: number
+          description: Porcentaje de preguntas acertadas
           minimum: 0
           maximum: 100
         aprobado:
           type: boolean
         umbral:
           type: number
+          description: Como en `Quiz` (0.8 = 80 %)
         mejor_puntaje:
           type: number
+          description: El mejor de todos los intentos, este incluido (0 a 100)
         preguntas:
           type: array
           items:
@@ -2032,6 +2049,7 @@ components:
                 format: int64
               correcta:
                 type: boolean
+                description: Si acertó la pregunta (nunca cuál opción era la correcta)
               explicacion:
                 type: string
         progreso:
@@ -2096,33 +2114,51 @@ components:
           maxLength: 4000
     MiProgreso:
       type: object
+      description: |
+        La B-06 entrega el avance por módulo y por lección del curso de
+        inducción. `labs`, `ultima_sincronizacion`, `sincronizacion_atrasada`,
+        `graduacion`, `aprobado` y `siguiente_paso` llegan con la B-07, que
+        ajusta también sus esquemas (siete prácticas y graduación por lotes).
       required:
+        - curso
         - avance_pct
+        - lecciones_total
+        - lecciones_completas
         - modulos
-        - labs
-        - sincronizacion_atrasada
-        - aprobado
-        - siguiente_paso
+        - fallback
       properties:
+        curso:
+          type: [string, "null"]
+          description: Slug del curso; null si todavía no hay uno publicado
         avance_pct:
           type: integer
           minimum: 0
           maximum: 100
+        lecciones_total:
+          type: integer
+        lecciones_completas:
+          type: integer
+        fallback:
+          type: boolean
         modulos:
           type: array
           items:
             type: object
             required:
               - id
+              - slug
               - numero
               - titulo
               - estado
               - lecciones_total
               - lecciones_completas
+              - lecciones
             properties:
               id:
                 type: integer
                 format: int64
+              slug:
+                type: string
               numero:
                 type: integer
               titulo:
@@ -2133,30 +2169,61 @@ components:
                 type: integer
               lecciones_completas:
                 type: integer
-              quiz_mejor_puntaje:
-                type: [number, "null"]
+              lecciones:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - id
+                    - slug
+                    - titulo
+                    - completada
+                    - video_completo
+                    - tiene_quiz
+                    - quiz_aprobado
+                    - quiz_mejor_puntaje
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    slug:
+                      type: string
+                    titulo:
+                      type: string
+                    completada:
+                      type: boolean
+                    video_completo:
+                      type: boolean
+                    tiene_quiz:
+                      type: boolean
+                    quiz_aprobado:
+                      type: boolean
+                    quiz_mejor_puntaje:
+                      type: [number, "null"]
+                      description: Mejor puntaje (0 a 100); null sin quiz o sin intentos
         labs:
-          description: Siempre los cuatro, aunque no se hayan intentado
+          description: "B-07. Siempre todas las prácticas, aunque no se hayan intentado"
           type: array
-          minItems: 4
-          maxItems: 4
           items:
             $ref: "#/components/schemas/LabEstadoUsuario"
         ultima_sincronizacion:
+          description: B-07
           oneOf:
             - $ref: "#/components/schemas/FechaHora"
             - type: "null"
         sincronizacion_atrasada:
           type: boolean
-          description: true si la última sincronización tiene más de 15 minutos
+          description: B-07. true si la última sincronización tiene más de 15 minutos
         graduacion:
+          description: B-07
           oneOf:
             - $ref: "#/components/schemas/Graduacion"
             - type: "null"
         aprobado:
           type: boolean
-          description: Lecciones, laboratorios y graduación completos
+          description: B-07. Lecciones, laboratorios y graduación completos
         siguiente_paso:
+          description: B-07
           $ref: "#/components/schemas/SiguientePaso"
     SiguientePaso:
       type: object

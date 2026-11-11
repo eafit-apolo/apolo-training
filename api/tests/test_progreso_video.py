@@ -1,7 +1,9 @@
 """Avance del video (F-05): POST /api/progreso/video.
 
-El curso de prueba (tests/ayuda_contenido.py): m00/bienvenida (un video y un
-quiz), m01/vpn (un video por sistema), m01/ssh y m02/lectura (sin video).
+El curso de prueba (tests/ayuda_contenido.py), con la bienvenida sin su quiz
+(`SIN_QUIZ`): m00/bienvenida (un video), m01/vpn (un video por sistema),
+m01/ssh y m02/lectura (sin video). El video junto con el quiz está en
+test_quizzes.py.
 """
 
 from datetime import UTC, datetime
@@ -16,7 +18,7 @@ from app.models import Leccion, ProgresoLeccion, Usuario, Video
 from app.services.contenido_carga import cargar_contenido
 from app.services.contenido_lector import leer_contenido
 from app.services.progreso import segundos_para_ver
-from tests.ayuda_contenido import armar_contenido
+from tests.ayuda_contenido import SIN_QUIZ, armar_contenido
 from tests.ayuda_sesion import con_csrf, crear_usuario, ingresar
 
 CURSO = "/api/cursos/induccion"
@@ -25,7 +27,7 @@ RUTA = "/api/progreso/video"
 
 @pytest.fixture
 async def contenido(tmp_path: Path, sesion_bd: AsyncSession) -> Path:
-    raiz = armar_contenido(tmp_path / "content")
+    raiz = armar_contenido(tmp_path / "content", SIN_QUIZ)
     await cargar_contenido(sesion_bd, leer_contenido(raiz))
     return raiz
 

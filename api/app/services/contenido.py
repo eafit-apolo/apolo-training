@@ -77,7 +77,7 @@ class _Curso:
         return [(m, leccion) for m in self.modulos for leccion in m.lecciones]
 
 
-async def _armar(bd: AsyncSession, curso: Curso, usuario: Usuario) -> _Curso:
+async def armar_curso(bd: AsyncSession, curso: Curso, usuario: Usuario) -> _Curso:
     modulos = list(
         await bd.scalars(
             select(Modulo).where(Modulo.curso_id == curso.id).order_by(Modulo.numero)
@@ -152,7 +152,7 @@ async def _buscar(bd: AsyncSession, slug: str, usuario: Usuario) -> _Curso:
     )
     if curso is None:
         raise ErrorApi(404, "no_encontrado", "No existe ese curso")
-    return await _armar(bd, curso, usuario)
+    return await armar_curso(bd, curso, usuario)
 
 
 def _componentes(datos: _Curso, leccion: Leccion) -> list[Componente]:
@@ -255,7 +255,7 @@ async def listar_cursos(
     resultado = []
     for curso in cursos:
         t = Textos(idioma)
-        datos = await _armar(bd, curso, usuario)
+        datos = await armar_curso(bd, curso, usuario)
         resultado.append(
             esquemas.CursoResumen(**_resumen(datos, t), fallback=t.fallback)
         )
@@ -355,6 +355,10 @@ class LeccionArmada:
     def videos(self) -> list[Video]:
         return [video for _, video in self.datos.videos.get(self.leccion.id, [])]
 
+    def video_subido(self) -> bool:
+        """Si tiene un video ya subido: solo así el video cuenta para completarla."""
+        return any(video.archivo is not None for video in self.videos())
+
 
 async def leccion_por_id(
     bd: AsyncSession, leccion_id: int, usuario: Usuario
@@ -373,7 +377,7 @@ async def leccion_por_id(
     )
     if curso is None:
         raise ErrorApi(404, "no_encontrado", "No existe esa lección")
-    datos = await _armar(bd, curso, usuario)
+    datos = await armar_curso(bd, curso, usuario)
     for armado in datos.modulos:
         for leccion in armado.lecciones:
             if leccion.id == leccion_id:

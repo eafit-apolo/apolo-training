@@ -128,6 +128,47 @@ class ProgresoLeccion(BaseModel):
     completada_en: datetime | None
 
 
+class LeccionProgreso(BaseModel):
+    id: int
+    slug: str
+    titulo: str
+    completada: bool
+    video_completo: bool
+    tiene_quiz: bool
+    quiz_aprobado: bool
+    # El mejor puntaje (0 a 100) de sus intentos; null sin quiz o sin intentos.
+    quiz_mejor_puntaje: float | None
+
+
+class ModuloProgreso(BaseModel):
+    id: int
+    slug: str
+    numero: int
+    titulo: str
+    estado: EstadoModulo
+    lecciones_total: int
+    lecciones_completas: int
+    lecciones: list[LeccionProgreso]
+
+
+class MiProgreso(BaseModel):
+    """Mi progreso (B-06): el curso de inducción por módulo y por lección.
+
+    Laboratorios, sincronización, graduación y siguiente paso llegan con la
+    B-07.
+    """
+
+    model_config = ConfigDict(title="MiProgreso")
+
+    # El slug del curso; null si todavía no hay un curso publicado.
+    curso: str | None
+    avance_pct: int
+    lecciones_total: int
+    lecciones_completas: int
+    modulos: list[ModuloProgreso]
+    fallback: bool
+
+
 # Los ids son bigint y los segundos, integer de PostgreSQL: un número fuera de
 # rango es un 422, no un error de la base.
 IdBigint = Annotated[int, Field(ge=1, le=2**63 - 1)]
