@@ -107,6 +107,29 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
+  api:
+    # Imagen de api/Dockerfile que publica la CI: gunicorn con el usuario api (uid 10001).
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-api:${TAG:-main}
+    environment:
+      # Solo el proxy le llega (red interna): confía en sus X-Forwarded-*, así
+      # la auditoría guarda la IP del usuario y no la del proxy.
+      GUNICORN_CMD_ARGS: "--forwarded-allow-ips=*"
+    # Llegan como archivos en /run/secrets (PR #42); nunca en el repo.
+    secrets:
+      - api_database_url
+      - api_secreto
+    volumes:
+      # La API escribe los videos y nginx los lee: :z (compartida), no :Z.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/media:/srv/apolo-training/media:z
+    networks:
+      - interna
+    depends_on:
+      db:
+        condition: service_healthy
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
 
 networks:
   # internal: sin salida a internet ni a la red de la 117.
@@ -123,3 +146,10 @@ secrets:
   db_password:
     # Una línea con la clave; dueño root, modo 600. Nunca en el repo.
     file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/db_password
+  api_database_url:
+    # postgresql+asyncpg://training:<clave de db_password>@db:5432/training
+    # Dueño 10001 (usuario api) y modo 400: Compose lo monta tal cual.
+    file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/api_database_url
+  api_secreto:
+    # 32 caracteres o más; cambiarlo cierra todas las sesiones.
+    file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/api_secreto
