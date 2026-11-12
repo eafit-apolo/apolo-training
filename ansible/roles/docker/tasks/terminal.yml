@@ -1,0 +1,10 @@
+# El gateway no se conecta si la llave de la VM de práctica no está aquí: así
+# un impostor en el camino no recibe las contraseñas (terminal/README.md).
+- name: known_hosts de la VM de práctica
+  ansible.builtin.copy:
+    content: "{{ docker_known_hosts }}\n"
+    dest: "{{ docker_raiz }}/terminal/known_hosts"
+    owner: root
+    group: root
+    mode: "0644"
+  when: docker_known_hosts | length > 0

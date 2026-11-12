@@ -1,0 +1,94 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/certbot
+- name: Verificar las variables
+  ansible.builtin.assert:
+    that:
+      - certbot_dominio | length > 0
+      - certbot_correo | length > 0
+    fail_msg: Faltan certbot_dominio o certbot_correo (group_vars y Vault).
+
+# certbot está en EPEL, que habilita el rol base (repositorios.yml).
+- name: certbot
+  ansible.builtin.dnf:
+    name: certbot
+    state: present
+
+# Bajo /srv/apolo-training hereda container_file_t (rol docker): el proxy la
+# puede leer. certbot escribe ahí el reto y lo borra al terminar.
+- name: Carpeta del reto HTTP-01
+  ansible.builtin.file:
+    path: "{{ certbot_webroot }}/.well-known/acme-challenge"
+    state: directory
+    mode: "0755"
+
+- name: Script de despliegue del certificado
+  ansible.builtin.template:
+    src: apolo-training-tls-deploy.j2
+    dest: /usr/local/sbin/apolo-training-tls-deploy
+    owner: root
+    group: root
+    mode: "0700"
+
+# Solo en una VM nueva: sin certificado nginx no arranca y no puede responder
+# el reto. Dura 30 días; el script lo reemplaza al emitir el de verdad.
+- name: Certificado provisional (solo la primera vez)
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -x509
+      - -newkey
+      - rsa:2048
+      - -nodes
+      - -days
+      - "30"
+      - -subj
+      - "/CN={{ certbot_dominio }}"
+      - -addext
+      - "subjectAltName=DNS:{{ certbot_dominio }}"
+      - -keyout
+      - "{{ certbot_tls_dir }}/privkey.pem"
+      - -out
+      - "{{ certbot_tls_dir }}/fullchain.pem"
+    creates: "{{ certbot_tls_dir }}/fullchain.pem"
+
+- name: Permisos del certificado que lee nginx
+  ansible.builtin.file:
+    path: "{{ certbot_tls_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop:
+    - fullchain.pem
+    - privkey.pem
+
+# Antes de la emisión: en una VM nueva la emisión falla la primera vez (el
+# proxy aún no corre) y el timer igual queda activo.
+- name: Renovación automática
+  ansible.builtin.systemd_service:
+    name: certbot-renew.timer
+    state: started
+    enabled: true
+
+# Necesita el proxy arriba sirviendo el 80; en una VM nueva, ver el orden en
+# ansible/README.md («Certificado TLS (117)»). creates: si ya hay certificado
+# no hace nada; de renovarlo se encarga el timer.
+- name: Certificado de Let's Encrypt (solo si no existe)
+  ansible.builtin.command:
+    argv:
+      - certbot
+      - certonly
+      - --non-interactive
+      - --webroot
+      - -w
+      - "{{ certbot_webroot }}"
+      - -d
+      - "{{ certbot_dominio }}"
+      - -m
+      - "{{ certbot_correo }}"
+      - --agree-tos
+      - --no-eff-email
+      - --deploy-hook
+      - /usr/local/sbin/apolo-training-tls-deploy
+    creates: "/etc/letsencrypt/live/{{ certbot_dominio }}/fullchain.pem"

@@ -9,4 +9,6 @@ base_ssh_permitido: []
 base_salida_bloqueada: []
 base_salida_https: []
 base_internet_hasta: ""
+# S5: salida al 443 sin fecha. Solo para la VM que la necesita siempre (117).
+base_salida_https_permanente: false
 base_reenvio_politica: drop

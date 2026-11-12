@@ -1,0 +1,14 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/certbot
+
+# Nombre del certificado: el mismo de server_name en deploy/nginx.conf.
+certbot_dominio: ""
+# Correo de la cuenta de Let's Encrypt (avisos de la CA). Va en el Vault.
+certbot_correo: ""
+# Carpeta del reto HTTP-01: el proxy la sirve en /.well-known/acme-challenge/.
+certbot_webroot: /srv/apolo-training/acme
+# Donde nginx lee fullchain.pem y privkey.pem (la copia que deja el script).
+certbot_tls_dir: /srv/apolo-training/tls
+# compose.yaml del proyecto, para recargar nginx después de renovar.
+certbot_compose: /srv/apolo-training/compose.yaml

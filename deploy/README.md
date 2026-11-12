@@ -3,8 +3,9 @@
 Aquí van los archivos para levantar la plataforma con Docker Compose:
 
 - `compose.dev.yaml`: el entorno de desarrollo en tu equipo.
-- `compose.yaml`: la plataforma en la 117. Hoy solo trae la base (W-05); el
-  resto de servicios y `nginx.conf` llegan con la W-06.
+- `compose.yaml`: la plataforma en la 117 (proxy, web, API, terminal y base).
+- `nginx.conf`: el proxy de la 117 (TLS, cabeceras de seguridad y el reparto
+  de rutas).
 
 Cada servicio trae su `Dockerfile` en su propia carpeta (`api/Dockerfile`,
 `web/Dockerfile`…), y el dueño de las imágenes publicadas va en la variable
@@ -276,47 +277,96 @@ la VPN y la llave revisada de la VM; los pasos están en
 
 ## La plataforma en la 117
 
-`compose.yaml` vive en `/srv/apolo-training` y se corre desde ahí. El rol
-`docker` de Ansible (W-04) ya deja Docker arrancando con la VM y las carpetas de
-datos con su dueño y su etiqueta SELinux.
+`compose.yaml` y `nginx.conf` viven en `/srv/apolo-training` y se corre desde
+ahí. Ansible (grupo `web` de `ansible/site.yml`) deja listo el host: Docker y
+DOCKER-USER, las carpetas de datos con su dueño y su etiqueta SELinux, los
+secretos de Compose desde el Vault, la llave de la VM de práctica y el
+certificado TLS (ver `ansible/README.md`).
 
-| Servicio | Qué es                                                          |
-| -------- | --------------------------------------------------------------- |
-| `db`     | PostgreSQL 16.15, base y usuario `training`, datos en `pgdata/` |
+| Servicio   | Qué es                                                          | Puertos                                                      |
+| ---------- | --------------------------------------------------------------- | ------------------------------------------------------------ |
+| `proxy`    | nginx: TLS, cabeceras de seguridad, gzip y reparto de rutas     | 80 (solo el reto de Let's Encrypt) y 443 (solo desde la VPN) |
+| `web`      | La app de Angular, servida por nginx sin root                   | 8080, solo en la red `interna`                               |
+| `api`      | FastAPI con gunicorn, usuario `api` (uid 10001)                 | 8000, solo en `interna`                                      |
+| `terminal` | Gateway WebSocket ↔ SSH a la VM de práctica                     | 8001, solo en `interna`; sale al 22 de la 116 por `salida`   |
+| `db`       | PostgreSQL 16.15, base y usuario `training`, datos en `pgdata/` | 5432, solo en `interna`                                      |
 
-- **Sin puertos publicados.** `db` solo está en la red `interna`, que además es
-  `internal`: no tiene salida a internet. La API la encontrará en `db:5432`.
-- **La clave no está en el repo.** Es un secret de Compose que se lee de
-  `/srv/apolo-training/secrets/db_password` (root, 600). La imagen solo la usa
-  al crear la base, con `pgdata/` vacío: cambiar el archivo después no cambia
-  la clave (hace falta `ALTER USER training PASSWORD …` en `psql`).
+| Ruta en el proxy    | Va a             | Detalle                                                         |
+| ------------------- | ---------------- | --------------------------------------------------------------- |
+| `/`                 | `web:8080`       | La web entrega `index.html` para las rutas de Angular           |
+| `/api/`             | `api:8000`       | Con la ruta completa y `X-Forwarded-For`/`-Proto`               |
+| `/api/panel/videos` | `api:8000`       | Subida de videos de hasta 2 GB, sin buffer en el proxy          |
+| `/ws/terminal`      | `terminal:8001`  | WebSocket (Upgrade, HTTP/1.1), timeouts de 2 h                  |
+| `/media-interno/`   | `media/` (disco) | `internal`: solo con el `X-Accel-Redirect` de la API, con Range |
+
+- **Solo el proxy publica puertos.** El 443 lo limita a la VPN el firewall
+  perimetral (y DOCKER-USER); el 80 queda abierto a Internet para Let's
+  Encrypt y responde 404 a todo lo demás.
+- **Imágenes** de `ghcr.io/eafit-apolo` con la etiqueta `TAG` (`main` por
+  defecto); `IMAGE_PREFIX` y `TAG` se pueden fijar en el `.env` de
+  `/srv/apolo-training`.
+- **Secretos fuera del repo**, como secrets de Compose en `secrets/`:
+  `db_password` (root, 600), `api_database_url` y `api_secreto` (uid 10001,
+  400; la API los lee de `/run/secrets`). Los escribe Ansible desde el Vault.
+  `db_password` solo se usa al crear la base, con `pgdata/` vacío: cambiarla
+  después no cambia la clave (hace falta `ALTER USER training PASSWORD …`).
+- **Upstreams con `resolve`.** nginx arranca aunque `api`, `web` o `terminal`
+  no estén (responde 502 en sus rutas) y sigue su IP si se recrean.
+- **CSP en modo Report-Only** hasta que la web quite el script en línea de
+  Angular (`inlineCritical: false`); después pasa a `Content-Security-Policy`.
 - **Arranca sola** tras reiniciar la VM: `restart: unless-stopped`. Si alguien
-  la detiene con `docker compose stop`, no vuelve hasta un `up`.
+  detiene un servicio con `docker compose stop`, no vuelve hasta un `up`.
 
 ### Levantarla la primera vez
 
 Como administrador de la 117 (en el grupo `docker`), desde una copia del repo:
 
 ```bash
-# La clave, una sola vez. En hex para que luego sirva tal cual en la URL de la API.
-sudo sh -c 'umask 077; openssl rand -hex 32 > /srv/apolo-training/secrets/db_password'
+# 1. El host: secretos, known_hosts y un certificado provisional (desde ansible/).
+ansible-playbook site.yml --limit web
+# 2. La plataforma, con la base primero y las migraciones antes de la API.
 sudo install -m 0644 deploy/compose.yaml /srv/apolo-training/compose.yaml
+sudo install -m 0644 deploy/nginx.conf /srv/apolo-training/nginx.conf
 cd /srv/apolo-training
-docker compose up -d --wait     # termina cuando db está healthy
+docker compose pull
+docker compose up -d --wait db
+docker compose run --rm api alembic upgrade head
+docker compose run --rm -v "$PWD/content:/content:ro,z" api python -m app.importar   # content/ copiado del repo
+docker compose up -d --wait
+# 3. Otra vez Ansible (desde ansible/): con el proxy arriba, emite el certificado real.
+ansible-playbook site.yml --limit web
+```
+
+### Cambiar `nginx.conf`
+
+El proxy monta el archivo, no la carpeta: si se reemplaza (`install`, `git`,
+Ansible), el contenedor sigue viendo el viejo. Por eso es `restart` y no
+`nginx -s reload`, y antes se prueba en un contenedor aparte:
+
+```bash
+sudo install -m 0644 deploy/nginx.conf /srv/apolo-training/nginx.conf
+cd /srv/apolo-training
+docker compose run --rm proxy nginx -t   # prueba sin tocar el proxy que corre
+docker compose restart proxy
 ```
 
 ### Verificar
 
 ```bash
 cd /srv/apolo-training
-docker compose exec db psql -U training -c 'select 1'   # 1 fila
-docker compose ps        # db: Up (healthy); en PORTS, 5432/tcp sin «->»
-sudo ss -tlnp | grep -w 5432    # nada: el 5432 no se publica en la 117
-sudo reboot              # y al volver: docker compose ps → Up (healthy)
+docker compose ps        # todos Up; solo proxy con «->» en PORTS
+sudo ss -tlnp            # solo 22, 80 y 443
+# Desde la VPN:
+curl -I https://training.apolo.eafit.edu.co/              # 200 y las cabeceras de seguridad
+curl -i https://training.apolo.eafit.edu.co/api/health    # 200, base_datos: ok
+npx wscat -c wss://training.apolo.eafit.edu.co/ws/terminal -o https://training.apolo.eafit.edu.co
+                         # Connected y {"motivo":"sesion_invalida"}
+# Desde fuera de la VPN: el 443 no responde y el 80 da 404.
 ```
 
 Para probar este compose en tu equipo sin tocar `/srv`, apunta
-`APOLO_TRAINING_RAIZ` a una carpeta con `pgdata/` y `secrets/db_password`:
+`APOLO_TRAINING_RAIZ` a una carpeta con las de la 117 (`pgdata/`, `media/`,
+`acme/`, `tls/`, `terminal/known_hosts` y los tres archivos de `secrets/`):
 `APOLO_TRAINING_RAIZ=/tmp/raiz docker compose -f deploy/compose.yaml up -d`.
 `pgdata/` queda con dueño 999; bórrala desde un contenedor
 (`docker run --rm -v /tmp/raiz:/r alpine rm -rf /r/pgdata`).

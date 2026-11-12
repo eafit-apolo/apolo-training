@@ -1,15 +1,47 @@
-# La plataforma en la 117. Hoy la base (W-05) y la terminal (T-05); la API, la
-# web y el proxy llegan con la W-06. En la 117 vive en /srv/apolo-training y se
-# corre desde ahí; ver «La plataforma en la 117» en deploy/README.md.
+# La plataforma en la 117: proxy, web, API, terminal y base (W-05). En la 117
+# vive en /srv/apolo-training, junto a nginx.conf, y se corre desde ahí; ver
+# «La plataforma en la 117» en deploy/README.md.
 #
-#   docker compose up -d
-#   docker compose exec db psql -U training -c 'select 1'
+#   docker compose up -d --wait
+#   curl -i https://training.apolo.eafit.edu.co/api/health
 #
 # Los datos y la clave están fuera del repo, en APOLO_TRAINING_RAIZ
 # (/srv/apolo-training por defecto; el rol docker de Ansible crea las carpetas).
 name: apolo-training
 
 services:
+  proxy:
+    # Único punto de entrada: TLS, la web y el paso a la API y a la terminal.
+    # Versión fijada, como en db; revisa en Docker Hub la estable vigente.
+    image: nginx:1.28-alpine
+    ports:
+      - "80:80" # solo el reto de Let's Encrypt; lo demás da 404
+      - "443:443" # la plataforma; el perimetral lo deja solo a la VPN
+    volumes:
+      # Va en conf.d: la imagen ya trae events y http, y lo incluye ahí.
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
+      # Retos que escribe certbot en el host.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/acme:/var/www/acme:ro,Z
+      # Certificado y llave (600, root) que deja el script de certbot.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/tls:/etc/nginx/tls:ro,Z
+      # Videos que escribe la API; nginx los manda con X-Accel-Redirect.
+      # :z (compartida con api) y solo lectura.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/media:/srv/apolo-training/media:ro,z
+    networks:
+      - interna # la API y la terminal
+      - frontal # publicar el 80 y el 443
+    # Solo escribe su caché y el pid, en memoria.
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /run
+    cap_drop: [ALL]
+    # Lo mínimo para que el proceso principal arranque como root y pase los
+    # workers al usuario nginx.
+    cap_add: [CHOWN, SETUID, SETGID, NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
   db:
     # Versión menor fijada; Debian y no Alpine porque su usuario postgres es el
     # uid 999, el dueño de pgdata en el rol docker.
@@ -41,9 +73,9 @@ services:
     stop_grace_period: 1m
 
   terminal:
-    # Imagen de terminal/Dockerfile que publica la CI (Imágenes). La W-06
-    # alinea las etiquetas con las de la API y la web.
-    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-terminal:${TERMINAL_TAG:-main}
+    # Imagen de terminal/Dockerfile que publica la CI (Imágenes), con la misma
+    # etiqueta (TAG) que la API y la web.
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-terminal:${TAG:-main}
     environment:
       TERMINAL_ORIGEN: https://training.apolo.eafit.edu.co
       TERMINAL_API_URL: http://api:8000
@@ -54,7 +86,7 @@ services:
       # Llave pública de la VM de práctica, con la huella revisada a mano (ver
       # terminal/README.md). :Z porque es solo de este contenedor.
       - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/terminal/known_hosts:/run/terminal/known_hosts:ro,Z
-    # Sin ports: nginx (W-06) le llega por la red interna.
+    # Sin ports: el proxy le pasa /ws/terminal por la red interna.
     networks:
       - interna # la API
       - salida # el 22 de la VM de práctica
@@ -64,16 +96,63 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
+  web:
+    # Build de Angular servido por nginx sin root (web/Dockerfile), en el 8080.
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-web:${TAG:-main}
+    # Sin ports: solo el proxy le llega, por la red interna.
+    networks:
+      - interna
+    # Solo escribe el pid y sus temporales, en /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+  api:
+    # Imagen de api/Dockerfile que publica la CI: gunicorn con el usuario api (uid 10001).
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-api:${TAG:-main}
+    environment:
+      # Solo el proxy le llega (red interna): confía en sus X-Forwarded-*, así
+      # la auditoría guarda la IP del usuario y no la del proxy.
+      GUNICORN_CMD_ARGS: "--forwarded-allow-ips=*"
+    # Llegan como archivos en /run/secrets (PR #42); nunca en el repo.
+    secrets:
+      - api_database_url
+      - api_secreto
+    volumes:
+      # La API escribe los videos y nginx los lee: :z (compartida), no :Z.
+      - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/media:/srv/apolo-training/media:z
+    networks:
+      - interna
+    depends_on:
+      db:
+        condition: service_healthy
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
 
 networks:
   # internal: sin salida a internet ni a la red de la 117.
   interna:
     internal: true
-  # La única red con salida; solo la usa terminal, para el SSH a la VM de
-  # práctica. DOCKER-USER (rol docker) le bloquea lo mismo que a la VM.
+  # La red de salida de terminal, para el SSH a la VM de práctica.
+  # DOCKER-USER (rol docker) le bloquea lo mismo que a la VM.
   salida: {}
+  # Solo para publicar el 80 y el 443 del proxy. Docker no publica puertos de
+  # un contenedor que solo está en una red internal.
+  frontal: {}
 
 secrets:
   db_password:
     # Una línea con la clave; dueño root, modo 600. Nunca en el repo.
     file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/db_password
+  api_database_url:
+    # postgresql+asyncpg://training:<clave de db_password>@db:5432/training
+    # Dueño 10001 (usuario api) y modo 400: Compose lo monta tal cual.
+    file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/api_database_url
+  api_secreto:
+    # 32 caracteres o más; cambiarlo cierra todas las sesiones.
+    file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/api_secreto

@@ -24,6 +24,7 @@ iptables -A DOCKER-USER -d {{ destino }} -j REJECT --reject-with icmp-admin-proh
 {% for origen in docker_443_permitido %}
 iptables -A DOCKER-USER -i "$EXT" -s {{ origen }} -p tcp -m conntrack --ctstate DNAT --ctorigdstport 443 -j RETURN
 {% endfor %}
+# El 80 desde cualquier origen: Let's Encrypt valida desde IPs que no publica.
+# nginx ahí solo responde /.well-known/acme-challenge/ y lo demás da 404.
+iptables -A DOCKER-USER -i "$EXT" -p tcp -m conntrack --ctstate DNAT --ctorigdstport 80 -j RETURN
 iptables -A DOCKER-USER -i "$EXT" -j REJECT --reject-with icmp-admin-prohibited
-
-iptables -A DOCKER-USER -j RETURN

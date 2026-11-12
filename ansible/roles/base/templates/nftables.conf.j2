@@ -39,6 +39,10 @@ table inet apolo_training {
 		ip daddr @ntp udp dport 123 accept
 		# Sincronización de laboratorios con la 117
 		ip daddr @https_interno tcp dport 443 accept
+{% if base_salida_https_permanente %}
+		# S5: HTTPS sin fecha (solo la 117): certbot, docker pull y dnf
+		tcp dport 443 counter accept
+{% endif %}
 {% if base_internet_hasta %}
 		# S4
 		meta time <= "{{ base_internet_hasta }} 23:59:59" tcp dport { 80, 443 } accept
