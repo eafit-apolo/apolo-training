@@ -17,6 +17,23 @@ base_salida_https:
 # S4: último día con salida a Internet por 80/443
 base_internet_hasta: "2026-11-27"
 
+# I-09: el gateway de terminal (117) abre todas las sesiones desde la misma IP.
+# MaxStartups: conexiones sin autenticar a la vez (por defecto, 10:30:100
+# empieza a rechazar en la 10). ClientAlive: corta en ~3 min una conexión
+# muerta (VPN caída, portátil cerrado).
+base_sshd_opciones:
+  MaxStartups: "30:50:60"
+  MaxSessions: 10
+  ClientAliveInterval: 60
+  ClientAliveCountMax: 3
+base_banner: |
+  apolo-training: VM de práctica del curso de inducción de Apolo.
+  No es Apolo II ni Apolo III: aquí no hay datos ni trabajos reales.
+  Practice VM for the Apolo induction course (not a production cluster).
+base_fail2ban: true
+base_fail2ban_ignorar:
+  - "{{ vault_ip_web }}" # gateway de terminal: el límite de intentos lo pone él
+
 # Contraseña del usuario slurm de MariaDB (StoragePass de slurmdbd.conf)
 slurm_bd_password: "{{ vault_slurm_bd_password }}"
 

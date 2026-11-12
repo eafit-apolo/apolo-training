@@ -12,3 +12,10 @@ base_internet_hasta: ""
 # S5: salida al 443 sin fecha. Solo para la VM que la necesita siempre (117).
 base_salida_https_permanente: false
 base_reenvio_politica: drop
+# Opciones extra de sshd (nombre: valor), antes del Match de los grupos.
+base_sshd_opciones: {}
+# Banner de sshd en /etc/issue.net. Vacío: sin banner.
+base_banner: ""
+# fail2ban para sshd; base_fail2ban_ignorar: orígenes que nunca se bloquean.
+base_fail2ban: false
+base_fail2ban_ignorar: []

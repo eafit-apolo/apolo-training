@@ -16,6 +16,7 @@ import time
 from collections.abc import Awaitable, Callable, Coroutine
 from typing import Any
 
+import anyio
 import asyncssh
 from fastapi import WebSocket, WebSocketDisconnect
 
@@ -34,15 +35,36 @@ async def primera[T](*corrutinas: Coroutine[Any, Any, T]) -> T:
     """Corre las corrutinas a la vez y devuelve el resultado de la primera que
     termina (o relanza su error). Las demás se cancelan siempre, también si la
     tarea que llama a esta función es cancelada.
+
+    Con un grupo de tareas de anyio y no con asyncio.create_task: Starlette
+    cancela el endpoint con anyio (por ejemplo, al cerrar el WebSocket), y con
+    tareas sueltas de asyncio esa cancelación se escapaba del grupo que la
+    esperaba (pruebas que fallaban al azar con CancelledError).
     """
-    tareas = [asyncio.create_task(c) for c in corrutinas]
-    try:
-        hechas, _ = await asyncio.wait(tareas, return_when=asyncio.FIRST_COMPLETED)
-        return hechas.pop().result()
-    finally:
-        for tarea in tareas:
-            tarea.cancel()
-        await asyncio.gather(*tareas, return_exceptions=True)
+    # (terminó bien, resultado o error) de la primera que termina.
+    primera_en_terminar: list[tuple[bool, Any]] = []
+
+    async with anyio.create_task_group() as grupo:
+
+        async def correr(corrutina: Coroutine[Any, Any, T]) -> None:
+            try:
+                resultado = await corrutina
+            except Exception as exc:  # se relanza abajo, en quien llamó
+                if not primera_en_terminar:
+                    primera_en_terminar.append((False, exc))
+            else:
+                if not primera_en_terminar:
+                    primera_en_terminar.append((True, resultado))
+            # Cancela a las demás; la cancelación termina en el grupo.
+            grupo.cancel_scope.cancel()
+
+        for corrutina in corrutinas:
+            grupo.start_soon(correr, corrutina)
+
+    termino_bien, valor = primera_en_terminar[0]
+    if termino_bien:
+        return valor
+    raise valor
 
 
 class Sesion:

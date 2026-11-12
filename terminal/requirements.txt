@@ -8,3 +8,6 @@ pydantic-settings==2.15.0
 httpx==0.28.1
 # Cliente SSH asíncrono hacia la VM de práctica.
 asyncssh==2.24.1
+# Grupos de tareas que respetan la cancelación de Starlette (sesion.primera).
+# La misma versión que trae Starlette.
+anyio==4.16.0

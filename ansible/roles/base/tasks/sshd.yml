@@ -4,6 +4,15 @@
     state: absent
   notify: Recargar sshd
 
+# Antes de la configuración: sshd lo muestra antes de pedir la clave, también
+# en la terminal de la plataforma (el gateway lo reenvía).
+- name: Banner de sshd
+  ansible.builtin.copy:
+    content: "{{ base_banner }}"
+    dest: /etc/issue.net
+    mode: "0644"
+  when: base_banner | length > 0
+
 - name: Configuración de sshd
   ansible.builtin.template:
     src: sshd.conf.j2

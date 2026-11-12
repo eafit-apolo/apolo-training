@@ -17,9 +17,10 @@ Terminal real».
 4. Abre SSH a `TERMINAL_SSH_HOST` como el `username` de la sesión, verificando
    la llave del servidor contra `TERMINAL_KNOWN_HOSTS`. El navegador no puede
    elegir host ni usuario.
-5. keyboard-interactive: las preguntas de sshd («Password:» y, en el primer
-   ingreso, el cambio de clave) aparecen en la terminal y el usuario responde
-   ahí. La clave no se guarda ni se registra.
+5. keyboard-interactive: el banner de sshd (`/etc/issue.net`, I-09) y las
+   preguntas («Password:» y, en el primer ingreso, el cambio de clave)
+   aparecen en la terminal y el usuario responde ahí. La clave no se guarda ni
+   se registra.
 6. Con la PTY abierta, copia en los dos sentidos: `entrada` → SSH y salida →
    marcos binarios. `tamano` cambia el tamaño de la PTY.
 7. Cierra a los 15 minutos sin escribir (`inactividad`) o a las 2 horas

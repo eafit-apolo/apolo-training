@@ -22,3 +22,7 @@
 
 - name: Actualizaciones automáticas
   ansible.builtin.import_tasks: actualizaciones.yml
+
+# Después de Repositorios: fail2ban está en EPEL.
+- name: fail2ban
+  ansible.builtin.import_tasks: fail2ban.yml
