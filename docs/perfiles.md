@@ -109,23 +109,27 @@ usuario, que lee de `APOLO_TRAINING_CLUSTER`.
 | ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `APOLO_TRAINING_CLUSTER` | `apolo2` o `apolo3`       | En la VM, `apolo-training.sh`; en Apolo II y Apolo III, el modulefile `apolo-training/1.0` que instala la V-06 en cada clúster (el de la VM no la pone) | Partición de la graduación y mensajes de Apolo III del verificador (P-05); laboratorio por perfil (P-04) |
 | `APOLO_TRAINING`         | Carpeta de instalación    | Modulefile `apolo-training/1.0` (ya existe)                                                                                                             | El verificador encuentra `labs/`                                                                         |
-| `APOLO_TRAINING_LANG`    | `es` (por defecto) o `en` | El usuario (ya existe)                                                                                                                                  | Idioma del verificador y del mensaje de bienvenida                                                       |
+| `APOLO_TRAINING_LANG`    | `es` (por defecto) o `en` | El usuario (ya existe)                                                                                                                                  | Idioma del verificador (el mensaje de bienvenida va siempre en inglés)                                   |
 
 - **Prompt:** `[\u@\h \W (apolo3)]\$ `, el de Rocky con el perfil al final; por
   ejemplo, `[ana@apolo-training ~ (apolo3)]$`.
-- **Mensaje de bienvenida:**
+- **Mensaje de bienvenida**, siempre en inglés (P-03): el script corre antes
+  que `~/.bash_profile` y `~/.bashrc`, donde el usuario pone
+  `APOLO_TRAINING_LANG`, así que no puede leerla.
 
   ```text
-  Curso de inducción de Apolo · VM de práctica
-  Perfil: Apolo III. Tu login real es apolo-3.eafit.edu.co.
-  Aquí todo es de práctica: un error solo te afecta a ti.
-  Plataforma: https://training.apolo.eafit.edu.co
+  Apolo induction course · Practice VM
+  Profile: Apolo III. Your real login is apolo-3.eafit.edu.co.
+  Everything here is practice: a mistake only affects you.
+  Platform: https://training.apolo.eafit.edu.co
   ```
 
-- **Sin archivo de perfil o con un valor inválido:** el script avisa que el
-  usuario no tiene perfil del curso y que escriba a un instructor; no pone
-  `APOLO_TRAINING_CLUSTER` ni el prompt, y quedan los módulos por defecto de la
-  VM.
+- **Sin perfil válido:** si el archivo trae otro valor, o si el usuario está en
+  el grupo `apolo2` o `apolo3` y no tiene archivo, el script muestra
+  «You do not have a course profile (apolo2 or apolo3). Please contact an
+  instructor.». No pone `APOLO_TRAINING_CLUSTER` ni el prompt, y quedan los
+  módulos por defecto de la VM. A los administradores, sin archivo ni grupo del
+  curso, no se les muestra nada.
 
 ## Qué se queda igual
 

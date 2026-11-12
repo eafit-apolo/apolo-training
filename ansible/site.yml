@@ -5,6 +5,7 @@
     - base
     - slurm
     - lmod
+    - profiles
 
 - name: Plataforma (117)
   hosts: web
