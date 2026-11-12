@@ -26,6 +26,13 @@ class _Cliente(asyncssh.SSHClient):
 
     def __init__(self, terminal: Terminal) -> None:
         self._terminal = terminal
+        # El aviso de sshd (Banner, /etc/issue.net), pendiente de mostrar.
+        self._banner = ""
+
+    def auth_banner_received(self, msg: str, lang: str) -> None:
+        # Llega antes de la primera pregunta. Este método no es async: se
+        # guarda y se muestra junto con la pregunta.
+        self._banner += msg
 
     def kbdint_auth_requested(self) -> str:
         # Cadena vacía: que el servidor decida qué preguntar (PAM).
@@ -38,6 +45,11 @@ class _Cliente(asyncssh.SSHClient):
         lang: str,
         prompts: list[tuple[str, bool]],
     ) -> list[str]:
+        if self._banner:
+            # xterm necesita \r\n; el banner puede traer \n o \r\n.
+            texto = self._banner.replace("\r\n", "\n").replace("\n", "\r\n")
+            self._banner = ""
+            await self._terminal.mostrar(texto)
         # instructions trae avisos de PAM, como el de clave vencida.
         if instructions:
             await self._terminal.mostrar(instructions.replace("\n", "\r\n"))

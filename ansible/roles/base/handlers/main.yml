@@ -14,3 +14,7 @@
   ansible.builtin.service:
     name: chronyd
     state: restarted
+- name: Reiniciar fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    state: restarted

@@ -1,0 +1,28 @@
+# fail2ban para sshd. Sin fail2ban-firewalld (firewalld está enmascarado): los
+# bloqueos van en su propia tabla de nftables (inet f2b-table), que el handler
+# de nftables no toca porque solo reemplaza la tabla apolo_training.
+- name: fail2ban
+  when: base_fail2ban
+  block:
+    - name: Paquetes de fail2ban (EPEL)
+      ansible.builtin.dnf:
+        name:
+          - fail2ban-server
+          - fail2ban-selinux
+        state: present
+
+    - name: Jail de sshd
+      ansible.builtin.template:
+        src: fail2ban-jail.conf.j2
+        dest: /etc/fail2ban/jail.d/apolo-training.conf
+        mode: "0644"
+      notify: Reiniciar fail2ban
+
+    # Con --check el paquete no se instala de verdad y el servicio aún no
+    # existe: en la simulación ese error no cuenta.
+    - name: fail2ban activo
+      ansible.builtin.service:
+        name: fail2ban
+        state: started
+        enabled: true
+      ignore_errors: "{{ ansible_check_mode }}"

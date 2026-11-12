@@ -4,6 +4,12 @@ PermitRootLogin no
 PubkeyAuthentication yes
 PasswordAuthentication no
 KbdInteractiveAuthentication no
+{% for opcion, valor in base_sshd_opciones.items() %}
+{{ opcion }} {{ valor }}
+{% endfor %}
+{% if base_banner %}
+Banner /etc/issue.net
+{% endif %}
 
 Match Group {{ base_grupos_password | join(',') }}
     PasswordAuthentication yes

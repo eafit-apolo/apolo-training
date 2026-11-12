@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+[DEFAULT]
+# Sin firewalld: cada bloqueo es una regla en la tabla inet f2b-table.
+banaction = nftables-multiport
+banaction_allports = nftables-allports
+# Nunca se bloquean. El gateway de terminal (117) entra por todos los usuarios
+# desde la misma IP: bloquearla cortaría la terminal de la plataforma a todos.
+ignoreip = 127.0.0.1/8 ::1{% for origen in base_fail2ban_ignorar %} {{ origen }}{% endfor %}
+
+
+[sshd]
+enabled = true
+backend = systemd
+# 5 claves erradas en 10 minutos: 15 minutos sin poder entrar (como el
+# bloqueo de la plataforma).
+maxretry = 5
+findtime = 10m
+bantime = 15m

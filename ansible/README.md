@@ -60,6 +60,37 @@ El handler aplica el archivo con `nft -f` y no con `systemctl reload`, que en
 Rocky 9 hace `flush ruleset` y borraría las tablas de Docker. El archivo solo
 reemplaza la tabla `apolo_training`.
 
+### sshd y fail2ban (116)
+
+El gateway de terminal de la 117 abre todas las sesiones de la plataforma
+desde la misma IP. En la 116 (`group_vars/practica`), sshd y fail2ban lo
+tienen en cuenta (I-09):
+
+| Qué               | Cómo queda                                   | Por qué                                                                             |
+| ----------------- | -------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `MaxStartups`     | `30:50:60`                                   | Por defecto (`10:30:100`) sshd empieza a rechazar a la 10.ª conexión sin autenticar |
+| `MaxSessions`     | `10`                                         | Sesiones por conexión                                                               |
+| `ClientAlive*`    | Cada 60 s, corta tras 3 sin respuesta        | Libera en ~3 min una conexión muerta (VPN caída, portátil cerrado)                  |
+| Banner            | `/etc/issue.net` (`base_banner`)             | Aparece antes de la clave, también en la terminal de la plataforma                  |
+| fail2ban (`sshd`) | 5 claves erradas en 10 min: 15 min bloqueado | Igual que el bloqueo de la plataforma                                               |
+| `ignoreip`        | La 117 (`base_fail2ban_ignorar`)             | Bloquearla cortaría la terminal a todos; el límite de intentos lo pone el gateway   |
+
+- fail2ban se instala sin `fail2ban-firewalld` (firewalld está enmascarado):
+  los bloqueos van en su propia tabla, `inet f2b-table`, que el handler de
+  nftables no toca.
+- Viene de EPEL: hay que aplicarlo mientras la 116 tenga salida web (S4).
+- En la 117 nada de esto cambia: los valores por defecto son vacíos.
+
+Verificación en la 116:
+
+```bash
+sudo sshd -T | grep -Ei 'maxstartups|maxsessions|clientalive|banner'
+sudo fail2ban-client status sshd                 # Banned IP list
+sudo fail2ban-client get sshd ignoreip           # incluye la IP de la 117
+sudo nft list table inet f2b-table               # los bloqueos activos
+sudo fail2ban-client set sshd unbanip <ip>       # desbloquear a alguien
+```
+
 ### SELinux, hora y actualizaciones
 
 | Qué           | Cómo queda                                                     | Por qué                                                                    |

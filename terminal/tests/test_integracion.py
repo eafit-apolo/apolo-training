@@ -20,7 +20,16 @@ from tests.conftest import CABECERAS, CLAVE, CONECTADO, ORIGEN, RUTA, validar_fa
 
 
 class _ServidorConClave(asyncssh.SSHServer):
+    def __init__(self, banner: str = "") -> None:
+        # Como Banner en sshd_config: el aviso que llega antes de la clave.
+        self._banner = banner
+
+    def connection_made(self, conexion: asyncssh.SSHServerConnection) -> None:
+        self._conexion = conexion
+
     def begin_auth(self, username: str) -> bool:
+        if self._banner:
+            self._conexion.send_auth_banner(self._banner)
         return True  # siempre pide autenticación
 
     def kbdint_auth_supported(self) -> bool:
@@ -47,13 +56,16 @@ async def _shell(proceso: asyncssh.SSHServerProcess) -> None:
 
 
 @pytest.fixture
-def servidor_ssh(tmp_path):
+def servidor_ssh(tmp_path, request):
     """El servidor corre en su propio hilo, con su propio event loop.
 
     El TestClient es síncrono: mientras una prueba espera en receive_bytes(),
     bloquea el hilo que la corre. Si el servidor viviera en ese mismo hilo, no
     podría responder y todo terminaría por timeout.
+
+    Con parametrize(..., indirect=True), el parámetro es el banner del servidor.
     """
+    banner = getattr(request, "param", "")
     loop = asyncio.new_event_loop()
     hilo = threading.Thread(target=loop.run_forever, daemon=True)
     hilo.start()
@@ -65,7 +77,7 @@ def servidor_ssh(tmp_path):
 
     async def iniciar() -> asyncssh.SSHAcceptor:
         return await asyncssh.create_server(
-            _ServidorConClave,
+            lambda: _ServidorConClave(banner),
             "127.0.0.1",
             0,  # un puerto libre cualquiera
             server_host_keys=[llave],
@@ -121,6 +133,25 @@ def test_sesion_completa(servidor_ssh):
         ws.send_json({"tipo": "entrada", "datos": "exit\r"})
         _leer_hasta(ws, b"exit")
         assert ws.receive_json() == {"tipo": "estado", "estado": "cerrado"}
+
+
+@pytest.mark.parametrize(
+    "servidor_ssh",
+    ["VM de práctica del curso\nNo es Apolo II ni Apolo III\n"],
+    indirect=True,
+)
+def test_el_banner_aparece_antes_de_la_clave(servidor_ssh):
+    # I-09: el Banner de sshd (/etc/issue.net) se muestra en la terminal, con
+    # \r\n para xterm, antes de pedir la contraseña.
+    puerto, known_hosts = servidor_ssh
+    with _cliente(puerto, known_hosts).websocket_connect(RUTA, headers=CABECERAS) as ws:
+        assert ws.receive_bytes() == (
+            b"VM de pr\xc3\xa1ctica del curso\r\nNo es Apolo II ni Apolo III\r\n"
+        )
+        assert ws.receive_bytes() == b"Password: "
+        ws.send_json({"tipo": "entrada", "datos": f"{CLAVE}\r"})
+        assert ws.receive_bytes() == b"\r\n"
+        assert ws.receive_json() == CONECTADO
 
 
 def test_clave_errada_vuelve_a_preguntar(servidor_ssh):
