@@ -13,8 +13,6 @@ slurm_particiones:
   - nombre: longjobs
     grupos: [apolo2, apolo3]
     default: true
-  - nombre: longjobs-smt
-    grupos: [apolo2]
   - nombre: bigmem
     grupos: [apolo2, apolo3]
   - nombre: accel
