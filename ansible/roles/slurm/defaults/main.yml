@@ -2,7 +2,24 @@ slurm_cluster_name: apolo-training
 slurm_node_name: apolo-training
 slurm_node_realmemory: 8700
 slurm_def_mem_per_cpu: 2000
-slurm_particion: training
-slurm_particion_default_time: "00:10:00"
-slurm_particion_max_time: "01:00:00"
+
+# Valores comunes a todas las particiones
+slurm_particiones_qos: curso
+slurm_particiones_default_time: "00:10:00"
+slurm_particiones_max_time: "00:15:00"
+
+# Las de Apolo II solas quedan ocultas en sinfo para los de apolo3 (AllowGroups)
+slurm_particiones:
+  - nombre: longjobs
+    grupos: [apolo2, apolo3]
+    default: true
+  - nombre: bigmem
+    grupos: [apolo2, apolo3]
+  - nombre: accel
+    grupos: [apolo2, apolo3]
+  - nombre: accel-2
+    grupos: [apolo2]
+  - nombre: learning
+    grupos: [apolo2]
+
 slurm_bd_password: "" # se define en group_vars/practica (Vault)
