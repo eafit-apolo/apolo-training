@@ -33,7 +33,9 @@ SlurmctldLogFile=/var/log/slurm/slurmctld.log
 SlurmdDebug=info
 SlurmdLogFile=/var/log/slurm/slurmd.log
 NodeName={{ slurm_node_name }} CPUs=4 Boards=1 SocketsPerBoard=1 CoresPerSocket=4 ThreadsPerCore=1 RealMemory={{ slurm_node_realmemory }} State=UNKNOWN
-PartitionName={{ slurm_particion }} Nodes={{ slurm_node_name }} Default=YES DefaultTime={{ slurm_particion_default_time }} MaxTime={{ slurm_particion_max_time }} State=UP
+{% for p in slurm_particiones %}
+PartitionName={{ p.nombre }} Nodes={{ slurm_node_name }} {% if p.default | default(false) %}Default=YES {% endif %}AllowGroups={{ p.grupos | join(',') }} QOS={{ slurm_particiones_qos }} DefaultTime={{ slurm_particiones_default_time }} MaxTime={{ slurm_particiones_max_time }} State=UP
+{% endfor %}
 PropagateResourceLimitsExcept=MEMLOCK
 JobCompType=jobcomp/filetxt
 SlurmctldParameters=enable_configless
