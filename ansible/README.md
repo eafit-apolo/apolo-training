@@ -13,9 +13,10 @@ en Ansible Vault, nunca en claro.
 | `roles/slurm`              | Slurm de un nodo: munge, MariaDB, slurmdbd, slurmctld y slurmd con cgroups          |
 | `roles/docker`             | Docker Engine y Compose de la plataforma (117), DOCKER-USER y `/srv/apolo-training` |
 | `roles/certbot`            | Certificado TLS de Let's Encrypt de la plataforma y su renovación automática        |
+| `roles/profiles`           | Perfil `apolo2`/`apolo3` al entrar a la 116: variable, prompt y bienvenida (P-03)   |
 
-`site.yml` aplica `base` y `slurm` al grupo `practica`, y `base`, `docker` y
-`certbot` al grupo `web` (la 117).
+`site.yml` aplica `base`, `slurm`, `lmod` y `profiles` al grupo `practica`, y
+`base`, `docker` y `certbot` al grupo `web` (la 117).
 
 ## Requisitos
 
@@ -142,6 +143,35 @@ sinfo                                                    # training, nodo idle
 srun -c 1 nproc                                          # 1
 srun --mem=200M python3 -c "x = b'x' * (500*1024*1024)"  # oom_kill
 sacct --format=JobID,State,ReqMem,MaxRSS,ExitCode        # OUT_OF_MEMORY
+```
+
+### Perfil al entrar (116)
+
+`/etc/profile.d/apolo-training.sh` lee el perfil del usuario en
+`/etc/apolo-training/usuarios/<usuario>` (una línea, `apolo2` o `apolo3`) y le
+arma el entorno de su clúster. El diseño está en
+[`docs/perfiles.md`](../docs/perfiles.md). El rol crea la carpeta e instala el
+script; el archivo de cada usuario lo escribe `apolo-training-admin alta` (V-04).
+
+| Qué                      | Cómo queda                                                | Por qué                                                                   |
+| ------------------------ | --------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Archivo del perfil       | Dueño `root`, `0644`; carpeta `0755`                      | El usuario lo lee al entrar pero no puede cambiarse de clúster            |
+| `APOLO_TRAINING_CLUSTER` | `apolo2` o `apolo3`, exportada; con otro valor no se pone | La usan el verificador (P-05) y el laboratorio por perfil (P-04)          |
+| Prompt                   | `[ana@apolo-training ~ (apolo3)]$`, sin exportar `PS1`    | `/etc/bashrc` solo cambia el `PS1` de fábrica de bash, así que no lo pisa |
+| Bienvenida               | Perfil, login real y enlace a la plataforma               | Solo en bash interactivo: en `scp` o `rsync` el texto rompe la sesión     |
+| Idioma de los mensajes   | Siempre inglés                                            | `APOLO_TRAINING_LANG` se pone en `~/.bashrc`, que se lee después          |
+| Sin perfil válido        | Aviso de escribirle a un instructor                       | Solo si el archivo trae otro valor o el usuario está en `apolo2`/`apolo3` |
+| `MODULEPATH`             | No se toca                                                | Es igual en los dos perfiles (`gnu14`) y `lmod.sh` lo reescribe después   |
+| `SBATCH_PARTITION`       | No se pone                                                | Le gana al `#SBATCH -p` de los scripts; la partición la decide P-02       |
+
+Verificación en la 116 (`sudo -iu` abre una sesión como la de SSH; salir con
+`exit`):
+
+```bash
+sudo -iu <usuario>                                   # bienvenida y prompt (apolo3)
+sudo -iu <usuario> printenv APOLO_TRAINING_CLUSTER   # apolo3
+sudo -iu <usuario> true                              # sin salida
+sudo -iu <usuario> printenv PS1                      # sin salida
 ```
 
 ### Docker (117)

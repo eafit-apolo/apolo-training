@@ -1,0 +1,8 @@
+---
+galaxy_info:
+  author: Byron Arenilla
+  description: Perfil apolo2/apolo3 al entrar a la VM de práctica (P-03)
+  license: MIT-0
+  min_ansible_version: "2.14"
+
+dependencies: []

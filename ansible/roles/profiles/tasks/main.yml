@@ -1,0 +1,23 @@
+---
+# tasks file for roles/profiles
+# Los archivos de cada usuario no van aquí: los escribe la V-04. Dueño root y
+# 0755/0644: el usuario lee su perfil pero no puede cambiarse de clúster.
+- name: Carpetas del perfil
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ profiles_carpeta }}"
+    - "{{ profiles_carpeta_usuarios }}"
+
+- name: Script de entrada
+  ansible.builtin.template:
+    src: apolo-training.sh.j2
+    dest: /etc/profile.d/apolo-training.sh
+    owner: root
+    group: root
+    mode: "0644"
+    validate: sh -n %s

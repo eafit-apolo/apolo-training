@@ -1,0 +1,12 @@
+---
+# defaults file for roles/profiles
+# Perfil de cada usuario: un archivo por usuario con apolo2 o apolo3, que
+# escribe apolo-training-admin alta (V-04). El rol solo crea la carpeta.
+profiles_carpeta: /etc/apolo-training
+profiles_carpeta_usuarios: /etc/apolo-training/usuarios
+
+# Mensaje de bienvenida (docs/perfiles.md).
+profiles_login:
+  apolo2: apolo.eafit.edu.co
+  apolo3: apolo-3.eafit.edu.co
+profiles_plataforma_url: https://training.apolo.eafit.edu.co

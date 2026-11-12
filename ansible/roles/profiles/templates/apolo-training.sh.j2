@@ -1,0 +1,82 @@
+# {{ ansible_managed }}
+# /etc/profile.d/apolo-training.sh (P-03): entorno del clúster de cada usuario
+# del curso. El diseño está en docs/perfiles.md.
+# /etc/profile lo carga con "source" en la shell del usuario: no usar exit, y
+# las variables llevan el prefijo APOLO_TRAINING_ para no chocar con otras.
+
+APOLO_TRAINING_ARCHIVO="{{ profiles_carpeta_usuarios }}/$(id -un)"
+APOLO_TRAINING_LEIDO=""
+
+if [ -r "$APOLO_TRAINING_ARCHIVO" ]; then
+    read -r APOLO_TRAINING_LEIDO < "$APOLO_TRAINING_ARCHIVO"
+fi
+
+# Lista blanca: solo apolo2 o apolo3.
+case "$APOLO_TRAINING_LEIDO" in
+    apolo2|apolo3)
+        APOLO_TRAINING_CLUSTER="$APOLO_TRAINING_LEIDO"
+        export APOLO_TRAINING_CLUSTER
+        ;;
+    *)
+        unset APOLO_TRAINING_CLUSTER
+        ;;
+esac
+
+# Sin perfil válido se avisa si el archivo existe pero tiene otro valor, o si
+# el usuario es del curso (grupo apolo2 o apolo3) y no tiene archivo. A los
+# administradores, sin archivo ni grupo del curso, no se les dice nada.
+APOLO_TRAINING_SIN_PERFIL=""
+if [ -z "$APOLO_TRAINING_CLUSTER" ]; then
+    if [ -e "$APOLO_TRAINING_ARCHIVO" ]; then
+        APOLO_TRAINING_SIN_PERFIL="si"
+    fi
+    case " $(id -Gn) " in
+        *" apolo2 "*|*" apolo3 "*)
+            APOLO_TRAINING_SIN_PERFIL="si"
+            ;;
+    esac
+fi
+
+# Prompt y mensajes solo en bash interactivo: en scp, rsync o "ssh host
+# comando" cualquier texto rompe la transferencia.
+if [ -n "$BASH_VERSION" ]; then
+    case "$-" in
+        *i*)
+            if [ -n "$APOLO_TRAINING_CLUSTER" ]; then
+                # El de Rocky con el perfil al final: [ana@apolo-training ~ (apolo3)]$
+                # Sin export: un sh hijo no entiende los códigos de bash.
+                PS1="[\u@\h \W ($APOLO_TRAINING_CLUSTER)]\\$ "
+
+                case "$APOLO_TRAINING_CLUSTER" in
+                    apolo2)
+                        APOLO_TRAINING_NOMBRE="Apolo II"
+                        APOLO_TRAINING_LOGIN="{{ profiles_login.apolo2 }}"
+                        ;;
+                    apolo3)
+                        APOLO_TRAINING_NOMBRE="Apolo III"
+                        APOLO_TRAINING_LOGIN="{{ profiles_login.apolo3 }}"
+                        ;;
+                esac
+
+                # Siempre en inglés: APOLO_TRAINING_LANG la pone el usuario en
+                # su ~/.bash_profile o ~/.bashrc, que se leen después de este
+                # script, así que aquí nunca se vería.
+                printf '\n'
+                printf 'Apolo induction course · Practice VM\n'
+                printf 'Profile: %s. Your real login is %s.\n' "$APOLO_TRAINING_NOMBRE" "$APOLO_TRAINING_LOGIN"
+                printf 'Everything here is practice: a mistake only affects you.\n'
+                printf 'Platform: %s\n' "{{ profiles_plataforma_url }}"
+                printf '\n'
+
+                unset APOLO_TRAINING_NOMBRE APOLO_TRAINING_LOGIN
+            elif [ -n "$APOLO_TRAINING_SIN_PERFIL" ]; then
+                printf '\n'
+                printf 'You do not have a course profile (apolo2 or apolo3).\n'
+                printf 'Please contact an instructor.\n'
+                printf '\n'
+            fi
+            ;;
+    esac
+fi
+
+unset APOLO_TRAINING_ARCHIVO APOLO_TRAINING_LEIDO APOLO_TRAINING_SIN_PERFIL
