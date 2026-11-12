@@ -312,7 +312,7 @@ certificado TLS (ver `ansible/README.md`).
   después no cambia la clave (hace falta `ALTER USER training PASSWORD …`).
 - **Upstreams con `resolve`.** nginx arranca aunque `api`, `web` o `terminal`
   no estén (responde 502 en sus rutas) y sigue su IP si se recrean.
-- **CSP en modo Report-Only** hasta que la web quite el script en línea de
+- **CSP Ya es obligatoria**
   Angular (`inlineCritical: false`); después pasa a `Content-Security-Policy`.
 - **Arranca sola** tras reiniciar la VM: `restart: unless-stopped`. Si alguien
   detiene un servicio con `docker compose stop`, no vuelve hasta un `up`.
