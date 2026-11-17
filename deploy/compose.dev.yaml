@@ -140,6 +140,9 @@ services:
     profiles: [imagenes]
     build:
       context: ../api
+      # La imagen lleva content/ para el importador (ver api/Dockerfile).
+      additional_contexts:
+        content: ../content
       args:
         VERSION: local
     environment:

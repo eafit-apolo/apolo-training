@@ -107,7 +107,9 @@ python -m app.importar --dir RUTA   # otra carpeta content/
 
 - Por defecto lee `content/` dos niveles arriba de `app/`: la raíz del repo, o
   `/content` en los servicios `migrar` y `pruebas` del compose de desarrollo,
-  que la montan en solo lectura. `migrar` lo corre después de las migraciones;
+  que la montan en solo lectura. La imagen que se publica lleva el `content/`
+  de su misma versión en `/content` (contexto de build aparte, ver
+  `Dockerfile`), y el despliegue de la 117 lo importa sin montar nada. `migrar` lo corre después de las migraciones;
   para volver a importar tras editar el contenido,
   `docker compose -f deploy/compose.dev.yaml run --rm migrar`.
 - Si un archivo no cumple, no carga nada y dice cada error con su archivo y su

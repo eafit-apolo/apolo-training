@@ -58,6 +58,28 @@
   changed_when: "'Running upgrade' in deploy_alembic.stderr"
   when: deploy_migrar | bool
 
+# El content/ de la misma versión, que va dentro de la imagen (/content). Si no
+# valida, no carga nada (una transacción) y la versión nueva no se levanta.
+# Al revertir no se importa, como con las migraciones: si la versión vieja no
+# tiene un quiz que alguien ya intentó, el importador falla a propósito.
+- name: Contenido del curso
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - run
+      - --rm
+      - --no-TTY
+      - api
+      - python
+      - -m
+      - app.importar
+    chdir: "{{ deploy_raiz }}"
+  register: deploy_importar
+  # Con todo igual, el importador termina con «Importado: sin cambios».
+  changed_when: "'Importado: sin cambios' not in deploy_importar.stderr"
+  when: deploy_migrar | bool
+
 # up -d: recrea solo los servicios cuya imagen o configuración cambió, y
 # espera a que todos estén healthy.
 - name: Plataforma arriba

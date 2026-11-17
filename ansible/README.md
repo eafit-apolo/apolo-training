@@ -268,6 +268,7 @@ ansible-playbook deploy.yml -e deploy_tag=0.1.0 -e deploy_migrar=false # reverti
 | Respaldo         | `pg_dump` en `backups/antes-de-X.Y.Z-<fecha>.dump`, si cambia de versión      | No toca nada                                     |
 | Archivos         | `compose.yaml` y `nginx.conf` desde `deploy/`; solo la línea `TAG` del `.env` | Si `nginx -t` falla, el proxy sigue con el viejo |
 | Migraciones      | `docker compose run --rm api alembic upgrade head`, con la imagen nueva       | Nada se levanta; la versión que corre sigue      |
+| Contenido        | `python -m app.importar` con el `content/` que va dentro de la imagen         | No carga nada; la versión que corre sigue        |
 | Arriba           | `up -d --wait`; si cambió `nginx.conf`, reinicia el proxy                     | `docker compose ps` y `logs`                     |
 | Verificación     | `/api/health` desde tu equipo (por la VPN) hasta que diga la versión nueva    | 2 minutos de reintentos                          |
 
@@ -275,13 +276,16 @@ ansible-playbook deploy.yml -e deploy_tag=0.1.0 -e deploy_migrar=false # reverti
   muestra). Va con `deploy_migrar=false` porque la versión vieja no conoce las
   migraciones de la nueva: su `alembic` fallaría. Por eso las migraciones solo
   agregan (columnas o tablas nuevas, nada que la versión anterior use se borra
-  ni se renombra en la misma versión).
+  ni se renombra en la misma versión). Con `deploy_migrar=false` tampoco se
+  importa el contenido: la base se queda con el de la versión nueva (si la
+  vieja no tiene un quiz que alguien ya intentó, el importador fallaría).
 - Si una migración no se puede dejar atrás así, antes de revertir se restaura
   el respaldo con la API detenida (`docker compose stop api terminal`).
   `backups/` es de root, por eso el `sudo cat`:
   `sudo cat backups/<archivo>.dump | docker compose exec -T db pg_restore -U training -d training --clean --if-exists`.
 - La segunda corrida con la misma versión termina en `changed=0`: no baja
-  imágenes, no respalda y `alembic` no aplica nada.
+  imágenes, no respalda, `alembic` no aplica nada y el importador dice
+  «Importado: sin cambios».
 - Los respaldos se acumulan en `backups/` (root, 0700); borrar los viejos a mano.
 
 Verificación en la 117 y desde la VPN:

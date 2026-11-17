@@ -334,7 +334,7 @@ echo "TAG=0.1.0" | sudo tee .env   # la versión X.Y.Z a levantar
 docker compose pull
 docker compose up -d --wait db
 docker compose run --rm api alembic upgrade head
-docker compose run --rm -v "$PWD/content:/content:ro,z" api python -m app.importar   # content/ copiado del repo
+docker compose run --rm api python -m app.importar   # el content/ que va en la imagen
 docker compose up -d --wait
 # 3. Otra vez Ansible (desde ansible/): con el proxy arriba, emite el certificado real.
 ansible-playbook site.yml --limit web
