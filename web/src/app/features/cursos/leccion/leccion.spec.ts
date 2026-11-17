@@ -290,6 +290,8 @@ describe('Lección (F-04)', () => {
       beforeEach(() => {
         simulacion = simularVideos();
         api.conVideo.add('m05/trabajos');
+        // Estas pruebas son de la F-05: sin quiz, ver el 90 % completa la lección.
+        api.sinQuiz.add('m05/trabajos');
       });
 
       afterEach(() => simulacion.restaurar());
@@ -393,6 +395,7 @@ describe('Lección (F-04)', () => {
     });
 
     it('«Marcar como completada» guarda, pone al día el avance y abre el módulo siguiente', async () => {
+      api.sinQuiz.add('m05/trabajos');
       const recargar = vi.spyOn(TestBed.inject(CatalogoService), 'recargar');
       const raiz = await abrir(TRABAJOS);
 
@@ -412,6 +415,7 @@ describe('Lección (F-04)', () => {
     });
 
     it('si la API no deja completarla, dice por qué', async () => {
+      api.sinQuiz.add('m05/trabajos');
       vi.spyOn(api, 'completar').mockRejectedValue(
         new HttpErrorResponse({ status: 409, error: { codigo: 'requisitos_pendientes' } }),
       );
@@ -421,11 +425,12 @@ describe('Lección (F-04)', () => {
       await listo();
 
       expect(raiz.querySelector('.completar [role="alert"]')?.textContent).toBe(
-        'Termina el video para completar esta lección.',
+        'Termina el video y el quiz para completar esta lección.',
       );
     });
 
     it('con un video subido no hay botón: se completa al verlo', async () => {
+      api.sinQuiz.add('m05/trabajos');
       api.conVideo.add('m05/trabajos');
       const raiz = await abrir(TRABAJOS);
 
