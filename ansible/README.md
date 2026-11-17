@@ -277,8 +277,9 @@ ansible-playbook deploy.yml -e deploy_tag=0.1.0 -e deploy_migrar=false # reverti
   agregan (columnas o tablas nuevas, nada que la versión anterior use se borra
   ni se renombra en la misma versión).
 - Si una migración no se puede dejar atrás así, antes de revertir se restaura
-  el respaldo:
-  `docker compose exec -T db pg_restore -U training -d training --clean < backups/<archivo>.dump`.
+  el respaldo con la API detenida (`docker compose stop api terminal`).
+  `backups/` es de root, por eso el `sudo cat`:
+  `sudo cat backups/<archivo>.dump | docker compose exec -T db pg_restore -U training -d training --clean --if-exists`.
 - La segunda corrida con la misma versión termina en `changed=0`: no baja
   imágenes, no respalda y `alembic` no aplica nada.
 - Los respaldos se acumulan en `backups/` (root, 0700); borrar los viejos a mano.
