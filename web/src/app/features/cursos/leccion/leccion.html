@@ -60,9 +60,19 @@
       }
 
       @if (c.quiz_id !== null) {
-        <section class="tarjeta">
-          <h2><at-icono nombre="quiz" /> {{ 'leccion.quiz.titulo' | transloco }}</h2>
-          <p>{{ 'leccion.quiz.pendiente' | transloco }}</p>
+        <section class="tarjeta" aria-labelledby="at-quiz-titulo">
+          <h2 id="at-quiz-titulo">
+            <at-icono nombre="quiz" /> {{ 'leccion.quiz.titulo' | transloco }}
+          </h2>
+          <at-quiz
+            [quizId]="c.quiz_id"
+            [puedeEnviar]="m?.estado !== 'bloqueado'"
+            [aprobado]="c.progreso.quiz_aprobado"
+            [faltaVideo]="faltaVideo()"
+            [leccionCompleta]="c.progreso.completada"
+            (calificado)="alCalificar($event)"
+            (bloqueado)="alBloquearseElQuiz()"
+          />
         </section>
       }
 
@@ -94,8 +104,8 @@
                   | transloco
               }}
             </button>
-          } @else {
-            <p>{{ 'leccion.completar.conVideo' | transloco }}</p>
+          } @else if (comoCompletar(); as como) {
+            <p>{{ como | transloco }}</p>
           }
           @if (errorCompletar(); as error) {
             <p class="error" role="alert">{{ error | transloco }}</p>

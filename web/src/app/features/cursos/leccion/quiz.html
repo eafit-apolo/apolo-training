@@ -1,0 +1,150 @@
+@let q = quiz();
+@if (q) {
+  @if (q.fallback) {
+    <p class="at-quiz-aviso" role="note">
+      <at-icono nombre="traducir" />
+      {{ 'leccion.quiz.sinTraduccion' | transloco }}
+    </p>
+  }
+
+  @if (resultado(); as r) {
+    <div #resumen class="at-quiz-resumen" [class.aprobado]="r.aprobado" role="status" tabindex="-1">
+      <p class="at-quiz-veredicto">
+        <at-icono [nombre]="r.aprobado ? 'completo' : 'info'" />
+        {{
+          (r.aprobado ? 'leccion.quiz.aprobaste' : 'leccion.quiz.noAprobaste')
+            | transloco
+              : {
+                  aciertos: aciertos(),
+                  total: r.preguntas.length,
+                  puntaje: numero(r.puntaje),
+                  umbral: umbralPct(),
+                }
+        }}
+      </p>
+      @if (!r.aprobado) {
+        <p>{{ 'leccion.quiz.noAprobasteAyuda' | transloco }}</p>
+      } @else if (leccionCompleta()) {
+        <p>{{ 'leccion.quiz.leccionCompleta' | transloco }}</p>
+      } @else if (faltaVideo()) {
+        <p>{{ 'leccion.quiz.faltaVideo' | transloco }}</p>
+      }
+      <p>{{ 'leccion.quiz.mejor' | transloco: { puntaje: numero(r.mejor_puntaje) } }}</p>
+    </div>
+  } @else if (!puedeEnviar()) {
+    <p class="at-quiz-intro">{{ 'leccion.quiz.soloLectura' | transloco }}</p>
+  } @else {
+    @let anterior = mejor();
+    <p class="at-quiz-intro">
+      {{
+        (aprobado() ? 'leccion.quiz.introAprobado' : 'leccion.quiz.intro')
+          | transloco: { umbral: umbralPct() }
+      }}
+      @if (anterior !== null) {
+        {{ 'leccion.quiz.mejor' | transloco: { puntaje: numero(anterior) } }}
+      }
+    </p>
+  }
+
+  <div class="at-quiz-preguntas">
+    @for (p of preguntas(); track p.id; let n = $index) {
+      <fieldset
+        class="at-quiz-pregunta"
+        [attr.data-pregunta]="p.id"
+        [attr.aria-labelledby]="idDe(p, 'enunciado')"
+        [attr.aria-describedby]="descripcion(p)"
+        [class.sin-responder]="sinResponder().has(p.id)"
+        [class.correcta]="veredictos().get(p.id)?.correcta === true"
+        [class.incorrecta]="veredictos().get(p.id)?.correcta === false"
+      >
+        <div
+          class="at-quiz-enunciado"
+          [id]="idDe(p, 'enunciado')"
+          [attr.lang]="q.fallback ? 'es' : null"
+        >
+          <p class="at-quiz-numero">
+            {{ 'leccion.quiz.pregunta' | transloco: { n: n + 1, total: preguntas().length } }}
+          </p>
+          <at-bloques [bloques]="p.bloques" />
+        </div>
+        <p class="at-quiz-pista" [id]="idDe(p, 'pista')">
+          {{ (p.multiple ? 'leccion.quiz.variasPista' : 'leccion.quiz.unaPista') | transloco }}
+        </p>
+        <div class="at-quiz-opciones">
+          @for (o of p.opciones; track o.id) {
+            <label class="at-quiz-opcion">
+              <input
+                [type]="p.multiple ? 'checkbox' : 'radio'"
+                [name]="p.multiple ? '' : idDe(p)"
+                [checked]="esta(p.id, o.id)"
+                [disabled]="cerrado()"
+                (change)="elegir(p, o.id, $event)"
+              />
+              <span
+                class="at-quiz-opcion-texto"
+                [attr.lang]="q.fallback ? 'es' : null"
+                [innerHTML]="o.html"
+              ></span>
+            </label>
+          }
+        </div>
+        @if (sinResponder().has(p.id)) {
+          <p class="at-quiz-falta" [id]="idDe(p, 'falta')">
+            <at-icono nombre="error" />
+            {{ 'leccion.quiz.falta' | transloco }}
+          </p>
+        }
+        @if (veredictos().get(p.id); as v) {
+          <div class="at-quiz-veredicto-pregunta" [id]="idDe(p, 'veredicto')">
+            <p class="at-quiz-estado-pregunta">
+              <at-icono [nombre]="v.correcta ? 'completo' : 'cerrar'" />
+              {{ (v.correcta ? 'leccion.quiz.correcta' : 'leccion.quiz.incorrecta') | transloco }}
+            </p>
+            <p
+              class="at-quiz-explicacion"
+              [attr.lang]="q.fallback ? 'es' : null"
+              [innerHTML]="v.explicacion"
+            ></p>
+          </div>
+        }
+      </fieldset>
+    }
+  </div>
+
+  <div class="at-quiz-acciones">
+    @if (resultado()) {
+      <button type="button" mat-stroked-button (click)="reintentar()">
+        <at-icono nombre="reintentar" />
+        {{ 'leccion.quiz.reintentar' | transloco }}
+      </button>
+    } @else if (puedeEnviar()) {
+      <button type="button" mat-flat-button [attr.aria-disabled]="enviando()" (click)="enviar()">
+        <at-icono nombre="hecho" />
+        {{ (enviando() ? 'leccion.quiz.enviando' : 'leccion.quiz.enviar') | transloco }}
+      </button>
+      @if (sinResponder().size) {
+        <p class="at-quiz-error" role="alert">{{ 'leccion.quiz.faltanRespuestas' | transloco }}</p>
+      }
+      @if (error(); as e) {
+        <p class="at-quiz-error" role="alert">{{ e | transloco }}</p>
+      }
+    }
+  </div>
+} @else if (respuesta.error()) {
+  <div class="at-quiz-estado" role="alert">
+    <p class="at-quiz-veredicto">{{ 'leccion.quiz.errorCarga' | transloco }}</p>
+    <p>{{ 'leccion.error.mensaje' | transloco }}</p>
+    <button type="button" mat-stroked-button (click)="respuesta.reload()">
+      <at-icono nombre="reintentar" />
+      {{ 'leccion.error.reintentar' | transloco }}
+    </button>
+  </div>
+} @else {
+  <div class="at-quiz-estado" role="status">
+    <mat-progress-bar
+      mode="indeterminate"
+      [attr.aria-label]="'leccion.quiz.cargando' | transloco"
+    />
+    <p class="at-oculto">{{ 'leccion.quiz.cargando' | transloco }}</p>
+  </div>
+}

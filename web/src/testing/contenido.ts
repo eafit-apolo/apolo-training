@@ -6,6 +6,8 @@ import { SesionService } from '../app/core/sesion/sesion';
 import type {
   CursoDetalleApi,
   CursoResumenApi,
+  IntentoEntradaApi,
+  IntentoResultadoApi,
   LeccionApi,
   LeccionRefApi,
   ModuloApi,
@@ -13,10 +15,13 @@ import type {
   Practica,
   ProgresoLeccionApi,
   ProgresoVideoEntradaApi,
+  QuizApi,
   VideoLeccionApi,
 } from '../app/features/cursos/datos/api';
 import { ContenidoApi } from '../app/features/cursos/datos/api';
 import { MUESTRA_EN, MUESTRA_ES } from './leccion-muestra';
+import type { QuizCompleto } from './quiz';
+import { armarQuiz, calificar } from './quiz';
 
 // Los datos de ejemplo de la F-02, ahora solo para las pruebas: con ellos se
 // arma lo que respondería la API de contenido (B-04) a cada usuario de ejemplo.
@@ -381,6 +386,22 @@ export interface OpcionesLeccion {
   readonly textos?: ReadonlyMap<string, TextoLeccion>;
   /** Lecciones (`m05/trabajos`) con el video ya subido. */
   readonly conVideo?: ReadonlySet<string>;
+  /** Lecciones que, para la prueba, no tienen quiz (por defecto lo tienen las del mapa). */
+  readonly sinQuiz?: ReadonlySet<string>;
+  /** Lecciones con el quiz aprobado y con el 90 % del video visto en esta sesión. */
+  readonly aprobados?: ReadonlySet<string>;
+  readonly vistos?: ReadonlySet<string>;
+}
+
+/** Cuántas preguntas tiene el quiz de una lección de ejemplo (`m05/trabajos`); 0 si no tiene. */
+export function preguntasDeEjemplo(clave: string): number {
+  for (const m of CURSOS_EJEMPLO[0].modulos) {
+    const hallada = m.lecciones.find((l) => `${idModulo(m.numero)}/${l.slug}` === clave);
+    if (hallada) {
+      return hallada.preguntas;
+    }
+  }
+  return 0;
 }
 
 /**
@@ -409,6 +430,8 @@ export function leccionDeEjemplo(
     });
   }
   const clave = `${modulo}/${slug}`;
+  const conQuiz = l.componentes.includes('quiz') && !opciones.sinQuiz?.has(clave);
+  const componentes = conQuiz ? l.componentes : l.componentes.filter((c) => c !== 'quiz');
   const ref = (i: number): LeccionRefApi | null => {
     const vecina = todas[i];
     return vecina
@@ -460,23 +483,31 @@ export function leccionDeEjemplo(
     contenido: traducida ? (texto.en as string) : texto.es,
     fallback: idioma === 'en' && !traducida,
     duracion_min: l.duracion_min,
-    componentes: l.componentes,
+    componentes,
     videos,
     practicas: PRACTICAS_EJEMPLO[clave] ?? [],
-    quiz_id: l.componentes.includes('quiz') ? idDe(`quiz:${clave}`) : null,
+    quiz_id: conQuiz ? idDe(`quiz:${clave}`) : null,
     anterior: ref(posicion - 1),
     siguiente: ref(posicion + 1),
-    progreso: progresoDe(l.id, l.completada),
+    progreso: progresoDe(l.id, l.completada, {
+      // Una lección con quiz que ya estaba completa tiene el quiz aprobado.
+      quizAprobado: conQuiz && (l.completada || !!opciones.aprobados?.has(clave)),
+      videoCompleto: !!opciones.vistos?.has(clave),
+    }),
   };
 }
 
-function progresoDe(leccionId: number, completada: boolean): ProgresoLeccionApi {
+function progresoDe(
+  leccionId: number,
+  completada: boolean,
+  extra: { quizAprobado?: boolean; videoCompleto?: boolean } = {},
+): ProgresoLeccionApi {
   return {
     leccion_id: leccionId,
     video_posicion_seg: 0,
     video_max_seg: 0,
-    video_completo: false,
-    quiz_aprobado: false,
+    video_completo: extra.videoCompleto ?? false,
+    quiz_aprobado: extra.quizAprobado ?? false,
     completada,
     completada_en: completada ? '2026-11-04T15:00:00Z' : null,
   };
@@ -484,7 +515,18 @@ function progresoDe(leccionId: number, completada: boolean): ProgresoLeccionApi 
 
 /** `m05/trabajos` de una lección por su id numérico. */
 function claveDe(id: number): string | undefined {
-  return [...IDS].find(([clave, valor]) => valor === id && clave.includes('/'))?.[0];
+  return [...IDS].find(([clave, valor]) => valor === id && /^m\d\d\/[^:]+$/.test(clave))?.[0];
+}
+
+/** `m05/trabajos` de un quiz por su id numérico. */
+function claveDeQuiz(id: number): string | undefined {
+  return [...IDS]
+    .find(([clave, valor]) => valor === id && clave.startsWith('quiz:'))?.[0]
+    ?.slice(5);
+}
+
+function bloqueado(status: number, error: object): HttpErrorResponse {
+  return new HttpErrorResponse({ status, error });
 }
 
 /** ContenidoApi con los datos de ejemplo, para el usuario de la sesión. */
@@ -501,8 +543,20 @@ export class ContenidoApiDePrueba {
   readonly textos = textosDeEjemplo();
   /** Lecciones con el video ya subido. */
   readonly conVideo = new Set<string>();
+  /** Lecciones que, para la prueba, no tienen quiz (por defecto las del mapa sí lo tienen). */
+  readonly sinQuiz = new Set<string>();
+  /** Quizzes (`m05/trabajos`) sin inglés: salen en español con `fallback`. */
+  readonly quizSinIngles = new Set<string>();
+  /** Los quizzes que se pidieron (`m05/trabajos?lang=es`). */
+  readonly quizzes: string[] = [];
+  /** Los intentos que se mandaron a calificar, en orden. */
+  readonly intentos: { clave: string; entrada: IntentoEntradaApi }[] = [];
   /** Lo que se completó durante la prueba, además de PROGRESO_EJEMPLO. */
   private readonly hechas = new Set<string>();
+  private readonly aprobados = new Set<string>();
+  private readonly vistos = new Set<string>();
+  private readonly mejores = new Map<string, number>();
+  private contadorIntentos = 0;
 
   async cursos(idioma: string): Promise<CursoResumenApi[]> {
     this.pedidos.push(`cursos?lang=${idioma}`);
@@ -528,30 +582,36 @@ export class ContenidoApiDePrueba {
       rol: this.sesion.usuario()?.rol,
       textos: this.textos,
       conVideo: this.conVideo,
+      sinQuiz: this.sinQuiz,
+      aprobados: this.aprobados,
+      vistos: this.vistos,
     });
   }
 
-  /** Como la API (B-04 y F-04): un video subido sin ver da 409. */
+  /**
+   * Como la API (B-04, F-04 y B-06): un video subido sin ver o un quiz sin
+   * aprobar da 409.
+   */
   async completar(leccionId: number): Promise<ProgresoLeccionApi> {
     this.completadas.push(leccionId);
     const clave = claveDe(leccionId);
     if (!clave) {
-      throw new HttpErrorResponse({ status: 404, error: { codigo: 'no_encontrado' } });
+      throw bloqueado(404, { codigo: 'no_encontrado' });
     }
-    if (this.conVideo.has(clave)) {
-      throw new HttpErrorResponse({
-        status: 409,
-        error: { detail: 'falta el video', codigo: 'requisitos_pendientes' },
-      });
+    if (!this.cumplida(clave)) {
+      throw bloqueado(409, { detail: 'falta el video o el quiz', codigo: 'requisitos_pendientes' });
     }
     this.hechas.add(clave);
-    return progresoDe(leccionId, true);
+    return this.progreso(leccionId, clave);
   }
 
   /** Los reportes del reproductor (F-05), en orden. */
   readonly reportes: { entrada: ProgresoVideoEntradaApi; alSalir: boolean }[] = [];
 
-  /** Como la API (F-05): al 90 % de los 300 s del video la lección queda completa. */
+  /**
+   * Como la API (F-05 y B-06): al 90 % de los 300 s del video queda visto, y la
+   * lección se completa si no falta el quiz.
+   */
   async reportarVideo(
     entrada: ProgresoVideoEntradaApi,
     alSalir = false,
@@ -559,19 +619,115 @@ export class ContenidoApiDePrueba {
     this.reportes.push({ entrada, alSalir });
     const clave = claveDe(entrada.leccion_id);
     if (!clave || !this.conVideo.has(clave)) {
-      throw new HttpErrorResponse({ status: 404, error: { codigo: 'no_encontrado' } });
+      throw bloqueado(404, { codigo: 'no_encontrado' });
     }
     const segundo = Math.min(entrada.segundo, 300);
-    const visto = segundo >= 270;
-    if (visto) {
+    if (segundo >= 270) {
+      this.vistos.add(clave);
+    }
+    if (this.cumplida(clave)) {
       this.hechas.add(clave);
     }
     return {
-      ...progresoDe(entrada.leccion_id, this.completas().includes(clave)),
+      ...this.progreso(entrada.leccion_id, clave),
       video_posicion_seg: segundo,
       video_max_seg: segundo,
-      video_completo: visto,
     };
+  }
+
+  /**
+   * Como la API (B-06): las preguntas sin la correcta. Un estudiante en un
+   * módulo bloqueado recibe 403; instructores y admins lo leen.
+   */
+  async quiz(quizId: number, idioma: string): Promise<QuizApi> {
+    this.quizzes.push(`${claveDeQuiz(quizId)}?lang=${idioma}`);
+    const completo = this.quizCompleto(quizId, idioma);
+    const rol = this.sesion.usuario()?.rol ?? 'estudiante';
+    if (this.moduloBloqueado(completo.clave) && rol === 'estudiante') {
+      throw bloqueado(403, { detail: 'bloqueado', codigo: 'modulo_bloqueado' });
+    }
+    return completo.quiz.quiz;
+  }
+
+  /**
+   * Como la API (B-06): califica sin puntos parciales, guarda el mejor puntaje
+   * y deja la lección completa si ya se cumplió lo demás. Enviar exige el
+   * módulo abierto, también para instructores y admins.
+   */
+  async enviarIntento(
+    quizId: number,
+    entrada: IntentoEntradaApi,
+    idioma: string,
+  ): Promise<IntentoResultadoApi> {
+    const completo = this.quizCompleto(quizId, idioma);
+    this.intentos.push({ clave: completo.clave, entrada });
+    if (this.moduloBloqueado(completo.clave)) {
+      throw bloqueado(403, { detail: 'bloqueado', codigo: 'modulo_bloqueado' });
+    }
+    const { clave } = completo;
+    const nota = calificar(completo.quiz, entrada);
+    const mejor = Math.max(nota.puntaje, this.mejores.get(clave) ?? 0);
+    this.mejores.set(clave, mejor);
+    if (nota.aprobado) {
+      this.aprobados.add(clave);
+    }
+    if (this.cumplida(clave)) {
+      this.hechas.add(clave);
+    }
+    return {
+      id: ++this.contadorIntentos,
+      puntaje: nota.puntaje,
+      aprobado: nota.aprobado,
+      umbral: completo.quiz.quiz.umbral,
+      mejor_puntaje: mejor,
+      preguntas: nota.preguntas,
+      progreso: this.progreso(completo.quiz.quiz.leccion_id, clave),
+    };
+  }
+
+  /** Lo que la API ve de un quiz y no manda: sirve para que las pruebas elijan bien. */
+  correctasDe(quizId: number): QuizCompleto['correctas'] {
+    return this.quizCompleto(quizId, 'es').quiz.correctas;
+  }
+
+  private quizCompleto(quizId: number, idioma: string): { clave: string; quiz: QuizCompleto } {
+    const clave = claveDeQuiz(quizId);
+    if (!clave || this.sinQuiz.has(clave)) {
+      throw bloqueado(404, { codigo: 'no_encontrado' });
+    }
+    return {
+      clave,
+      quiz: armarQuiz({
+        clave,
+        quizId,
+        leccionId: idDe(clave),
+        preguntas: preguntasDeEjemplo(clave),
+        idioma,
+        mejor: this.mejores.get(clave) ?? null,
+        sinIngles: this.quizSinIngles.has(clave),
+        idDe,
+      }),
+    };
+  }
+
+  private moduloBloqueado(clave: string): boolean {
+    const modulo = this.armar().modulos.find((m) => m.slug === clave.split('/')[0]);
+    return modulo?.estado === 'bloqueado';
+  }
+
+  /** La regla de la API: video subido visto y quiz aprobado, si los tiene. */
+  private cumplida(clave: string): boolean {
+    const quiz = preguntasDeEjemplo(clave) > 0 && !this.sinQuiz.has(clave);
+    return (
+      (!this.conVideo.has(clave) || this.vistos.has(clave)) && (!quiz || this.aprobados.has(clave))
+    );
+  }
+
+  private progreso(leccionId: number, clave: string): ProgresoLeccionApi {
+    return progresoDe(leccionId, this.completas().includes(clave), {
+      quizAprobado: this.aprobados.has(clave),
+      videoCompleto: this.vistos.has(clave),
+    });
   }
 
   private completas(): string[] {

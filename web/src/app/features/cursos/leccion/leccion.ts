@@ -25,7 +25,12 @@ import { Icono } from '../../../shared/icono';
 import type { Miga } from '../../../shared/migas';
 import { Migas } from '../../../shared/migas';
 import { PaginaPendiente } from '../../../shared/pagina-pendiente';
-import type { LeccionApi, LeccionRefApi, ProgresoLeccionApi } from '../datos/api';
+import type {
+  IntentoResultadoApi,
+  LeccionApi,
+  LeccionRefApi,
+  ProgresoLeccionApi,
+} from '../datos/api';
 import { ContenidoApi } from '../datos/api';
 import { CatalogoService } from '../datos/catalogo';
 import { Bloqueado } from '../modulo/bloqueado';
@@ -33,6 +38,7 @@ import { Bloques } from './bloques';
 import { ClusterElegido } from './cluster-elegido';
 import { Codigo } from './codigo';
 import { analizarMarkdown, bloqueDeCodigo } from './markdown';
+import { Quiz } from './quiz';
 import { Videos } from './videos';
 
 interface Pedido {
@@ -70,6 +76,7 @@ const mismoPedido = (a: Pedido | undefined, b: Pedido | undefined) =>
     Bloqueado,
     Bloques,
     Codigo,
+    Quiz,
     Videos,
   ],
   templateUrl: './leccion.html',
@@ -173,13 +180,44 @@ export class Leccion {
   protected readonly anterior = computed(() => this.vecina(this.cuerpo()?.anterior));
   protected readonly siguiente = computed(() => this.vecina(this.cuerpo()?.siguiente));
 
-  /**
-   * Se marca a mano si no tiene un video ya subido (decisión del 4-nov); con
-   * video, se completa al ver el 90 % (F-05). El quiz todavía no la bloquea.
-   */
-  protected readonly puedeMarcar = computed(() => {
+  /** Falta ver el 90 % de un video ya subido (F-05); si no se ha subido, no cuenta. */
+  protected readonly faltaVideo = computed(() => {
     const cuerpo = this.cuerpo();
-    return !!cuerpo && !cuerpo.videos.some((v) => v.video.disponible);
+    return (
+      !!cuerpo && cuerpo.videos.some((v) => v.video.disponible) && !cuerpo.progreso.video_completo
+    );
+  });
+  /** Falta aprobar el quiz (B-06). */
+  protected readonly faltaQuiz = computed(() => {
+    const cuerpo = this.cuerpo();
+    return !!cuerpo && cuerpo.quiz_id !== null && !cuerpo.progreso.quiz_aprobado;
+  });
+  /**
+   * Se marca a mano solo si no falta nada que la plataforma mida sola: la regla
+   * de la API (video subido visto y quiz aprobado, si los tiene). Con video o
+   * con quiz se completa al cumplirlo, y el botón daría 409.
+   */
+  protected readonly puedeMarcar = computed(
+    () => !!this.cuerpo() && !this.faltaVideo() && !this.faltaQuiz(),
+  );
+  /** Qué falta para completarla, en una frase (clave de traducción). */
+  protected readonly comoCompletar = computed(() => {
+    const cuerpo = this.cuerpo();
+    if (!cuerpo) {
+      return null;
+    }
+    const conQuiz = cuerpo.quiz_id !== null;
+    const conVideo = cuerpo.videos.some((v) => v.video.disponible);
+    if (this.faltaVideo() && this.faltaQuiz()) {
+      return 'leccion.completar.conVideoYQuiz';
+    }
+    if (this.faltaVideo()) {
+      return conQuiz ? 'leccion.completar.faltaVideo' : 'leccion.completar.conVideo';
+    }
+    if (this.faltaQuiz()) {
+      return conVideo ? 'leccion.completar.faltaQuiz' : 'leccion.completar.conQuiz';
+    }
+    return null;
   });
   protected readonly guardando = signal(false);
   /** Clave del mensaje de error al completar. */
@@ -251,7 +289,32 @@ export class Leccion {
     this.respuesta.value.update((l) => (l?.id === progreso.leccion_id ? { ...l, progreso } : l));
     if (progreso.completada && !antes.progreso.completada) {
       this.anuncio.set('leccion.completar.alVer');
+    } else if (progreso.video_completo && !antes.progreso.video_completo && !progreso.completada) {
+      // Vio el 90 % pero falta el quiz (B-06): se dice, porque la lección no se completó.
+      this.anuncio.set('leccion.completar.faltaQuiz');
     }
+  }
+
+  /**
+   * Lo que respondió la API al calificar el quiz (F-06): el avance de la
+   * lección. Si con este intento queda completa, se pone al día el catálogo
+   * (avance, barra lateral y desbloqueo del módulo siguiente).
+   */
+  protected alCalificar(resultado: IntentoResultadoApi): void {
+    const progreso = resultado.progreso;
+    const antes = this.cuerpo();
+    if (antes?.id !== progreso.leccion_id) {
+      return;
+    }
+    this.respuesta.value.update((l) => (l?.id === progreso.leccion_id ? { ...l, progreso } : l));
+    if (progreso.completada && !antes.progreso.completada) {
+      void this.catalogo.recargar();
+    }
+  }
+
+  /** El quiz dijo que el módulo está bloqueado (el catálogo estaba viejo). */
+  protected alBloquearseElQuiz(): void {
+    void this.catalogo.recargar();
   }
 
   private vecina(ref: LeccionRefApi | null | undefined) {

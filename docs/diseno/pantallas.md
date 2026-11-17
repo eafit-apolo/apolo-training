@@ -102,7 +102,7 @@ lección:** el texto con sus pestañas Apolo II / Apolo III (abre la del
 perfil), los bloques de comandos con «Copiar» (las salidas dicen «salida» y no
 se copian), el espacio del video («Video en preparación» mientras no se suba;
 en la lección de VPN, uno por sistema operativo con el del navegador marcado),
-«Verifica tu práctica», el espacio del quiz, «Marcar como completada» y
+«Verifica tu práctica», el quiz (F-06), «Marcar como completada» y
 anterior / siguiente («Siguiente» hacia un módulo bloqueado no es enlace y dice
 qué terminar). En inglés, una lección sin traducir sale en español con un
 aviso. Las capturas usan la lección de muestra de las pruebas
@@ -110,11 +110,44 @@ aviso. Las capturas usan la lección de muestra de las pruebas
 
 - El Markdown no acepta HTML: si una lección lo trae, se ve como texto. Angular
   sanitiza además todo lo que pinta.
-- «Marcar como completada» sale si la lección no tiene un video ya subido; con
-  video, se completa al ver el 90 % (F-05). Con quiz, se completa al aprobarlo
-  (B-06); hasta que la F-06 traiga el quiz a la web, el botón todavía sale en
-  esas lecciones y la API responde 409. Un instructor puede leer un módulo
-  bloqueado, pero no completarlo.
+- «Marcar como completada» sale solo si no falta nada que la plataforma mida
+  sola: la misma regla de la API (video subido visto al 90 % y quiz aprobado,
+  si la lección los tiene). Con video o con quiz no hay botón (daría 409
+  `requisitos_pendientes`): en su lugar una frase dice qué falta (ver el 90 %,
+  aprobar el quiz o las dos cosas) y la lección se completa al cumplirlo. Un
+  instructor puede leer un módulo bloqueado, pero no completarlo.
+
+**Desde la F-06, el quiz vive en la lección** (debajo de «Verifica tu
+práctica», sobre `GET /api/quizzes/{id}` y `POST /api/quizzes/{id}/intentos`).
+Las capturas `capturas/f06-*.png` salen de la API real con el contenido de
+`m00/bienvenida` y `m01/ssh`: el quiz en celular (360 px), el resultado en
+celular y en escritorio, y la vista de solo lectura de una instructora:
+
+- Todas las preguntas en una página. Cada una es un grupo con su número
+  («Pregunta 2 de 8»), el enunciado (Markdown corto con código en línea y
+  bloques) y una pista: «Elige una respuesta» (radios) o «Marca todas las que
+  apliquen» (casillas). Las opciones son texto con Markdown en línea, sanitizado.
+- Se aprueba con 80 %. La calificación es exacta: en una pregunta de varias
+  respuestas, faltar una o marcar una de más la deja incorrecta (sin parciales).
+- «Enviar respuestas» no se deshabilita: si faltan preguntas, dice cuáles y lleva
+  el foco a la primera sin contestar; no se manda nada hasta que no falte ninguna.
+- El resultado sale **arriba** con el foco (`role="status"`): aprobó o no, aciertos
+  y porcentaje, el mejor puntaje y, si aprobó pero falta el video, qué falta
+  para completar. Cada pregunta dice «Correcta» o «Incorrecta» (ícono y texto, no
+  solo color) con su explicación; **nunca se revela la opción correcta**, para
+  que reintentar sirva.
+- Con el resultado a la vista las opciones quedan bloqueadas; «Intentar de nuevo»
+  las reabre conservando lo marcado. Los intentos son ilimitados y el mejor
+  puntaje no baja ni descompleta la lección.
+- Un quiz ya aprobado dice «Ya aprobaste este quiz» y se puede repetir. En inglés,
+  un quiz sin traducir sale en español con aviso. Si se cambia el idioma después
+  de calificar, las explicaciones del resultado siguen en el idioma anterior hasta
+  el próximo envío.
+- Un instructor o administrador en un módulo bloqueado lee el quiz pero no lo
+  envía (la API exige el módulo abierto): se ve de solo lectura y lo dice.
+- Errores: si no carga, «No pudimos cargar el quiz · Reintentar» (el resto de la
+  lección sigue a la vista); si no califica, mensaje y lo marcado se conserva; si
+  la API dice `modulo_bloqueado`, se avisa y se pone al día el catálogo.
 
 **Desde la F-05, las capturas `capturas/f05-*.png` muestran el reproductor:**
 los controles del navegador (teclado, pantalla completa y celular funcionan
@@ -144,8 +177,8 @@ capturas usan un video de prueba de 2 minutos en `m00/bienvenida`.
    mostrarse (F-04).
 5. **Terminal quemada.** Ya no va: se quitó con el mapa del curso (A-12) y la
    práctica se hace en la VM de práctica (bloque B).
-6. **Quiz** calificado en el servidor. Las opciones llegan sin la marca de la
-   correcta.
+6. **Quiz** calificado en el servidor (F-06). Las opciones llegan sin la marca de
+   la correcta.
 7. **Resultado** con puntaje y la explicación de cada pregunta, sin revelar la
    opción correcta, para que reintentar sirva.
 8. **Anterior y siguiente** dentro del curso. «Siguiente» respeta el bloqueo

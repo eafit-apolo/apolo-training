@@ -1,6 +1,6 @@
 import { MUESTRA_ES } from '../../../../testing/leccion-muestra';
 import type { Bloque, BloqueCodigo, BloqueHtml, BloqueLista, BloquePestanas } from './markdown';
-import { analizarMarkdown, bloqueDeCodigo, urlSegura } from './markdown';
+import { analizarEnLinea, analizarMarkdown, bloqueDeCodigo, urlSegura } from './markdown';
 
 function deTipo<T extends Bloque['tipo']>(bloques: readonly Bloque[], tipo: T) {
   return bloques.filter((b): b is Extract<Bloque, { tipo: T }> => b.tipo === tipo);
@@ -141,5 +141,32 @@ describe('Markdown sin HTML (DoD 3, primera capa)', () => {
     ['vbscript:x', null],
   ])('urlSegura(%j) = %j', (url, esperada) => {
     expect(urlSegura(url)).toBe(esperada);
+  });
+});
+
+describe('analizarEnLinea (F-06: opciones y explicaciones de los quizzes)', () => {
+  it('convierte código, énfasis y enlaces, sin párrafos', () => {
+    expect(analizarEnLinea('Usa `sbatch` con **cuidado**, _siempre_')).toBe(
+      'Usa <code>sbatch</code> con <strong>cuidado</strong>, <em>siempre</em>',
+    );
+    expect(analizarEnLinea('Mira [la guía](https://apolo-docs.readthedocs.io/)')).toBe(
+      'Mira <a href="https://apolo-docs.readthedocs.io/" target="_blank" rel="noopener noreferrer">la guía</a>',
+    );
+  });
+
+  it('el HTML crudo sale como texto', () => {
+    expect(analizarEnLinea('<b>HTML</b> y <img src=x onerror=alert(1)>')).toBe(
+      '&lt;b&gt;HTML&lt;/b&gt; y &lt;img src=x onerror=alert(1)&gt;',
+    );
+  });
+
+  it('los enlaces peligrosos dejan solo el texto', () => {
+    expect(analizarEnLinea('[clic](javascript:alert(1))')).toBe('clic');
+    expect(analizarEnLinea('[clic](java\nscript:alert(1))')).not.toContain('<a');
+  });
+
+  it('el texto sin Markdown no cambia y los símbolos se escapan', () => {
+    expect(analizarEnLinea('Elegir -p learning')).toBe('Elegir -p learning');
+    expect(analizarEnLinea('a < b & c')).toBe('a &lt; b &amp; c');
   });
 });
