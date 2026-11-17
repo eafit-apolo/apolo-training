@@ -1,0 +1,31 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/deploy
+
+# Versión a desplegar: X.Y.Z completo, la etiqueta que publica la CI al empujar
+# vX.Y.Z. Nunca X.Y, latest ni main, que se mueven. Sin valor por defecto: se
+# pasa siempre con -e deploy_tag=0.2.0.
+deploy_tag: ""
+# false al revertir a una versión que no conoce las migraciones de la actual:
+# su alembic no encuentra la revisión de la base y el despliegue se detiene.
+deploy_migrar: true
+
+# Carpeta del proyecto en la 117: compose.yaml, nginx.conf y .env (TAG).
+deploy_raiz: /srv/apolo-training
+# deploy/ del repo, de donde salen compose.yaml y nginx.conf.
+deploy_fuentes: "{{ playbook_dir }}/../deploy"
+# Imágenes que publica la CI con la etiqueta de la versión. proxy y db no van:
+# son imágenes oficiales con versión fija en el compose.
+deploy_registro: ghcr.io/eafit-apolo
+deploy_imagenes:
+  - apolo-training-api
+  - apolo-training-web
+  - apolo-training-terminal
+# pg_dump antes de migrar a otra versión. La carpeta la crea el rol docker
+# (root, 0700).
+deploy_respaldos: "{{ deploy_raiz }}/backups"
+
+# /api/health de la plataforma. Se consulta desde el equipo del admin (por la
+# VPN, como un usuario) hasta que reporte la versión desplegada.
+deploy_url_salud: ""
+deploy_salud_intentos: 24 # cada 5 s: 2 minutos

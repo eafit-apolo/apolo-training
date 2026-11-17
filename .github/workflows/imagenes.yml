@@ -10,6 +10,7 @@ on:
       - "api/**"
       - "web/**"
       - "terminal/**"
+      - "content/**" # va dentro de la imagen de la API (W-06)
       - ".github/workflows/imagenes.yml"
   push:
     branches: [main]
@@ -20,6 +21,7 @@ on:
       - "api/**"
       - "web/**"
       - "terminal/**"
+      - "content/**"
       - ".github/workflows/imagenes.yml"
   # Para republicar a mano (por ejemplo, tras cambiar IMAGE_PREFIX en la A-16).
   # Solo publica si se lanza sobre main o sobre un tag vX.Y.Z.
@@ -55,6 +57,8 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.imagen }}
+          # content/ lo usa solo el Dockerfile de la API; los otros lo ignoran.
+          build-contexts: content=content
           platforms: linux/amd64
           push: false
           build-args: VERSION=pr-${{ github.event.pull_request.number }}
@@ -145,6 +149,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.imagen }}
+          build-contexts: content=content
           platforms: linux/amd64
           push: true
           build-args: VERSION=${{ steps.version.outputs.valor }}

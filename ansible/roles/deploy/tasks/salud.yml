@@ -1,0 +1,28 @@
+# Desde el equipo del admin y no desde la 117: pasa por la VPN, el perimetral,
+# DOCKER-USER y el proxy, igual que un usuario. Reintenta mientras la API
+# arranca (502) o todavía responde la versión anterior.
+- name: /api/health con la versión nueva
+  ansible.builtin.uri:
+    url: "{{ deploy_url_salud }}"
+    return_content: true
+  register: deploy_salud
+  until:
+    - deploy_salud.json is defined
+    - deploy_salud.json.estado == "ok"
+    - deploy_salud.json.version == deploy_tag
+  retries: "{{ deploy_salud_intentos }}"
+  delay: 5
+  delegate_to: localhost
+  become: false
+
+- name: Resumen
+  ansible.builtin.debug:
+    msg:
+      - "Desplegada {{ deploy_tag }} (antes: {{ deploy_tag_anterior or 'sin TAG' }})."
+      - "Para revertir: ansible-playbook deploy.yml -e deploy_tag={{ deploy_tag_anterior or 'X.Y.Z' }} -e deploy_migrar=false"
+  when: deploy_tag != deploy_tag_anterior
+
+- name: Resumen (misma versión)
+  ansible.builtin.debug:
+    msg: "Ya estaba en {{ deploy_tag }}: no cambió la versión."
+  when: deploy_tag == deploy_tag_anterior

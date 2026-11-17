@@ -1,0 +1,10 @@
+# pg_dump en formato custom (-Fc): comprimido y se restaura con pg_restore.
+# shell y no command por la redirección al archivo; -T porque no hay terminal.
+# Los respaldos se acumulan en backups/: borrar los viejos a mano.
+- name: pg_dump antes de cambiar de versión
+  ansible.builtin.shell:
+    cmd: >-
+      docker compose exec -T db pg_dump -U training -Fc training
+      > {{ deploy_respaldos }}/antes-de-{{ deploy_tag }}-{{ ansible_facts.date_time.iso8601_basic_short }}.dump
+    chdir: "{{ deploy_raiz }}"
+  changed_when: true

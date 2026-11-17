@@ -65,3 +65,7 @@ docker_known_hosts: >-
 # deploy/nginx.conf; el correo, el de la cuenta de la CA (en el Vault).
 certbot_dominio: training.apolo.eafit.edu.co
 certbot_correo: "{{ vault_certbot_correo }}"
+
+# Despliegue (rol deploy, deploy.yml): el playbook espera a que esta URL
+# reporte la versión nueva.
+deploy_url_salud: "https://{{ certbot_dominio }}/api/health"

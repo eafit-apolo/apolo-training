@@ -1,5 +1,7 @@
 # Imagen de la API: Python 3.12, usuario sin privilegios, gunicorn con
-# workers de uvicorn. Se construye desde api/: docker build -t api api/
+# workers de uvicorn. Se construye desde api/, con content/ del repo como
+# contexto aparte (la imagen final lo lleva para el importador):
+#   docker build --build-context content=content -t api api/
 FROM python:3.12-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -46,6 +48,10 @@ COPY --from=dependencias /opt/venv /opt/venv
 COPY alembic.ini ./
 COPY migrations ./migrations
 COPY app ./app
+# El curso de la misma versión que el código (W-06): python -m app.importar lo
+# lee de /content (content/ dos niveles arriba de app/importar.py) sin montar
+# nada. En desarrollo, compose.dev.yaml monta encima la copia editable.
+COPY --from=content . /content
 USER api
 EXPOSE 8000
 
