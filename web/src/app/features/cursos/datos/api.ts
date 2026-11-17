@@ -137,6 +137,66 @@ export interface LeccionApi {
   readonly progreso: ProgresoLeccionApi;
 }
 
+export interface OpcionQuizApi {
+  readonly id: number;
+  readonly orden: number;
+  /** Markdown en una línea (código entre comillas inversas, por ejemplo). */
+  readonly texto: string;
+}
+
+export interface PreguntaQuizApi {
+  readonly id: number;
+  readonly orden: number;
+  /** Markdown corto. */
+  readonly enunciado: string;
+  /** `true` si se pueden marcar varias opciones. */
+  readonly multiple: boolean;
+  readonly opciones: readonly OpcionQuizApi[];
+}
+
+/** Esquema `Quiz` (B-06): sin la marca de la opción correcta. */
+export interface QuizApi {
+  readonly id: number;
+  readonly leccion_id: number;
+  /** Parte de las preguntas que hay que acertar (0.8 = 80 %). */
+  readonly umbral: number;
+  readonly es_final: boolean;
+  /** No hay traducción: el quiz viene en español. */
+  readonly fallback: boolean;
+  /** De 0 a 100; `null` si nunca lo intentó. */
+  readonly mejor_puntaje: number | null;
+  readonly preguntas: readonly PreguntaQuizApi[];
+}
+
+export interface RespuestaPreguntaApi {
+  readonly pregunta_id: number;
+  readonly opciones: readonly number[];
+}
+
+/** Esquema `IntentoEntrada`: una respuesta por cada pregunta del quiz. */
+export interface IntentoEntradaApi {
+  readonly respuestas: readonly RespuestaPreguntaApi[];
+}
+
+export interface ResultadoPreguntaApi {
+  readonly pregunta_id: number;
+  readonly correcta: boolean;
+  readonly explicacion: string;
+}
+
+/** Esquema `IntentoResultado`: la API nunca dice cuál era la opción correcta. */
+export interface IntentoResultadoApi {
+  readonly id: number;
+  /** Porcentaje de preguntas acertadas, de 0 a 100. */
+  readonly puntaje: number;
+  readonly aprobado: boolean;
+  readonly umbral: number;
+  readonly mejor_puntaje: number;
+  readonly preguntas: readonly ResultadoPreguntaApi[];
+  /** El avance de la lección después del intento (se completa con el último requisito). */
+  readonly progreso: ProgresoLeccionApi;
+}
+
 /**
  * Las rutas de lectura de contenido (`GET /api/cursos…`). Va aparte de
  * `CatalogoService` para que las pruebas la reemplacen por datos de ejemplo.
@@ -209,6 +269,34 @@ export class ContenidoApi {
   reportarVideo(entrada: ProgresoVideoEntradaApi, alSalir = false): Promise<ProgresoLeccionApi> {
     return firstValueFrom(
       this.http.post<ProgresoLeccionApi>(`${API}/progreso/video`, entrada, { keepalive: alSalir }),
+    );
+  }
+
+  /**
+   * `GET /api/quizzes/{id}` (B-06): las preguntas sin la respuesta correcta. Se
+   * lee como la lección: un estudiante en un módulo bloqueado recibe 403
+   * `modulo_bloqueado`.
+   */
+  quiz(quizId: number, idioma: Idioma): Promise<QuizApi> {
+    return firstValueFrom(
+      this.http.get<QuizApi>(`${API}/quizzes/${quizId}`, { params: { lang: idioma } }),
+    );
+  }
+
+  /**
+   * `POST /api/quizzes/{id}/intentos` (B-06; el interceptor pone el CSRF). La
+   * API califica; 422 `respuestas_invalidas` si falta una pregunta, 403
+   * `modulo_bloqueado` si el módulo no está abierto (también para instructores).
+   */
+  enviarIntento(
+    quizId: number,
+    entrada: IntentoEntradaApi,
+    idioma: Idioma,
+  ): Promise<IntentoResultadoApi> {
+    return firstValueFrom(
+      this.http.post<IntentoResultadoApi>(`${API}/quizzes/${quizId}/intentos`, entrada, {
+        params: { lang: idioma },
+      }),
     );
   }
 }

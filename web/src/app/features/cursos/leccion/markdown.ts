@@ -243,3 +243,13 @@ function panel(token: TokenPestana): Panel {
 export function analizarMarkdown(texto: string): Bloque[] {
   return convertir(md.Lexer.lex(texto, md.defaults));
 }
+
+/**
+ * Markdown en una línea (énfasis, código, enlaces) como HTML, para las opciones
+ * de un quiz. Es el mismo `Marked` que el de las lecciones: el HTML crudo sale
+ * como texto y los enlaces peligrosos no son enlaces. Para `[innerHTML]`, que
+ * además lo sanitiza.
+ */
+export function analizarEnLinea(texto: string): string {
+  return md.Parser.parseInline(md.Lexer.lexInline(texto, md.defaults), md.defaults);
+}
