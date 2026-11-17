@@ -1,0 +1,82 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/deploy
+#
+# Despliega o revierte la plataforma de la 117 a la versión deploy_tag. Lo que
+# puede fallar sin tocar nada (versión, imágenes) va primero, y las migraciones
+# antes de levantar la API nueva.
+- name: Verificar las variables
+  ansible.builtin.assert:
+    that:
+      - deploy_tag is match('^[0-9]+\.[0-9]+\.[0-9]+$')
+      - deploy_url_salud | length > 0
+    fail_msg: >-
+      deploy_tag debe ser X.Y.Z completo (-e deploy_tag=0.2.0), no
+      '{{ deploy_tag }}'; deploy_url_salud va en group_vars/web.
+
+# Si la etiqueta no existe en GHCR falla aquí, antes de cambiar nada.
+# not_present: X.Y.Z no se mueve, así que si la imagen ya está no la vuelve a
+# pedir (la segunda corrida queda en ok y revertir no necesita Internet).
+- name: Imágenes de la versión
+  community.docker.docker_image_pull:
+    name: "{{ deploy_registro }}/{{ item }}"
+    tag: "{{ deploy_tag }}"
+    pull: not_present
+  loop: "{{ deploy_imagenes }}"
+
+- name: Versión actual
+  ansible.builtin.import_tasks: anterior.yml
+
+# Solo si cambia la versión y va a migrar: la red si una migración sale mal.
+- name: Respaldo de la base
+  ansible.builtin.import_tasks: respaldo.yml
+  when:
+    - deploy_migrar | bool
+    - deploy_tag != deploy_tag_anterior
+
+- name: compose.yaml, nginx.conf y TAG
+  ansible.builtin.import_tasks: archivos.yml
+
+# Con la imagen nueva y antes de levantarla. Si la base está en una revisión
+# que esta versión no conoce (revertir sin deploy_migrar=false), alembic falla
+# y no se levanta nada.
+- name: Migraciones
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - run
+      - --rm
+      - --no-TTY
+      - api
+      - alembic
+      - upgrade
+      - head
+    chdir: "{{ deploy_raiz }}"
+  register: deploy_alembic
+  # alembic escribe en stderr una línea «Running upgrade» por migración aplicada.
+  changed_when: "'Running upgrade' in deploy_alembic.stderr"
+  when: deploy_migrar | bool
+
+# up -d: recrea solo los servicios cuya imagen o configuración cambió, y
+# espera a que todos estén healthy.
+- name: Plataforma arriba
+  community.docker.docker_compose_v2:
+    project_src: "{{ deploy_raiz }}"
+    state: present
+    pull: never
+    wait: true
+    wait_timeout: 180
+
+# El proxy monta el archivo, no la carpeta: tras reemplazarlo sigue viendo el
+# viejo hasta reiniciar (ver «Cambiar nginx.conf» en deploy/README.md).
+- name: Reiniciar el proxy (cambió nginx.conf)
+  community.docker.docker_compose_v2:
+    project_src: "{{ deploy_raiz }}"
+    services:
+      - proxy
+    state: restarted
+  when: deploy_nginx is changed
+
+- name: Verificación
+  ansible.builtin.import_tasks: salud.yml

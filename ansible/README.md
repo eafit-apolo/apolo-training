@@ -9,14 +9,17 @@ en Ansible Vault, nunca en claro.
 | `group_vars/all/vault.yml` | Admins, llaves, IPs y contraseñas de sudo y de MariaDB (**cifrado**)                |
 | `group_vars/*/vars.yml`    | Variables; solo referencian las del Vault                                           |
 | `site.yml`                 | Qué rol se aplica a qué grupo                                                       |
+| `deploy.yml`               | Despliega o revierte una versión de la plataforma (117)                             |
 | `roles/base`               | Admins solo con llave y sshd sin root (contraseña solo para `apolo2` y `apolo3`)    |
 | `roles/slurm`              | Slurm de un nodo: munge, MariaDB, slurmdbd, slurmctld y slurmd con cgroups          |
 | `roles/docker`             | Docker Engine y Compose de la plataforma (117), DOCKER-USER y `/srv/apolo-training` |
 | `roles/certbot`            | Certificado TLS de Let's Encrypt de la plataforma y su renovación automática        |
 | `roles/profiles`           | Perfil `apolo2`/`apolo3` al entrar a la 116: variable, prompt y bienvenida (P-03)   |
+| `roles/deploy`             | Versión `X.Y.Z` de la plataforma: imágenes, migraciones, `up` y verificación        |
 
 `site.yml` aplica `base`, `slurm`, `lmod` y `profiles` al grupo `practica`, y
-`base`, `docker` y `certbot` al grupo `web` (la 117).
+`base`, `docker` y `certbot` al grupo `web` (la 117). `deploy.yml` aplica
+`deploy` al grupo `web` y se corre en cada cambio de versión.
 
 ## Requisitos
 
@@ -244,4 +247,47 @@ sudo certbot certificates                 # VALID: N days
 systemctl list-timers certbot-renew.timer # próxima ejecución
 sudo certbot renew --dry-run              # all simulated renewals succeeded
 sudo nft list chain inet apolo_training salida   # S5 con counter
+```
+
+### Despliegue (117)
+
+`deploy.yml` deja la plataforma en la versión `deploy_tag`, una etiqueta
+`X.Y.Z` que la CI publica en GHCR al empujar el tag `vX.Y.Z`. Las imágenes son
+públicas: la 117 no guarda credenciales de GHCR.
+
+```bash
+ansible-playbook deploy.yml -e deploy_tag=0.2.0                       # desplegar
+ansible-playbook deploy.yml -e deploy_tag=0.1.0 -e deploy_migrar=false # revertir
+```
+
+| Paso             | Qué hace                                                                      | Si falla                                         |
+| ---------------- | ----------------------------------------------------------------------------- | ------------------------------------------------ |
+| Versión          | `deploy_tag` tiene que ser `X.Y.Z`; `0.2`, `latest` o `main` no pasan         | No toca nada                                     |
+| Imágenes         | Baja `api`, `web` y `terminal` con esa etiqueta, si no están ya               | No toca nada (¿existe el tag en GHCR?)           |
+| Versión anterior | Lee el `TAG` del `.env`: es a la que se revierte                              | —                                                |
+| Respaldo         | `pg_dump` en `backups/antes-de-X.Y.Z-<fecha>.dump`, si cambia de versión      | No toca nada                                     |
+| Archivos         | `compose.yaml` y `nginx.conf` desde `deploy/`; solo la línea `TAG` del `.env` | Si `nginx -t` falla, el proxy sigue con el viejo |
+| Migraciones      | `docker compose run --rm api alembic upgrade head`, con la imagen nueva       | Nada se levanta; la versión que corre sigue      |
+| Arriba           | `up -d --wait`; si cambió `nginx.conf`, reinicia el proxy                     | `docker compose ps` y `logs`                     |
+| Verificación     | `/api/health` desde tu equipo (por la VPN) hasta que diga la versión nueva    | 2 minutos de reintentos                          |
+
+- **Revertir** es lo mismo con la etiqueta anterior (el resumen del final la
+  muestra). Va con `deploy_migrar=false` porque la versión vieja no conoce las
+  migraciones de la nueva: su `alembic` fallaría. Por eso las migraciones solo
+  agregan (columnas o tablas nuevas, nada que la versión anterior use se borra
+  ni se renombra en la misma versión).
+- Si una migración no se puede dejar atrás así, antes de revertir se restaura
+  el respaldo:
+  `docker compose exec -T db pg_restore -U training -d training --clean < backups/<archivo>.dump`.
+- La segunda corrida con la misma versión termina en `changed=0`: no baja
+  imágenes, no respalda y `alembic` no aplica nada.
+- Los respaldos se acumulan en `backups/` (root, 0700); borrar los viejos a mano.
+
+Verificación en la 117 y desde la VPN:
+
+```bash
+cd /srv/apolo-training
+grep TAG .env                     # TAG=0.2.0
+docker compose ps                 # api, web y terminal con :0.2.0, todos healthy
+curl -s https://training.apolo.eafit.edu.co/api/health   # "version":"0.2.0"
 ```

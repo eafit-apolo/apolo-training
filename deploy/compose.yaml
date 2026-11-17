@@ -75,7 +75,7 @@ services:
   terminal:
     # Imagen de terminal/Dockerfile que publica la CI (Imágenes), con la misma
     # etiqueta (TAG) que la API y la web.
-    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-terminal:${TAG:-main}
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-terminal:${TAG:?falta TAG en .env}
     environment:
       TERMINAL_ORIGEN: https://training.apolo.eafit.edu.co
       TERMINAL_API_URL: http://api:8000
@@ -98,7 +98,7 @@ services:
     restart: unless-stopped
   web:
     # Build de Angular servido por nginx sin root (web/Dockerfile), en el 8080.
-    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-web:${TAG:-main}
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-web:${TAG:?falta TAG en .env}
     # Sin ports: solo el proxy le llega, por la red interna.
     networks:
       - interna
@@ -112,7 +112,7 @@ services:
     restart: unless-stopped
   api:
     # Imagen de api/Dockerfile que publica la CI: gunicorn con el usuario api (uid 10001).
-    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-api:${TAG:-main}
+    image: ${IMAGE_PREFIX:-ghcr.io/eafit-apolo}/apolo-training-api:${TAG:?falta TAG en .env}
     environment:
       # Solo el proxy le llega (red interna): confía en sus X-Forwarded-*, así
       # la auditoría guarda la IP del usuario y no la del proxy.

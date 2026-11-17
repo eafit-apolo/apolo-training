@@ -302,9 +302,10 @@ certificado TLS (ver `ansible/README.md`).
 - **Solo el proxy publica puertos.** El 443 lo limita a la VPN el firewall
   perimetral (y DOCKER-USER); el 80 queda abierto a Internet para Let's
   Encrypt y responde 404 a todo lo demás.
-- **Imágenes** de `ghcr.io/eafit-apolo` con la etiqueta `TAG` (`main` por
-  defecto); `IMAGE_PREFIX` y `TAG` se pueden fijar en el `.env` de
-  `/srv/apolo-training`.
+- **Imágenes** de `ghcr.io/eafit-apolo` con la etiqueta `TAG` del `.env` de
+  `/srv/apolo-training`, siempre `X.Y.Z` completo (ver `.env.example`). Sin
+  `TAG`, Compose no arranca. La pone `ansible/deploy.yml` («Despliegue (117)»
+  en `ansible/README.md`); `IMAGE_PREFIX` también se puede fijar ahí.
 - **Secretos fuera del repo**, como secrets de Compose en `secrets/`:
   `db_password` (root, 600), `api_database_url` y `api_secreto` (uid 10001,
   400; la API los lee de `/run/secrets`). Los escribe Ansible desde el Vault.
@@ -325,9 +326,11 @@ Como administrador de la 117 (en el grupo `docker`), desde una copia del repo:
 # 1. El host: secretos, known_hosts y un certificado provisional (desde ansible/).
 ansible-playbook site.yml --limit web
 # 2. La plataforma, con la base primero y las migraciones antes de la API.
+#    Después de esta vez, las versiones nuevas van con ansible/deploy.yml.
 sudo install -m 0644 deploy/compose.yaml /srv/apolo-training/compose.yaml
 sudo install -m 0644 deploy/nginx.conf /srv/apolo-training/nginx.conf
 cd /srv/apolo-training
+echo "TAG=0.1.0" | sudo tee .env   # la versión X.Y.Z a levantar
 docker compose pull
 docker compose up -d --wait db
 docker compose run --rm api alembic upgrade head

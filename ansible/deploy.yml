@@ -1,0 +1,8 @@
+# Cambia la versión de la plataforma; la configuración del host es site.yml.
+#   ansible-playbook deploy.yml -e deploy_tag=0.2.0
+#   ansible-playbook deploy.yml -e deploy_tag=0.1.0 -e deploy_migrar=false
+- name: Desplegar la plataforma (117)
+  hosts: web
+  become: true
+  roles:
+    - deploy

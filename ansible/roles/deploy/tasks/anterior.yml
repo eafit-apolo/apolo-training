@@ -1,0 +1,19 @@
+# Lee el TAG del .env antes de cambiarlo: es la versión a la que se revierte.
+# En una 117 sin .env (o sin TAG) queda vacío.
+- name: ¿Existe el .env?
+  ansible.builtin.stat:
+    path: "{{ deploy_raiz }}/.env"
+  register: deploy_env
+
+- name: Leer el .env
+  ansible.builtin.slurp:
+    src: "{{ deploy_raiz }}/.env"
+  register: deploy_env_contenido
+  when: deploy_env.stat.exists
+
+- name: Versión anterior
+  ansible.builtin.set_fact:
+    deploy_tag_anterior: >-
+      {{ (deploy_env_contenido.content | default('') | b64decode)
+         | regex_search('^TAG=(.*)$', '\1', multiline=True)
+         | default([''], true) | first | trim }}

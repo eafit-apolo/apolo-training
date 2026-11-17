@@ -1,0 +1,47 @@
+# Del repo a la 117: lo que corre es lo que está en deploy/, nada a mano.
+- name: compose.yaml
+  ansible.builtin.copy:
+    src: "{{ deploy_fuentes }}/compose.yaml"
+    dest: "{{ deploy_raiz }}/compose.yaml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: nginx.conf
+  ansible.builtin.copy:
+    src: "{{ deploy_fuentes }}/nginx.conf"
+    dest: "{{ deploy_raiz }}/nginx.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  register: deploy_nginx
+
+# Solo la línea TAG: el resto del .env (TERMINAL_SSH_HOST, por ejemplo) no se
+# toca. Compose lo lee de la carpeta del proyecto.
+- name: TAG en el .env
+  ansible.builtin.lineinfile:
+    path: "{{ deploy_raiz }}/.env"
+    regexp: "^TAG="
+    line: "TAG={{ deploy_tag }}"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+
+# En un contenedor aparte: el proxy que corre sigue con el archivo viejo, así
+# que si la prueba falla el despliegue se detiene sin cortar la plataforma.
+- name: Probar nginx.conf
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - run
+      - --rm
+      - --no-deps
+      - --no-TTY
+      - proxy
+      - nginx
+      - -t
+    chdir: "{{ deploy_raiz }}"
+  changed_when: false
+  when: deploy_nginx is changed
