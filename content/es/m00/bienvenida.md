@@ -2,36 +2,34 @@
 id: m00/bienvenida
 titulo: Bienvenida
 orden: 1
-duracion: 3
+duracion: 4
 video: m00-bienvenida
 quiz:
-  # ─── Pregunta 1: qué se hace en el login ───────────────────────────────────
+  # ─── Pregunta 1: por qué los cálculos esperan turno ────────────────────────
 
-  - clave: m00-login
+  - clave: m00-compartido
     enunciado: >-
-      Estás conectado al login de tu clúster. ¿Cuáles de estas cosas sí haces
-      ahí? Marca todas las que apliquen.
+      Apolo lo comparten cientos de investigadores. ¿Qué pasa con tu cálculo
+      cuando lo envías?
 
     opciones:
       # Correcta
-      - texto: Editar el script de un trabajo y enviarlo a Slurm.
-        correcta: true
-
-      # Correcta
-      - texto: Copiar tus datos a tu carpeta personal.
+      - texto: >-
+          Espera su turno en una cola y corre cuando hay computadores libres
+          con lo que pediste.
         correcta: true
 
       # Incorrecta
-      - texto: Correr tu simulación un momento, para ver si funciona.
+      - texto: Empieza de inmediato en el computador al que te conectaste.
 
       # Incorrecta
-      - texto: Entrenar un modelo de noche, cuando hay poca gente conectada.
+      - texto: Corre en tu propio computador, pero más rápido.
 
     explicacion: >-
-      El login es la entrada que comparten todos los usuarios del clúster: ahí
-      editas archivos, mueves datos y envías trabajos. Todo lo que calcula, así
-      sea una prueba corta o de noche, se envía a Slurm, que lo corre en un nodo
-      de cómputo. Un programa pesado en el login lo vuelve lento para todos.
+      En un clúster compartido nadie corre sus cálculos donde quiera: cada uno
+      dice qué necesita, el cálculo espera su turno en una cola y, cuando hay
+      espacio, corre en los computadores de Apolo. Así todos tienen su parte.
+      En los módulos 5 y 6 aprendes a hacerlo.
 
   # ─── Pregunta 2: qué hace falta para aprobar ───────────────────────────────
 
@@ -53,24 +51,22 @@ quiz:
         correcta: true
 
       # Incorrecta
-      - texto: Instalar en tu computador el software que vas a usar en Apolo.
+      - texto: Saber usar Linux antes de empezar.
 
     explicacion: >-
       Para aprobar se necesitan tres cosas: las lecciones completas, las siete
-      prácticas aprobadas con `apolo-training verificar` y la graduación, un
-      trabajo corto en tu clúster real que revisa un instructor. No hace falta
-      instalar nada en tu computador: el software ya está en Apolo y se carga
-      con módulos.
+      prácticas aprobadas y la graduación, un trabajo corto en tu clúster real
+      que revisa un instructor. No necesitas saber Linux ni haber usado un
+      clúster: el curso empieza desde cero.
 ---
 
 ## Objetivos
 
 Al terminar podrás:
 
-- Explicar qué es Apolo.
-- Saber si tu cuenta está en Apolo II o en Apolo III.
-- Distinguir qué se hace en el login y qué se envía a Slurm.
-- Saber qué necesitas para aprobar el curso.
+- Explicar qué es Apolo y para qué te sirve.
+- Entender por qué en un clúster compartido los cálculos esperan su turno.
+- Saber cómo funciona el curso y qué necesitas para aprobarlo.
 
 ## Resumen
 
@@ -78,71 +74,67 @@ Al terminar podrás:
 
 **Apolo** es el Centro de Computación Científica de la Universidad EAFIT. Pone
 a tu disposición computadores mucho más potentes que el tuyo, para cálculos que
-en tu equipo tardarían días o no cabrían en la memoria.
+en tu equipo tardarían días o no cabrían en la memoria: simulaciones, análisis
+de datos, entrenamiento de modelos.
 
 Esos computadores forman un **clúster**: muchos computadores, llamados
 **nodos**, conectados entre sí y compartidos por todos los usuarios.
 
-### 2. Apolo II y Apolo III
+### 2. Un clúster compartido
 
-Apolo tiene dos clústeres. Se usan igual: te conectas por SSH, cargas el
-software con módulos y envías tus trabajos a Slurm. Lo que cambia son algunos
-detalles:
+Como el clúster es de todos, nadie corre sus cálculos donde quiera. Cada uno
+dice qué necesita (cuántos núcleos, cuánta memoria, cuánto tiempo), su cálculo
+**espera su turno en una cola** y, cuando hay espacio, corre en los nodos de
+Apolo. Mientras tanto puedes apagar tu computador: el cálculo sigue.
 
-|                                | Apolo II                         | Apolo III                |
-| ------------------------------ | -------------------------------- | ------------------------ |
-| Dirección para conectarte      | `apolo.eafit.edu.co`             | `apolo-3.eafit.edu.co`   |
-| Espacio en tu carpeta personal | Hasta 200 GB, para todo tu grupo | Hasta 200 GB, solo tuyos |
-| Interfaz web (OnDemand)        | No tiene                         | Sí, fuera de este curso  |
+No necesitas saber cómo se hace todavía. Lo vas a aprender paso a paso en este
+curso.
 
-Tu cuenta está en uno solo de los dos. La pestaña de abajo se abre en el tuyo:
+### 3. Apolo II y Apolo III
+
+Apolo tiene dos clústeres, **Apolo II** y **Apolo III**. Se usan casi igual, y
+tu cuenta está en uno de los dos. No tienes que averiguar cuál: la plataforma
+ya lo sabe y te muestra lo de tu clúster. Cuando algo cambie entre los dos,
+verás pestañas como estas, y se abre la tuya:
 
 ::: apolo2
 
-**Tu clúster es Apolo II.** Te conectas a `apolo.eafit.edu.co`.
+**Tu clúster es Apolo II.**
 
 :::
 
 ::: apolo3
 
-**Tu clúster es Apolo III.** Te conectas a `apolo-3.eafit.edu.co`.
+**Tu clúster es Apolo III.**
 
 :::
 
-Cada vez que algo cambie entre los dos clústeres, verás pestañas como estas. Si
-la que se abrió no es la de tu clúster, escribe a `apolo@eafit.edu.co`.
+Si la que se abrió no es la de tu clúster, escribe a `apolo@eafit.edu.co`.
 
-### 3. El login no es para cómputo
+### 4. Qué vas a aprender
 
-Cuando te conectas a Apolo llegas al **nodo de login**. Piensa en él como la
-recepción de un edificio: todos entran por ahí, pero nadie se queda a trabajar
-en ella. Si corres algo pesado en el login, se vuelve lento para todos.
+| Módulo | Qué aprendes                                         |
+| ------ | ---------------------------------------------------- |
+| 1      | Conectarte a Apolo desde tu computador.              |
+| 2      | Moverte en la terminal de Linux.                     |
+| 3      | Subir y bajar tus archivos.                          |
+| 4      | Cargar el software que ya está instalado en Apolo.   |
+| 5      | Enviar tus cálculos a la cola y seguirlos.           |
+| 6      | Usar varios núcleos sin desperdiciar recursos.       |
+| 7      | Editar desde VS Code y graduarte en tu clúster real. |
+| 8      | Instalar tu propio software con conda.               |
+| 9      | Cómo pedir ayuda y el quiz final.                    |
 
-Así se trabaja en Apolo:
+No necesitas saber Linux ni haber usado un clúster antes.
 
-1. Te conectas al **login** desde tu computador.
-2. Preparas tus archivos y un script que dice qué correr y cuántos recursos
-   necesita.
-3. **Envías ese script a Slurm**, que lo pone en la cola.
-4. Cuando hay espacio, Slurm lo corre en un **nodo de cómputo**.
-5. Revisas los resultados desde el login.
+### 5. Cómo funciona el curso
 
-| En el login, sí                   | En el login, no: se envía a Slurm               |
-| --------------------------------- | ----------------------------------------------- |
-| Editar archivos y scripts         | Correr simulaciones o análisis                  |
-| Copiar y organizar tus datos      | Entrenar modelos                                |
-| Cargar módulos                    | Probar tu programa «solo un momento»            |
-| Enviar trabajos y revisar la cola | Cualquier cosa que use muchos núcleos o memoria |
-
-### 4. Cómo funciona el curso
-
-1. **Ves el video y respondes el quiz** de cada módulo, del 0 al 8. El quiz se
-   aprueba con 80 % y lo puedes repetir las veces que quieras. Al completar un
-   módulo se abre el siguiente.
-2. **Practicas en la VM de práctica** (`apolo-training.apolo.eafit.edu.co`), una
-   máquina que imita tu clúster. Ahí escribes los comandos de verdad, y un error
-   solo te afecta a ti. Cada práctica termina con `apolo-training verificar` y
-   su resultado aparece en Mi progreso.
+1. **Ves el video y respondes el quiz** de cada módulo. El quiz se aprueba con
+   80 % y lo puedes repetir las veces que quieras. Al completar un módulo se
+   abre el siguiente.
+2. **Practicas en la VM de práctica**, una máquina que imita tu clúster. Ahí
+   escribes los comandos de verdad, y si te equivocas, solo te afecta a ti.
+   Cada práctica se revisa sola y su resultado aparece en Mi progreso.
 3. **Te gradúas en tu clúster real**, en el módulo 7, con un trabajo corto que
    revisa un instructor.
 
@@ -156,5 +148,4 @@ Con eso, el equipo de Apolo le pone a tu cuenta los límites normales de tu
 clúster. Todo el curso toma entre 60 y 90 minutos, y puedes dejarlo y seguir
 después donde quedaste.
 
-Ahora responde las dos preguntas de abajo y sigue con el módulo 1, donde te
-conectas a Apolo por primera vez.
+Ahora responde las dos preguntas de abajo y sigue con el módulo 1.

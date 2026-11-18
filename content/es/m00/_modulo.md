@@ -2,7 +2,7 @@
 id: m00
 titulo: Bienvenida
 resumen: >-
-  Qué es Apolo, en cuál de sus clústeres está tu cuenta, para qué no es el login
-  y cómo se aprueba este curso.
-duracion: 3
+  Qué es Apolo, para qué te sirve y cómo funciona este curso: qué vas a
+  aprender, dónde vas a practicar y qué necesitas para aprobar.
+duracion: 4
 ---

@@ -8,6 +8,8 @@ instructor.
 - [`mapa.md`](mapa.md): qué enseña cada módulo, sus videos, prácticas y
   preguntas. Si algo cambia, se cambia primero ahí.
 - [`glosario.md`](glosario.md): traducción fija de los términos ES → EN.
+- [`guiones/`](guiones/): el guion de cada video, con qué se dice y qué se
+  muestra. Se escribe y se revisa antes de grabar.
 - [`es/_plantilla.md`](es/_plantilla.md) y
   [`es/_plantilla-modulo.md`](es/_plantilla-modulo.md): de dónde se copia cada
   lección y cada módulo.
@@ -20,6 +22,7 @@ instructor.
 content/
 ├── mapa.md
 ├── glosario.md
+├── guiones/
 ├── schema/
 │   ├── leccion.schema.json
 │   └── modulo.schema.json
@@ -32,7 +35,6 @@ content/
 │   │   └── bienvenida.md
 │   ├── m01/
 │   │   ├── _modulo.md
-│   │   ├── vpn.md
 │   │   └── ssh.md
 │   └── …
 └── en/          (fase 2: mismas rutas, mismos id y claves)
