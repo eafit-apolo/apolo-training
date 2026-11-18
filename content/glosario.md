@@ -48,6 +48,7 @@ la interfaz y la versión en inglés del contenido usen siempre la misma palabra
 | ruta                    | path                 |                                                                       |
 | archivo                 | file                 |                                                                       |
 | cuota                   | quota                |                                                                       |
+| permisos                | permissions          | Los de `ls -l`. En el curso solo se leen: no se enseña `chmod`.       |
 | subir / descargar       | upload / download    | Desde el punto de vista del computador del usuario.                   |
 | contraseña              | password             |                                                                       |
 | huella del servidor     | host key fingerprint | Lo que pide aceptar `ssh` la primera vez.                             |
@@ -69,6 +70,7 @@ la interfaz y la versión en inglés del contenido usen siempre la misma palabra
 | graduación         | graduation        | El trabajo final en el clúster real.                                                   |
 | quiz               | quiz              | Plural en español: «quices».                                                           |
 | Mi progreso        | My progress       | Nombre de la pantalla.                                                                 |
+| clave del curso    | course code       | La `TRN-…` de la práctica `terminal`, como en `labs/terminal/LEEME.txt`.               |
 
 ## No se traduce
 
