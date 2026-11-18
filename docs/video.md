@@ -34,9 +34,6 @@ los dos idiomas.
 | Video            | Archivo                  | Quién |
 | ---------------- | ------------------------ | ----- |
 | Bienvenida       | `m00-bienvenida-es.mp4`  | Byron |
-| VPN en Windows   | `m01-vpn-windows-es.mp4` | Byron |
-| VPN en macOS     | `m01-vpn-macos-es.mp4`   | Byron |
-| VPN en Linux     | `m01-vpn-linux-es.mp4`   | Byron |
 | SSH              | `m01-ssh-es.mp4`         | Byron |
 | Terminal y Linux | `m02-terminal-es.mp4`    | Juan  |
 | Archivos         | `m03-archivos-es.mp4`    | Juan  |
@@ -44,6 +41,7 @@ los dos idiomas.
 | Trabajos         | `m05-trabajos-es.mp4`    | Juan  |
 | Paralelismo      | `m06-paralelismo-es.mp4` | Juan  |
 | VS Code          | `m07-vscode-es.mp4`      | Juan  |
+| Conda            | `m08-conda-es.mp4`       | Byron |
 
 Los subtítulos llevan el mismo nombre con el idioma del texto:
 `m01-ssh-es.vtt` y `m01-ssh-en.vtt`.
@@ -81,22 +79,21 @@ la lección:
 - **Si solo sigue el quiz:** que lo responda y a qué módulo pasa.
 
 Las frases de cada video, a partir de [`content/mapa.md`](../content/mapa.md).
+El guion completo de cada video está en [`content/guiones/`](../content/guiones/).
 Se pueden decir con otras palabras, pero sin perder lo concreto. Si el mapa
 cambia, se cambian aquí también.
 
-| Video            | Entrada: «Hola. En este video vas a…»                                                                                                   | Salida                                                                                                                                                                             |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Bienvenida       | …conocer Apolo, saber si vas a trabajar en Apolo II o en Apolo III y ver cómo funciona este curso.                                      | «Responde las dos preguntas de abajo y sigue con el módulo 1, donde te vas a conectar a Apolo por primera vez».                                                                    |
-| VPN en Windows   | …instalar GlobalProtect en Windows y conectarte a la VPN de EAFIT, que necesitas para entrar a Apolo.                                   | «Ya tienes la VPN. Déjala encendida y sigue con el video de SSH».                                                                                                                  |
-| VPN en macOS     | …instalar GlobalProtect en macOS y conectarte a la VPN de EAFIT, que necesitas para entrar a Apolo.                                     | «Ya tienes la VPN. Déjala encendida y sigue con el video de SSH».                                                                                                                  |
-| VPN en Linux     | …instalar GlobalProtect en Linux y conectarte a la VPN de EAFIT, que necesitas para entrar a Apolo.                                     | «Ya tienes la VPN. Déjala encendida y sigue con el video de SSH».                                                                                                                  |
-| SSH              | …conectarte por SSH al login de tu clúster, aceptar la huella del servidor y cambiar la contraseña temporal.                            | «Ahora es tu turno: conéctate a la VM de práctica, cambia tu contraseña y, al terminar, corre `apolo-training verificar conexion`».                                                |
-| Terminal y Linux | …moverte entre carpetas, crear, copiar, mover y borrar archivos, y editar un archivo con nano.                                          | «Ahora practica en la VM: crea la carpeta del curso, copia el laboratorio, escribe tu nombre en `LEEME.txt` con nano y corre `apolo-training verificar terminal`».                 |
-| Archivos         | …ver dónde quedan tus archivos en Apolo, cuánto espacio te queda y cómo subir archivos desde tu computador con scp y rsync.             | «Ahora sube un archivo de tu computador a la VM con scp, mira cuánto ocupa con `du -sh` y corre `apolo-training verificar archivos`».                                              |
-| Módulos          | …buscar y cargar el software que necesitas con `module`, sin instalar nada.                                                             | «En el laboratorio de abajo hay un trabajo que falla porque le falta un módulo. Encuéntralo con `module spider`, cárgalo en el script y corre `apolo-training verificar modulos`». |
-| Trabajos         | …escribir un script de Slurm, enviarlo con sbatch, seguirlo en la cola y ver cómo terminó.                                              | «En el laboratorio de memoria vas a ver un trabajo que se queda sin memoria y a corregirlo. Al final, corre `apolo-training verificar memoria`».                                   |
-| Paralelismo      | …ver la diferencia entre los núcleos que reservas y los que tu programa usa de verdad, y por qué reservar de más perjudica a los demás. | «Ahora haz los dos laboratorios, núcleos y paralelo. Cada uno termina con `apolo-training verificar` y el nombre del laboratorio».                                                 |
-| VS Code          | …conectar VS Code a Apolo con Remote-SSH para editar tus archivos, y ver para qué no debes usarlo.                                      | «Si quieres, pruébalo con la VM de práctica; es opcional. Luego responde las preguntas de abajo».                                                                                  |
+| Video            | Entrada: «Hola. En este video vas a…»                                                                                                   | Salida                                                                                                                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Bienvenida       | …conocer Apolo, entender por qué en un clúster los cálculos esperan su turno y ver cómo funciona este curso.                            | «Responde las dos preguntas de abajo y sigue con el módulo 1, donde te vas a conectar a Apolo por primera vez».                                                                            |
+| SSH              | …conectarte por SSH al login de tu clúster, aceptar la huella del servidor y cambiar la contraseña temporal.                            | «Ahora es tu turno: conéctate a la VM de práctica, cambia tu contraseña y, al terminar, corre `apolo-training verificar conexion`».                                                        |
+| Terminal y Linux | …moverte entre carpetas, crear, copiar, mover y borrar archivos, y editar un archivo con nano.                                          | «Ahora practica en la VM: crea la carpeta del curso, copia el laboratorio, escribe tu nombre en `LEEME.txt` con nano y corre `apolo-training verificar terminal`».                         |
+| Archivos         | …ver dónde quedan tus archivos en Apolo, cuánto espacio te queda y cómo subir archivos desde tu computador con scp y rsync.             | «Ahora sube un archivo de tu computador a la VM con scp, mira cuánto ocupa con `du -sh` y corre `apolo-training verificar archivos`».                                                      |
+| Módulos          | …buscar y cargar el software que necesitas con `module`, sin instalar nada.                                                             | «En el laboratorio de abajo hay un trabajo que falla porque le falta un módulo. Encuéntralo con `module spider`, cárgalo en el script y corre `apolo-training verificar modulos`».         |
+| Trabajos         | …escribir un script de Slurm, enviarlo con sbatch, seguirlo en la cola y ver cómo terminó.                                              | «En el laboratorio de memoria vas a ver un trabajo que se queda sin memoria y a corregirlo. Al final, corre `apolo-training verificar memoria`».                                           |
+| Paralelismo      | …ver la diferencia entre los núcleos que reservas y los que tu programa usa de verdad, y por qué reservar de más perjudica a los demás. | «Ahora haz los dos laboratorios, núcleos y paralelo. Cada uno termina con `apolo-training verificar` y el nombre del laboratorio».                                                         |
+| VS Code          | …conectar VS Code a Apolo con Remote-SSH para editar tus archivos, y ver para qué no debes usarlo.                                      | «Si quieres, pruébalo con la VM de práctica; es opcional. Luego responde las preguntas de abajo».                                                                                          |
+| Conda            | …crear un ambiente de conda, instalar en él tu propio software y usarlo en un trabajo de Slurm.                                         | «Ahora hazlo en tu clúster: crea tu ambiente, instala un paquete y úsalo en un trabajo corto, con `-p`. Esta práctica no la revisa el verificador. Luego responde las preguntas de abajo». |
 
 ## Antes de grabar
 

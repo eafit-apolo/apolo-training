@@ -10,48 +10,54 @@ cambia, se cambia primero en este archivo.
 - **Dura entre 60 y 90 minutos en total**, contando videos, quices y práctica.
   Es lo que toma hoy una inducción presencial; más largo, la gente no lo
   termina.
-- **Cada módulo es: video corto + quiz de 1 o 2 preguntas + práctica en la VM.**
-  El video explica; debajo va un resumen con los comandos para copiarlos y
+- **Cada módulo es: video corto + quiz de 1 o 2 preguntas + práctica.** El
+  video explica; debajo va un resumen con los comandos para copiarlos y
   consultarlos después, no una lectura larga.
-- **Toda la práctica es real, en la VM de práctica**
+- **La práctica es real, en la VM de práctica**
   (`apolo-training.apolo.eafit.edu.co`). El usuario escribe los comandos de
   verdad, desde la terminal de la plataforma o con su propio cliente SSH. No hay
   terminales simuladas: la VM es un entorno seguro, donde un error solo afecta
-  al propio usuario.
+  al propio usuario. La excepción es conda (módulo 8), que se practica en su
+  clúster real.
 - **La graduación es en su clúster real** (Apolo II o Apolo III), con un
   trabajo corto por lotes que el verificador revisa ahí mismo.
+- **La VPN llega resuelta.** El curso no tiene lección de VPN: la plataforma
+  solo carga con la VPN encendida, así que el correo de bienvenida trae el
+  enlace a la guía de apolo-docs (A-17).
 
 ## Resumen
 
-| Módulo                       | Videos                                            | Práctica en la VM                                       | Preguntas |    Min | Quién |
-| ---------------------------- | ------------------------------------------------- | ------------------------------------------------------- | --------: | -----: | ----- |
-| 0 · Bienvenida               | Bienvenida (2 min)                                | —                                                       |         2 |      3 | Byron |
-| 1 · Conexión                 | VPN de su sistema operativo (3 min) y SSH (2 min) | Conectarse con su cliente SSH y cambiar la contraseña ✔ |         2 |     11 | Byron |
-| 2 · Terminal y Linux         | Terminal y Linux (4 min)                          | Preparar el material y encontrar la clave con grep ✔    |         2 |     10 | Juan  |
-| 3 · Archivos y transferencia | Archivos (3 min)                                  | Bajar `ida.txt` y subirlo como `vuelta.txt` ✔           |         2 |      8 | Juan  |
-| 4 · Software con módulos     | Módulos (3 min)                                   | Laboratorio de módulos ✔                                |         2 |      9 | Byron |
-| 5 · Trabajos con Slurm       | Trabajos (5 min)                                  | Laboratorio de memoria ✔ y estados de la cola           |         2 |     13 | Juan  |
-| 6 · Núcleos y paralelismo    | Paralelismo (4 min)                               | Laboratorios de núcleos y paralelo ✔                    |         2 |     14 | Juan  |
-| 7 · VS Code y graduación     | VS Code (2 min)                                   | Graduación en su clúster real ✔ (VS Code opcional)      |         2 |      9 | Juan  |
-| 8 · Cierre                   | —                                                 | —                                                       | 8 (final) |      5 | Juan  |
-| **Total**                    | **11 por grabar; cada usuario ve ≈ 28 min**       | **7 prácticas verificadas + graduación**                |    **24** | **82** |       |
+| Módulo                       | Videos                                     | Práctica                                                | Preguntas |    Min | Quién |
+| ---------------------------- | ------------------------------------------ | ------------------------------------------------------- | --------: | -----: | ----- |
+| 0 · Bienvenida               | Bienvenida (3 min)                         | —                                                       |         2 |      4 | Byron |
+| 1 · Conexión                 | SSH (3 min)                                | Conectarse con su cliente SSH y cambiar la contraseña ✔ |         2 |      9 | Byron |
+| 2 · Terminal y Linux         | Terminal y Linux (4 min)                   | Preparar el material y encontrar la clave con grep ✔    |         2 |     10 | Juan  |
+| 3 · Archivos y transferencia | Archivos (3 min)                           | Bajar `ida.txt` y subirlo como `vuelta.txt` ✔           |         2 |      8 | Juan  |
+| 4 · Software con módulos     | Módulos (3 min)                            | Laboratorio de módulos ✔                                |         2 |      9 | Byron |
+| 5 · Trabajos con Slurm       | Trabajos (5 min)                           | Laboratorio de memoria ✔ y estados de la cola           |         2 |     13 | Juan  |
+| 6 · Núcleos y paralelismo    | Paralelismo (4 min)                        | Laboratorios de núcleos y paralelo ✔                    |         2 |     14 | Juan  |
+| 7 · VS Code y graduación     | VS Code (2 min)                            | Graduación en su clúster real ✔ (VS Code opcional)      |         2 |      9 | Juan  |
+| 8 · Ambientes de conda       | Conda (4 min)                              | Crear un ambiente y usarlo en un trabajo, en su clúster |         2 |      9 | Byron |
+| 9 · Cierre                   | —                                          | —                                                       | 9 (final) |      5 | Juan  |
+| **Total**                    | **9 por grabar; cada usuario ve ≈ 31 min** | **7 prácticas verificadas + graduación**                |    **27** | **90** |       |
 
 ✔ = lo revisa el verificador `apolo-training` y aparece en Mi progreso.
 
-- **Videos por grabar (11):** bienvenida, VPN en Windows, VPN en macOS, VPN en
-  Linux, SSH, terminal y Linux, archivos, módulos, trabajos, paralelismo y VS
-  Code. Cada usuario ve solo el de VPN de su sistema operativo. Todos de 5
-  minutos o menos, en español con subtítulos en español e inglés.
-- **Todas las prácticas se verifican igual:** cada una termina con
+- **Videos por grabar (9):** bienvenida, SSH, terminal y Linux, archivos,
+  módulos, trabajos, paralelismo, VS Code y conda. Todos los usuarios ven los
+  nueve. Cada uno de 5 minutos o menos, en español con subtítulos en español e
+  inglés, y grabado a partir de un guion en `content/guiones/` (M-02 y M-09).
+- **Las prácticas de la VM se verifican igual:** cada una termina con
   `apolo-training verificar <práctica>` en la VM y su resultado llega a Mi
   progreso. Son siete: `conexion`, `terminal`, `archivos`, `modulos`,
   `memoria`, `nucleos` y `paralelo`. La graduación se verifica igual, con
-  `apolo-training verificar graduacion JOBID` en el clúster real.
-- **Quién:** responde por el video, el resumen y el quiz del módulo. Los videos
-  quedan parejos: Byron graba 6 (unos 16 min) y Juan 5 (unos 18 min); ver
-  «Reparto de videos».
+  `apolo-training verificar graduacion JOBID` en el clúster real. La práctica
+  de conda no se verifica.
+- **Quién:** responde por el video, el resumen y el quiz del módulo. Byron
+  graba 4 videos (unos 13 min) y Juan 5 (unos 18 min); ver «Reparto de videos».
 - **Minutos por módulo:** video + práctica + quiz (unos 30 segundos por
-  pregunta). La práctica opcional de VS Code no cuenta.
+  pregunta). La práctica opcional de VS Code no cuenta. Con conda, el curso
+  queda en el tope de 90 minutos: un video más largo obliga a recortar otro.
 
 ## Reglas para el contenido
 
@@ -74,31 +80,35 @@ cambia, se cambia primero en este archivo.
 Cada lección se identifica como `mNN/slug`, que es también su ruta en la
 plataforma.
 
-### 0 · Bienvenida · 3 min
+### 0 · Bienvenida · 4 min
 
 | Lección          | Trae                             |
 | ---------------- | -------------------------------- |
-| `m00/bienvenida` | video (2 min), resumen, quiz (2) |
+| `m00/bienvenida` | video (3 min), resumen, quiz (2) |
 
-- **Video:** qué es Apolo, Apolo II frente a Apolo III y cuál es el suyo, que el
-  login no es para cómputo (los trabajos van por Slurm a nodos compartidos) y
-  cómo funciona el curso: VM de práctica, laboratorios y graduación.
-- **Quiz (2):** qué se hace y qué no en el login; qué hace falta para aprobar.
+- **Video:** una bienvenida general, para alguien que nunca ha usado un clúster.
+  Qué es Apolo y para qué le sirve; la idea de clúster compartido, donde los
+  cálculos esperan turno en una cola; que tiene una cuenta en Apolo II o en
+  Apolo III y la plataforma le muestra lo de su clúster; y cómo funciona el
+  curso: módulos, VM de práctica, graduación y qué hace falta para aprobar. No
+  trae comandos, direcciones ni pasos para conectarse: eso empieza en el
+  módulo 1.
+- **Quiz (2):** por qué los cálculos esperan turno en un clúster compartido;
+  qué hace falta para aprobar.
 
-### 1 · Conexión · 11 min
+### 1 · Conexión · 9 min
 
-| Lección   | Trae                                                          |
-| --------- | ------------------------------------------------------------- |
-| `m01/vpn` | video de VPN de su sistema operativo (Windows, macOS o Linux) |
-| `m01/ssh` | video SSH (2 min), práctica en la VM, quiz (2)                |
+| Lección   | Trae                                           |
+| --------- | ---------------------------------------------- |
+| `m01/ssh` | video SSH (3 min), práctica en la VM, quiz (2) |
 
-- **Videos de VPN:** uno por sistema operativo, de 3 minutos o menos, con
-  GlobalProtect. El usuario elige el suyo y no tiene que ver los otros. Se
-  enlaza la guía vigente de apolo-docs (_Configure the VPN_). Hoy no hay doble
-  factor (A-08).
-- **Video SSH:** conectarse al login (`apolo.eafit.edu.co` o
-  `apolo-3.eafit.edu.co`), la huella del servidor y el cambio de contraseña en
-  el primer ingreso.
+- **Sin lección de VPN** (12-nov): la plataforma solo carga con la VPN
+  encendida, así que no tiene sentido enseñarla ahí. El correo de bienvenida
+  trae el enlace vigente a la guía de apolo-docs (A-17).
+- **Video SSH:** abrir una terminal en su sistema operativo, conectarse al
+  login (`apolo.eafit.edu.co` o `apolo-3.eafit.edu.co`), la huella del
+  servidor, el cambio de contraseña en el primer ingreso y qué contraseña pide
+  cada lugar.
 - **Práctica:**
   1. Con la VPN encendida, `ssh <usuario>@apolo-training.apolo.eafit.edu.co`.
   2. Aceptar la huella y cambiar la contraseña temporal.
@@ -266,29 +276,51 @@ plataforma.
 - **Quiz (2):** para qué sí y para qué no sirve VS Code en el login; qué hacer
   con la conexión de VS Code al terminar.
 
-### 8 · Cierre · 5 min
+### 8 · Ambientes de conda · 9 min
+
+| Lección     | Trae                                                                  |
+| ----------- | --------------------------------------------------------------------- |
+| `m08/conda` | video (4 min), resumen con pestañas, práctica en su clúster, quiz (2) |
+
+- **Video:** qué es conda y para qué sirve (instalar software propio sin pedir
+  permisos), cargar `miniconda3`, crear un ambiente con conda-forge, activarlo,
+  instalar en él y usarlo dentro de un trabajo de Slurm; `conda clean --all` y
+  cuánto pesan los ambientes frente a la cuota del home. Responde lo que se
+  repite en cada inducción: si su software es compatible con conda, úselo sin
+  miedo.
+- **Pestañas del resumen:** versión de `miniconda3` de cada clúster
+  (25.11.1 en Apolo II; 25.5.1 por defecto en Apolo III, A-04) y la partición
+  del trabajo de ejemplo (siempre con `-p`).
+- **Práctica en su clúster real**, sin `apolo-training verificar`: crear un
+  ambiente, instalar un paquete y usarlo en un trabajo corto. Los comandos se
+  prueban en Apolo II y en Apolo III (C-14).
+- **Quiz (2):** dónde se activa el ambiente para que funcione en el trabajo;
+  qué hacer cuando los ambientes llenan la cuota.
+
+### 9 · Cierre · 5 min
 
 | Lección      | Trae                                        |
 | ------------ | ------------------------------------------- |
-| `m08/cierre` | resumen de cómo pedir ayuda, quiz final (8) |
+| `m09/cierre` | resumen de cómo pedir ayuda, quiz final (9) |
 
 - **Pedir ayuda:** correo `apolo@eafit.edu.co` con clúster, usuario, JobID,
   comando, salida del error y qué se esperaba. Documentación en
   <https://apolo-docs.readthedocs.io>.
 - **Qué sigue:** con todo aprobado, el equipo aplica la QOS normal en su clúster
   real.
-- **Quiz final (8):** una pregunta de cada módulo del 1 al 7, más una de
-  integración; se aprueba con 80 % (7 de 8).
+- **Quiz final (9):** una pregunta de cada módulo del 1 al 8 (la de conda la
+  pasa la C-14), más una de integración; se aprueba con 80 % (8 de 9).
 
 ## Reparto de videos
 
-| Quién | Videos                                                                                       | Cantidad | Minutos |
-| ----- | -------------------------------------------------------------------------------------------- | -------: | ------: |
-| Byron | Bienvenida (2), VPN en Windows (3), VPN en macOS (3), VPN en Linux (3), SSH (2), módulos (3) |        6 |    ≈ 16 |
-| Juan  | Terminal y Linux (4), archivos (3), trabajos (5), paralelismo (4), VS Code (2)               |        5 |    ≈ 18 |
+| Quién | Videos                                                                         | Cantidad | Minutos |
+| ----- | ------------------------------------------------------------------------------ | -------: | ------: |
+| Byron | Bienvenida (3), SSH (3), módulos (3), conda (4)                                |        4 |    ≈ 13 |
+| Juan  | Terminal y Linux (4), archivos (3), trabajos (5), paralelismo (4), VS Code (2) |        5 |    ≈ 18 |
 
-Los tres de VPN siguen el mismo guion con distinto sistema operativo, por eso
-Byron lleva uno más pero con menos minutos.
+Cada video se graba a partir de un guion de dos columnas (qué se dice y qué se
+muestra) en `content/guiones/`: los de Byron en la M-02 y los de Juan en la
+M-09. El otro lo revisa antes de grabar.
 
 ## Pendientes que afectan este mapa
 
@@ -298,6 +330,8 @@ Byron lleva uno más pero con menos minutos.
 | Scratch y áreas compartidas de cada clúster                                             | módulo 3         | A-04        |
 | Nombre del módulo de Python con numpy                                                   | módulos 4 a 7    | I-07        |
 | Enlace a la guía de OnDemand en apolo-docs                                              | módulo 7         | C-09        |
+| Enlace vigente a la guía de la VPN en el correo de bienvenida                           | módulo 1         | A-17        |
+| Versión de `miniconda3` y comandos de conda probados en Apolo II y Apolo III            | módulo 8         | C-14        |
 | Las 10 preguntas más repetidas en soporte                                               | quices           | A-10        |
 
 ## Cambios que este mapa pidió al plan (A-12)
@@ -333,6 +367,25 @@ este PR.
 | A-11 (diseño)                            | Quitar OnDemand de `docs/diseno/modelo-datos.md` (graduaciones y el video `m07-ondemand`); va en el PR de ajuste del diseño.                                                           |
 | B-02, B-07, F-07, F-08, V-08, P-06, V-09 | La graduación guarda el JobID de un trabajo por lotes y la salida del verificador, no una sesión de OnDemand. En principio solo cambia qué se verifica; revisar cada una al aplicarlo. |
 
+## Cambios del 12-nov: sale la VPN y entra conda
+
+La plataforma solo carga con la VPN encendida, así que enseñarla dentro del
+curso no tiene sentido: el enlace a la guía va en el correo de bienvenida. En
+su lugar entra un módulo de ambientes de conda, que es lo que más se pregunta
+en cada inducción. La bienvenida pasa a ser general, sin pasos para
+conectarse. Decisión de Juan, hablada con la coordinación.
+
+| Tareas        | Cambio                                                                                                    |
+| ------------- | --------------------------------------------------------------------------------------------------------- |
+| A-17          | Nueva: el correo de bienvenida lleva el enlace vigente a la guía de la VPN de apolo-docs.                 |
+| C-03          | Módulo 1 sin la lección `m01/vpn`: solo `m01/ssh`.                                                        |
+| C-14          | Nueva: módulo 8, ambientes de conda (`m08/conda`), con práctica en el clúster real.                       |
+| C-11          | El cierre pasa al módulo 9 (`m09/cierre`) y el quiz final a 9 preguntas, con una de conda.                |
+| C-02          | La bienvenida no trae comandos ni direcciones para conectarse.                                            |
+| M-02, M-03    | Byron graba 4 videos: bienvenida, SSH, módulos y conda. Salen los tres de VPN.                            |
+| M-09, M-04    | Sin cambios: Juan graba 5.                                                                                |
+| A-11 (diseño) | Ya no hace falta un video por sistema operativo en una lección (`video` con `windows`, `macos`, `linux`). |
+
 ## Aprobación
 
 - [x] Revisado por Juan.
@@ -346,3 +399,8 @@ Cambio del 15-oct (OnDemand sale del curso, 82 min):
 - [ ] Revisado por Byron.
 - [ ] Informado a la coordinación (la instalación en los clústeres ya está
       aprobada).
+
+Cambio del 12-nov (sale la VPN, entra conda, 90 min):
+
+- [ ] Revisado por Juan.
+- [ ] Revisado por Byron.

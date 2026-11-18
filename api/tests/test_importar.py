@@ -254,7 +254,7 @@ async def test_carga_el_modulo_de_ejemplo_real(sesion_bd: AsyncSession) -> None:
     preguntas = list(
         await sesion_bd.scalars(select(Pregunta).where(Pregunta.quiz_id == quiz.id))
     )
-    assert {p.clave for p in preguntas} == {"m00-login", "m00-aprobar"}
+    assert {p.clave for p in preguntas} == {"m00-compartido", "m00-aprobar"}
     assert resumen.creados["modulos"] >= 1
 
 

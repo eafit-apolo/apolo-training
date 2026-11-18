@@ -1,8 +1,8 @@
 ---
 id: m01/ssh
 titulo: Entrar por SSH
-orden: 2
-duracion: 8
+orden: 1
+duracion: 9
 video: m01-ssh
 practicas: [conexion]
 quiz:
