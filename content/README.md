@@ -84,9 +84,11 @@ plataforma a partir del front matter.
 - **Comandos** en bloques `bash`, sin el `$` del prompt. Las salidas, en
   bloques `text`.
 - **Valores a reemplazar** entre `<ángulos>`: `ssh <usuario>@…`,
-  `sbatch -p <partición> …`.
-- **En Slurm, siempre `-p <partición>`:** Apolo III no tiene partición por
-  defecto.
+  `#SBATCH --partition=<partición>`.
+- **En Slurm, siempre con partición:** en el script
+  (`#SBATCH --partition=<partición>`), y se envía con `sbatch <script>.sh`.
+  `-p` solo para enviar a otra partición sin editar el script, o con `--wrap`.
+  Apolo III no tiene partición por defecto.
 - **Pestañas Apolo II / Apolo III** solo donde algo cambia, con un bloque
   `::: apolo2` y otro `::: apolo3` seguidos. La plataforma los muestra como
   pestañas y abre la del clúster del usuario; en GitHub se leen como texto.
