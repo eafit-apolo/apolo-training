@@ -24,13 +24,20 @@
   loop_control:
     label: "{{ item.ruta }}"
 
+# En /usr/sbin y no en /usr/local/sbin: el secure_path de sudo en Rocky 9 no
+# incluye /usr/local, y así «sudo apolo-training-admin» funciona tal cual.
 - name: Comando apolo-training-admin
   ansible.builtin.copy:
     src: "{{ admin_fuentes }}/apolo_training_admin.py"
-    dest: /usr/local/sbin/apolo-training-admin
+    dest: /usr/sbin/apolo-training-admin
     owner: root
     group: root
     mode: "0700"
+
+- name: Sin la copia vieja en /usr/local/sbin
+  ansible.builtin.file:
+    path: /usr/local/sbin/apolo-training-admin
+    state: absent
 
 - name: Configuración
   ansible.builtin.template:

@@ -9,7 +9,7 @@ El subcomando `reporte` y el timer de sincronización de laboratorios
 
 | Archivo                   | Qué es                                                                |
 | ------------------------- | --------------------------------------------------------------------- |
-| `apolo_training_admin.py` | El comando; se instala como `/usr/local/sbin/apolo-training-admin`    |
+| `apolo_training_admin.py` | El comando; se instala como `/usr/sbin/apolo-training-admin`          |
 | `admin.conf.example`      | Plantilla de `/etc/apolo-training/admin.conf`                         |
 | `systemd/`                | Timer diario que archiva los homes de las bajas de hace 30 días o más |
 | `tests/`                  | Pruebas con dobles de los comandos y una plataforma HTTP local        |
@@ -70,7 +70,7 @@ token de `vault_token_servicio`; ver [`ansible/README.md`](../ansible/README.md)
 A mano sería:
 
 ```bash
-install -m 700 admin/apolo_training_admin.py /usr/local/sbin/apolo-training-admin
+install -m 700 admin/apolo_training_admin.py /usr/sbin/apolo-training-admin
 install -m 600 admin/admin.conf.example /etc/apolo-training/admin.conf   # y editar url
 install -m 600 /dev/null /etc/apolo-training/token                       # y pegar el token
 install -m 644 admin/systemd/apolo-training-admin-archivar.* /etc/systemd/system/

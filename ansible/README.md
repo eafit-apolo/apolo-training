@@ -187,7 +187,7 @@ procedimiento, en el runbook de altas y bajas de Affine.
 
 | Qué                                       | Cómo queda                                       | Por qué                                                                 |
 | ----------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------- |
-| `/usr/local/sbin/apolo-training-admin`    | Copia de `admin/apolo_training_admin.py`, `0700` | Solo root crea cuentas y habla con la API interna                       |
+| `/usr/sbin/apolo-training-admin`          | Copia de `admin/apolo_training_admin.py`, `0700` | Solo root crea cuentas y habla con la API interna                       |
 | `/etc/apolo-training/admin.conf`          | Plantilla, `0600`                                | URL de la API y rutas; valores en `roles/admin/defaults/main.yml`       |
 | `/etc/apolo-training/token`               | `vault_token_servicio`, `0600`, sin log          | El mismo token que la API exige en `/internal/*`                        |
 | `/var/lib/apolo-training/{bajas,archivo}` | `0700`                                           | Marcas de baja y homes archivados (datos de usuarios)                   |

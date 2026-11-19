@@ -2,7 +2,7 @@
 """apolo-training-admin: altas y bajas del curso en la VM de práctica y la plataforma.
 
 Corre como root en la VM de práctica (116), con el Python 3.9 de Rocky 9, y solo
-usa la biblioteca estándar. Se instala como /usr/local/sbin/apolo-training-admin.
+usa la biblioteca estándar. Se instala como /usr/sbin/apolo-training-admin.
 
   alta USUARIO --cluster apolo2|apolo3 --nombre "..." --correo ...
       Cuenta Unix con el grupo del clúster y una clave temporal vencida
