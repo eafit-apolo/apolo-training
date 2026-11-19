@@ -66,8 +66,12 @@ cambia, se cambia primero en este archivo.
   los valores para reemplazar entre `<ángulos>`.
 - **Pestañas Apolo II / Apolo III** en el resumen donde algo cambia. La
   plataforma abre la del clúster del usuario.
-- **Siempre `-p <partición>` en los comandos de Slurm:** Apolo III no tiene
-  partición por defecto y `sbatch` sin `-p` falla (A-03).
+- **Siempre con partición en Slurm:** en el script, con
+  `#SBATCH --partition=<partición>`, y se envía con `sbatch <script>.sh`. `-p`
+  queda para enviar a otra partición sin editar el script, para `--wrap` y para
+  la graduación (el mismo `graduacion.sh` en los dos clústeres). Apolo III no
+  tiene partición por defecto y un trabajo sin partición falla (A-03; decidido
+  el 19-nov en la C-07).
 - **Quiz corto:** 1 o 2 preguntas por módulo, que se respondan en menos de 30
   segundos cada una, con la explicación de la respuesta.
 - **Práctica con instrucciones numeradas** y un resultado que el usuario pueda

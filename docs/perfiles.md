@@ -59,8 +59,8 @@ mensaje «Apolo III no tiene partición por defecto: indique una con -p».
   ponerlo ahí.
 - Diferencia que queda: un usuario `apolo3` ve `longjobs*` con asterisco en
   `sinfo`. Se aclara en la pestaña Apolo III del módulo 5.
-- Los comandos del curso llevan siempre `-p` (regla del mapa), así que la
-  diferencia solo se nota si el usuario lo olvida.
+- Los scripts del curso siempre dicen la partición (`#SBATCH --partition`,
+  regla del mapa), así que la diferencia solo se nota si el usuario la quita.
 - Si el Slurm de la VM no trae el plugin `job_submit/lua`, `longjobs` queda por
   defecto para los dos perfiles y la diferencia se explica solo en el módulo 5.
 

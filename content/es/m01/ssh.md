@@ -190,6 +190,15 @@ curso:
 La contraseña que acabas de poner es la de la VM. La de la plataforma sigue
 siendo la que pusiste aquí.
 
+**`apolo-training` es solo del curso.** Es el verificador: prepara el material
+de las prácticas, las revisa y manda el resultado a Mi progreso. No es un
+comando de Linux ni de Slurm, y no sirve para trabajar en tu clúster: solo
+conoce las prácticas del curso. Lo mismo pasa con la carpeta `~/apolo-training`
+y los trabajos `curso-…`: son material de práctica.
+Lo demás que aprendes (`ssh`, `cd`, `sbatch`, `squeue`…) sí funciona igual en
+Apolo. En tu clúster real solo usarás `apolo-training` una vez, en la
+graduación.
+
 ## Si algo falla
 
 - **`ssh` se queda esperando y termina en `Connection timed out`:** la VPN está

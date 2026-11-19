@@ -81,7 +81,8 @@ Al terminar podrás:
 <!--
 Los comandos del video, en el mismo orden. Comandos en bloques bash sin el $;
 lo que el usuario cambia, entre <ángulos>; las salidas, en bloques text.
-En Slurm, siempre -p <partición>.
+En Slurm, siempre con partición: #SBATCH --partition en el script y
+sbatch <script>.sh.
 -->
 
 Un trabajo es un script con directivas `#SBATCH` al inicio:
@@ -119,13 +120,13 @@ blanco después de ::: apolo2 / ::: apolo3 y antes de cada :::.
 ::: apolo2
 
 La partición por defecto es `longjobs` (hasta 14 días). También están `bigmem`,
-`accel`, `accel-2` y `learning`. Aun así, escribe siempre `-p <partición>`.
+`accel`, `accel-2` y `learning`. Aun así, escribe siempre la partición en tu script.
 
 :::
 
 ::: apolo3
 
-No hay partición por defecto: sin `-p <partición>`, `sbatch` falla. Las
+No hay partición por defecto: si el script no la dice, `sbatch` falla. Las
 particiones son `bigmem`, `longjobs` y `accel`.
 
 :::
@@ -147,12 +148,12 @@ En la VM de práctica (`apolo-training.apolo.eafit.edu.co`):
    nano curso.sh
    ```
 
-2. Cambia el nombre del trabajo a `--job-name=curso-memoria`, deja
-   `--mem=1G` y guarda.
+2. Pon tu partición en `--partition=<partición>`, cambia el nombre del
+   trabajo a `--job-name=curso-memoria`, deja `--mem=1G` y guarda.
 3. Envía el trabajo:
 
    ```bash
-   sbatch -p <partición> curso.sh
+   sbatch curso.sh
    ```
 
 4. Cuando termine, mira cómo terminó. Debe decir `OUT_OF_MEMORY`:
