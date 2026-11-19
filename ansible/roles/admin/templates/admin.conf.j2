@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+# Configuración de apolo-training-admin (V-04); el detalle de cada línea está
+# en admin/admin.conf.example del repo.
+[admin]
+url = {{ admin_url }}
+token = {{ admin_token_archivo }}
+timeout = {{ admin_timeout }}
+verificador = {{ admin_verificador }}
+perfiles = {{ admin_perfiles }}
+bajas = {{ admin_bajas }}
+archivo = {{ admin_archivo }}

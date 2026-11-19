@@ -65,6 +65,10 @@ su UID no se reutiliza y el historial de Slurm sigue siendo suyo.
 
 ## Instalación en la 116
 
+La hace el rol `admin` de Ansible (`ansible-playbook site.yml`), que toma el
+token de `vault_token_servicio`; ver [`ansible/README.md`](../ansible/README.md).
+A mano sería:
+
 ```bash
 install -m 700 admin/apolo_training_admin.py /usr/local/sbin/apolo-training-admin
 install -m 600 admin/admin.conf.example /etc/apolo-training/admin.conf   # y editar url
