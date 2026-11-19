@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+"""Doble de los comandos del sistema para las pruebas de apolo-training-admin.
+
+conftest.py lo enlaza con el nombre de cada comando (useradd, sacctmgr…). Cada
+llamada agrega una línea JSON a $FALSO_LOG con el comando, los argumentos y,
+para chpasswd, lo que llegó por stdin. La prueba decide la respuesta con:
+
+  FALSO_CODIGO_<COMANDO>  código de salida (predeterminado 0)
+  FALSO_SALIDA_<COMANDO>  texto que imprime
+"""
+
+import json
+import os
+import sys
+
+nombre = os.path.basename(sys.argv[0])
+clave = nombre.upper()
+entrada = sys.stdin.read() if nombre == "chpasswd" else None
+
+# runuser recibe un entorno limpio (sin FALSO_LOG): el log está junto a la
+# carpeta bin/ temporal que crea conftest.py.
+ruta_log = os.environ.get("FALSO_LOG") or os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))), "comandos.log"
+)
+with open(ruta_log, "a", encoding="utf-8") as log:
+    log.write(json.dumps({"cmd": [nombre, *sys.argv[1:]], "entrada": entrada}) + "\n")
+
+sys.stdout.write(os.environ.get("FALSO_SALIDA_" + clave, ""))
+sys.exit(int(os.environ.get("FALSO_CODIGO_" + clave, "0")))
