@@ -121,6 +121,7 @@ services:
     secrets:
       - api_database_url
       - api_secreto
+      - api_token_servicio
     volumes:
       # La API escribe los videos y nginx los lee: :z (compartida), no :Z.
       - ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/media:/srv/apolo-training/media:z
@@ -156,3 +157,7 @@ secrets:
   api_secreto:
     # 32 caracteres o más; cambiarlo cierra todas las sesiones.
     file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/api_secreto
+  api_token_servicio:
+    # Bearer de /api/internal/* que manda apolo-training-admin desde la 116
+    # (V-04). Cambiarlo exige volver a correr el rol admin en la 116.
+    file: ${APOLO_TRAINING_RAIZ:-/srv/apolo-training}/secrets/api_token_servicio
