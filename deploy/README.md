@@ -307,8 +307,10 @@ certificado TLS (ver `ansible/README.md`).
   `TAG`, Compose no arranca. La pone `ansible/deploy.yml` («Despliegue (117)»
   en `ansible/README.md`); `IMAGE_PREFIX` también se puede fijar ahí.
 - **Secretos fuera del repo**, como secrets de Compose en `secrets/`:
-  `db_password` (root, 600), `api_database_url` y `api_secreto` (uid 10001,
-  400; la API los lee de `/run/secrets`). Los escribe Ansible desde el Vault.
+  `db_password` (root, 600), `api_database_url`, `api_secreto` y
+  `api_token_servicio` (uid 10001, 400; la API los lee de `/run/secrets`). Los
+  escribe Ansible desde el Vault. `api_token_servicio` es el Bearer de
+  `/api/internal/*` y tiene que ser igual al de la 116 (rol `admin`, V-04).
   `db_password` solo se usa al crear la base, con `pgdata/` vacío: cambiarla
   después no cambia la clave (hace falta `ALTER USER training PASSWORD …`).
 - **Upstreams con `resolve`.** nginx arranca aunque `api`, `web` o `terminal`

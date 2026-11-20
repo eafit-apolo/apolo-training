@@ -15,9 +15,10 @@ en Ansible Vault, nunca en claro.
 | `roles/docker`             | Docker Engine y Compose de la plataforma (117), DOCKER-USER y `/srv/apolo-training` |
 | `roles/certbot`            | Certificado TLS de Let's Encrypt de la plataforma y su renovación automática        |
 | `roles/profiles`           | Perfil `apolo2`/`apolo3` al entrar a la 116: variable, prompt y bienvenida (P-03)   |
+| `roles/admin`              | `apolo-training-admin` (altas y bajas), su configuración, token y timer (V-04)      |
 | `roles/deploy`             | Versión `X.Y.Z` de la plataforma: imágenes, migraciones, `up` y verificación        |
 
-`site.yml` aplica `base`, `slurm`, `lmod` y `profiles` al grupo `practica`, y
+`site.yml` aplica `base`, `slurm`, `lmod`, `profiles` y `admin` al grupo `practica`, y
 `base`, `docker` y `certbot` al grupo `web` (la 117). `deploy.yml` aplica
 `deploy` al grupo `web` y se corre en cada cambio de versión.
 
@@ -175,6 +176,34 @@ sudo -iu <usuario>                                   # bienvenida y prompt (apol
 sudo -iu <usuario> printenv APOLO_TRAINING_CLUSTER   # apolo3
 sudo -iu <usuario> true                              # sin salida
 sudo -iu <usuario> printenv PS1                      # sin salida
+```
+
+### Altas y bajas (116)
+
+El rol `admin` instala `apolo-training-admin` (V-04), que da de alta y de baja
+a los usuarios del curso en la 116 y en la plataforma con un solo comando. El
+código, su uso y sus pruebas están en [`admin/`](../admin/README.md); el
+procedimiento, en el runbook de altas y bajas de Affine.
+
+| Qué                                       | Cómo queda                                       | Por qué                                                                 |
+| ----------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------- |
+| `/usr/sbin/apolo-training-admin`          | Copia de `admin/apolo_training_admin.py`, `0700` | Solo root crea cuentas y habla con la API interna                       |
+| `/etc/apolo-training/admin.conf`          | Plantilla, `0600`                                | URL de la API y rutas; valores en `roles/admin/defaults/main.yml`       |
+| `/etc/apolo-training/token`               | `vault_token_servicio`, `0600`, sin log          | El mismo token que la API exige en `/internal/*`                        |
+| `/var/lib/apolo-training/{bajas,archivo}` | `0700`                                           | Marcas de baja y homes archivados (datos de usuarios)                   |
+| `apolo-training-admin-archivar.timer`     | Diario a las 03:30, `Persistent=true`            | Archiva el home 30 días después de la baja; corre aunque la VM durmiera |
+
+- Sin `vault_token_servicio` en el Vault, el rol avisa y no escribe el token:
+  `alta` y `baja` fallan antes de tocar nada. El mismo valor tiene que llegar
+  a la API de la 117 como secret de Compose.
+- La 116 sale a la 117 por 443 (`base_salida_https`), que es lo que usa la API
+  interna.
+
+Verificación en la 116:
+
+```bash
+sudo apolo-training-admin --help                            # alta, baja, archivar
+systemctl list-timers apolo-training-admin-archivar.timer   # próxima corrida 03:30
 ```
 
 ### Docker (117)

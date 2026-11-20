@@ -47,6 +47,12 @@ docker_secretos:
     contenido: "{{ vault_api_secreto }}"
     dueno: "10001"
     modo: "0400"
+  - nombre: api_token_servicio
+    # Bearer de /api/internal/* (V-04): el mismo que tiene la 116 en
+    # /etc/apolo-training/token (rol admin).
+    contenido: "{{ vault_token_servicio }}"
+    dueno: "10001"
+    modo: "0400"
 
 ansible_python_interpreter: /usr/bin/python3
 

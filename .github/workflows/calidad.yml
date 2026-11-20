@@ -104,6 +104,29 @@ jobs:
       - name: Correr pytest
         run: python -m pytest verifier
 
+  admin:
+    name: admin (3.9)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # apolo-training-admin corre con el Python 3.9 de Rocky 9 en la VM de
+    # práctica. Las pruebas usan dobles de useradd, sacctmgr, etc. y una
+    # plataforma HTTP local: no necesitan root, Slurm ni la API.
+    defaults:
+      run:
+        working-directory: admin
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.9"
+
+      - name: Instalar las dependencias de prueba
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Correr pytest
+        run: python -m pytest
+
   terminal:
     name: terminal
     runs-on: ubuntu-24.04

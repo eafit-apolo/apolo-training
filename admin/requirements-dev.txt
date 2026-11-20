@@ -1,0 +1,4 @@
+# Pruebas de apolo-training-admin: Python 3.9 (Rocky 9, como la VM) y 3.12 (CI).
+# pytest 9 ya no funciona con 3.9.
+pytest==8.4.2; python_version < "3.10"
+pytest==9.1.1; python_version >= "3.10"

@@ -1,0 +1,18 @@
+---
+# defaults file for roles/admin
+# apolo-training-admin (V-04): altas y bajas del curso en la 116 y la
+# plataforma. El comando y las unidades de systemd salen de admin/ del repo.
+admin_fuentes: "{{ playbook_dir }}/../admin"
+
+# /etc/apolo-training/admin.conf
+admin_url: https://training.apolo.eafit.edu.co/api
+admin_timeout: 15
+admin_verificador: /opt/ohpc/pub/apps/apolo-training/1.0
+admin_perfiles: "{{ profiles_carpeta_usuarios | default('/etc/apolo-training/usuarios') }}"
+admin_bajas: /var/lib/apolo-training/bajas
+admin_archivo: /var/lib/apolo-training/archivo
+
+# Token de servicio de /api/internal/*: el mismo valor que tiene la API en la
+# 117. Vacío: no se escribe y alta y baja fallan antes de tocar nada.
+admin_token: "{{ vault_token_servicio | default('') }}"
+admin_token_archivo: /etc/apolo-training/token

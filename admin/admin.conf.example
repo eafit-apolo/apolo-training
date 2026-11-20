@@ -1,0 +1,23 @@
+# /etc/apolo-training/admin.conf: configuración de apolo-training-admin en la
+# VM de práctica (root, 600). Solo url es obligatoria; las demás líneas
+# muestran el valor predeterminado.
+[admin]
+# URL base de la API de la plataforma, con /api al final. Debe ser https.
+url = https://<plataforma>/api
+
+# Token de servicio (Bearer) de las rutas /internal/*. Root, 600. El mismo
+# valor lo tiene la API en su configuración.
+# token = /etc/apolo-training/token
+
+# Segundos que se espera a la plataforma antes de revertir la alta.
+# timeout = 15
+
+# Instalación del verificador: debe tener bin/apolo-training y labs/.
+# verificador = /opt/ohpc/pub/apps/apolo-training/1.0
+
+# Archivos de perfil que lee /etc/profile.d/apolo-training.sh (P-03).
+# perfiles = /etc/apolo-training/usuarios
+
+# Marcas de baja (una por usuario, con la fecha) y homes archivados.
+# bajas = /var/lib/apolo-training/bajas
+# archivo = /var/lib/apolo-training/archivo

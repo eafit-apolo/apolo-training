@@ -6,6 +6,7 @@
     - slurm
     - lmod
     - profiles
+    - admin # después de profiles: usa /etc/apolo-training/usuarios
 
 - name: Plataforma (117)
   hosts: web

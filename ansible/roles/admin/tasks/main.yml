@@ -1,0 +1,87 @@
+---
+# tasks file for roles/admin
+# El comando, su configuración y el token son solo de root: dan de alta y de
+# baja en la VM y en la plataforma.
+- name: Paquetes que usa apolo-training-admin
+  ansible.builtin.dnf:
+    name:
+      - tar # archivar homes
+      - procps-ng # pkill en la baja
+    state: present
+
+- name: Carpetas de configuración, bajas y archivo
+  ansible.builtin.file:
+    path: "{{ item.ruta }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ item.modo }}"
+  loop:
+    - { ruta: /etc/apolo-training, modo: "0755" } # la comparte con profiles
+    - { ruta: /var/lib/apolo-training, modo: "0755" }
+    - { ruta: "{{ admin_bajas }}", modo: "0700" }
+    - { ruta: "{{ admin_archivo }}", modo: "0700" } # homes de usuarios
+  loop_control:
+    label: "{{ item.ruta }}"
+
+# En /usr/sbin y no en /usr/local/sbin: el secure_path de sudo en Rocky 9 no
+# incluye /usr/local, y así «sudo apolo-training-admin» funciona tal cual.
+- name: Comando apolo-training-admin
+  ansible.builtin.copy:
+    src: "{{ admin_fuentes }}/apolo_training_admin.py"
+    dest: /usr/sbin/apolo-training-admin
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Sin la copia vieja en /usr/local/sbin
+  ansible.builtin.file:
+    path: /usr/local/sbin/apolo-training-admin
+    state: absent
+
+- name: Configuración
+  ansible.builtin.template:
+    src: admin.conf.j2
+    dest: /etc/apolo-training/admin.conf
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Token de servicio
+  ansible.builtin.copy:
+    content: "{{ admin_token }}\n"
+    dest: "{{ admin_token_archivo }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  when: admin_token | length > 0
+
+- name: Aviso si falta el token
+  ansible.builtin.debug:
+    msg: >-
+      Falta vault_token_servicio: no se escribió {{ admin_token_archivo }} y
+      apolo-training-admin alta/baja fallarán hasta que se agregue al Vault.
+  when: admin_token | length == 0
+
+- name: Unidades del archivado diario
+  ansible.builtin.copy:
+    src: "{{ admin_fuentes }}/systemd/apolo-training-admin-archivar.{{ item }}"
+    dest: /etc/systemd/system/apolo-training-admin-archivar.{{ item }}
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - service
+    - timer
+  register: admin_unidades
+
+- name: Timer del archivado activo
+  ansible.builtin.systemd_service:
+    name: apolo-training-admin-archivar.timer
+    enabled: true
+    state: started
+    daemon_reload: "{{ admin_unidades is changed }}"
+  # En --check las unidades no se copian de verdad: systemd todavía no conoce
+  # el timer la primera vez.
+  when: not (ansible_check_mode and admin_unidades is changed)
