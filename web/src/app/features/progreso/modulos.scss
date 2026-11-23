@@ -1,0 +1,84 @@
+// Los módulos de Mi progreso (F-07): una fila desplegable por módulo con sus
+// lecciones. Sin encapsulación, como Mi progreso (los estados vienen de
+// progreso.scss).
+
+at-modulos-progreso {
+  display: block;
+
+  .modulos,
+  .lecciones {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .modulo {
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+    summary {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 16px;
+      min-height: 48px;
+      padding: 8px 4px 8px 24px;
+      cursor: pointer;
+
+      // El triángulo de details, propio (el nativo no sale con display: flex).
+      list-style: none;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::before {
+        content: '▸';
+        position: absolute;
+        left: 4px;
+        color: var(--mat-sys-on-surface-variant);
+      }
+
+      &:focus-visible {
+        outline: 3px solid var(--mat-sys-primary);
+        outline-offset: 2px;
+      }
+    }
+
+    &[open] summary::before {
+      content: '▾';
+    }
+  }
+
+  // En el celular, las lecciones y el estado bajan a otra línea.
+  .modulo-nombre {
+    flex: 1 1 14rem;
+    font: var(--mat-sys-title-small);
+  }
+
+  .modulo-lecciones {
+    color: var(--mat-sys-on-surface-variant);
+    white-space: nowrap;
+  }
+
+  .lecciones {
+    padding: 0 4px 12px 24px;
+
+    > li {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 12px;
+      padding: 6px 0;
+    }
+
+    .hecho {
+      border-color: var(--at-verde);
+      color: var(--at-verde);
+    }
+  }
+
+  .leccion-nombre {
+    flex: 1 1 240px;
+  }
+}

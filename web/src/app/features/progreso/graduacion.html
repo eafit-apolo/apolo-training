@@ -1,0 +1,169 @@
+@let g = graduacion();
+<div class="at-graduacion">
+  <p class="graduacion-estado">
+    <span class="estado" [class]="'estado-' + (g?.estado ?? 'sin_enviar')">
+      <at-icono
+        [nombre]="
+          g?.estado === 'aprobada' ? 'completo' : g?.estado === 'rechazada' ? 'error' : 'pendiente'
+        "
+      />
+      {{ 'progreso.graduacion.estados.' + (g?.estado ?? 'sin_enviar') | transloco }}
+    </span>
+  </p>
+
+  @if (g) {
+    @switch (g.estado) {
+      @case ('enviada') {
+        <p>
+          {{
+            'progreso.graduacion.enviadaTexto'
+              | transloco: { fecha: formato.fecha(g.enviada_en), jobid: g.jobid }
+          }}
+        </p>
+      }
+      @case ('rechazada') {
+        <p>
+          {{
+            'progreso.graduacion.rechazadaTexto'
+              | transloco: { fecha: formato.fecha(g.revisada_en ?? g.enviada_en), jobid: g.jobid }
+          }}
+        </p>
+      }
+      @case ('aprobada') {
+        <p>
+          {{
+            'progreso.graduacion.aprobadaTexto'
+              | transloco: { fecha: formato.fecha(g.revisada_en ?? g.enviada_en), jobid: g.jobid }
+          }}
+        </p>
+        <p>
+          @if (g.qos_aplicada_en) {
+            {{
+              'progreso.graduacion.qosAplicada'
+                | transloco
+                  : {
+                      fecha: formato.fecha(g.qos_aplicada_en),
+                      cluster: ('cluster.' + g.cluster | transloco),
+                    }
+            }}
+          } @else {
+            {{
+              'progreso.graduacion.qosPendiente'
+                | transloco: { cluster: ('cluster.' + g.cluster | transloco) }
+            }}
+          }
+        </p>
+      }
+    }
+    @if (g.comentario) {
+      <div class="comentario" [class.comentario-rechazo]="g.estado === 'rechazada'">
+        <p class="comentario-titulo">{{ 'progreso.graduacion.comentario' | transloco }}</p>
+        <p class="comentario-texto">{{ g.comentario }}</p>
+      </div>
+    }
+    @if (!editando()) {
+      <details class="enviado">
+        <summary>{{ 'progreso.graduacion.verSalida' | transloco }}</summary>
+        <pre tabindex="0">{{ g.salida_verificador }}</pre>
+      </details>
+    }
+    @if (g.estado === 'enviada' && !editando()) {
+      <button mat-stroked-button type="button" (click)="corregir()">
+        {{ 'progreso.graduacion.corregir' | transloco }}
+      </button>
+    }
+  }
+
+  @if (editando()) {
+    <ol class="pasos">
+      <li>
+        {{
+          'progreso.graduacion.paso1' | transloco: { cluster: ('cluster.' + cluster() | transloco) }
+        }}
+      </li>
+      <li>
+        {{ 'progreso.graduacion.paso2' | transloco }}
+        <code>module load apolo-training</code> · <code>apolo-training preparar</code>
+      </li>
+      <li>
+        {{ 'progreso.graduacion.paso3' | transloco }}
+        <code>sbatch -p {{ particion() }} graduacion.sh</code>
+      </li>
+      <li>
+        {{ 'progreso.graduacion.paso4' | transloco }}
+        <code>apolo-training verificar graduacion JOBID</code>
+      </li>
+      <li>{{ 'progreso.graduacion.paso5' | transloco }}</li>
+    </ol>
+    <p class="explicacion">{{ 'progreso.graduacion.leccion' | transloco }}</p>
+
+    <form novalidate (submit)="enviar($event)">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'progreso.graduacion.jobid' | transloco }}</mat-label>
+        <input
+          #campoJobid
+          matInput
+          name="jobid"
+          inputmode="numeric"
+          autocomplete="off"
+          spellcheck="false"
+          required
+          [value]="jobid()"
+          [atErrorSi]="falta('jobid', 'jobidInvalido')"
+          (input)="escribir(jobid, $event)"
+        />
+        <mat-hint>{{ 'progreso.graduacion.jobidAyuda' | transloco }}</mat-hint>
+        <mat-error>{{
+          (falta('jobid') ? 'progreso.graduacion.faltaJobid' : 'progreso.graduacion.jobidInvalido')
+            | transloco
+        }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'progreso.graduacion.salida' | transloco }}</mat-label>
+        <textarea
+          #campoSalida
+          matInput
+          name="salida"
+          rows="8"
+          spellcheck="false"
+          required
+          [value]="salida()"
+          [atErrorSi]="falta('salida', 'salidaLarga')"
+          (input)="escribir(salida, $event)"
+        ></textarea>
+        <mat-hint>{{ 'progreso.graduacion.salidaAyuda' | transloco }}</mat-hint>
+        <mat-hint align="end">{{ largo() }} / {{ maximo }}</mat-hint>
+        <mat-error>{{
+          (falta('salida') ? 'progreso.graduacion.faltaSalida' : 'progreso.graduacion.salidaLarga')
+            | transloco: { maximo: maximo }
+        }}</mat-error>
+      </mat-form-field>
+
+      @if (error(); as e) {
+        <p class="aviso aviso-error" role="alert" tabindex="-1" #errorEnvio>
+          <at-icono nombre="error" />
+          {{ 'progreso.graduacion.errores.' + e | transloco: { correo: correo } }}
+        </p>
+      }
+
+      <div class="acciones">
+        <button mat-flat-button type="submit" [attr.aria-disabled]="enviando() || null">
+          {{
+            (enviando()
+              ? 'progreso.graduacion.enviando'
+              : g
+                ? 'progreso.graduacion.reenviar'
+                : 'progreso.graduacion.enviar'
+            ) | transloco
+          }}
+        </button>
+        @if (g?.estado === 'enviada') {
+          <button mat-button type="button" (click)="cancelar()">
+            {{ 'progreso.graduacion.cancelar' | transloco }}
+          </button>
+        }
+      </div>
+    </form>
+  }
+</div>

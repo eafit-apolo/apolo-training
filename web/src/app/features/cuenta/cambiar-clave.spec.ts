@@ -15,6 +15,7 @@ import {
   ponerCsrf,
 } from '../../../testing/sesion';
 import { contenidoDePrueba } from '../../../testing/contenido';
+import { progresoDeEjemplo } from '../../../testing/progreso';
 import { traduccionesDePrueba } from '../../../testing/transloco';
 import { opcionesRouter } from '../../app.config';
 import { routes } from '../../app.routes';
@@ -183,6 +184,8 @@ describe('Cambiar la clave (pantalla 01)', () => {
       api.expectOne('/api/me').flush({ ...bruno, debe_cambiar_clave: false });
 
       await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/mi-progreso'));
+      // Mi progreso (F-07) pide sus datos al abrir.
+      await vi.waitFor(() => api.expectOne('/api/me/progreso?lang=es').flush(progresoDeEjemplo()));
     });
 
     it.each([

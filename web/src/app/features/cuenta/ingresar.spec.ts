@@ -7,6 +7,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { problemasDeAccesibilidad } from '../../../testing/axe';
 import { ANA, BRUNO, botonCon, borrarCookies, errorApi, escribir } from '../../../testing/sesion';
 import { contenidoDePrueba } from '../../../testing/contenido';
+import { progresoDeEjemplo } from '../../../testing/progreso';
 import { traduccionesDePrueba } from '../../../testing/transloco';
 import { opcionesRouter } from '../../app.config';
 import { routes } from '../../app.routes';
@@ -71,6 +72,8 @@ describe('Ingresar (pantalla 01)', () => {
     const { raiz, listo } = await abrir('/ingresar?volver=%2Fmi-progreso');
     (await ingresar(raiz, listo)).flush({ usuario: ANA });
     await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/mi-progreso'));
+    // Mi progreso (F-07) pide sus datos al abrir.
+    await vi.waitFor(() => api.expectOne('/api/me/progreso?lang=es').flush(progresoDeEjemplo()));
   });
 
   it('con la clave temporal va a cambiarla, recordando a dónde iba', async () => {

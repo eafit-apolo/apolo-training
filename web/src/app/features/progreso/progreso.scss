@@ -1,0 +1,229 @@
+// Mi progreso (F-07). Sin encapsulación (llega a at-graduacion): todo va bajo
+// .at-progreso.
+
+.at-progreso {
+  --at-icono: 20px;
+
+  h2 {
+    margin: 32px 0 12px;
+    font: var(--mat-sys-title-large);
+  }
+
+  h2:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: 4px;
+  }
+
+  .cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px 24px;
+
+    h1 {
+      margin-bottom: 4px;
+    }
+  }
+
+  .perfil {
+    margin: 0 0 24px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .perfil-cluster {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+
+  .explicacion {
+    margin: 0 0 12px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  code {
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--mat-sys-surface-container-high);
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    overflow-wrap: anywhere;
+  }
+
+  .aviso {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 8px 12px;
+    border-left: 4px solid var(--mat-sys-tertiary);
+    border-radius: 4px;
+    background: var(--mat-sys-surface-container);
+
+    at-icono {
+      flex: none;
+      margin-top: 2px;
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--mat-sys-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  .aviso-error,
+  .aviso-atraso {
+    border-left-color: var(--mat-sys-error);
+  }
+
+  // --- Cifras --------------------------------------------------------------
+
+  .cifras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 0 0 24px;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 16px;
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: 12px;
+    }
+  }
+
+  .cifra-nombre {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-label-large);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .cifra-valor {
+    font: var(--mat-sys-headline-small);
+    font-weight: 600;
+  }
+
+  // --- Siguiente paso ------------------------------------------------------
+
+  .paso {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+    padding: 20px 24px;
+    border-radius: 12px;
+    background: var(--mat-sys-primary-fixed);
+    color: var(--mat-sys-on-primary-fixed);
+
+    h2 {
+      margin: 0 0 4px;
+      font: var(--mat-sys-label-large);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    p {
+      margin: 0 0 4px;
+    }
+  }
+
+  .paso-texto {
+    flex: 1 1 280px;
+  }
+
+  .paso-principal {
+    font: var(--mat-sys-title-medium);
+    font-weight: 600;
+  }
+
+  // --- Estados (módulos, prácticas, graduación) -----------------------------
+
+  .estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font: var(--mat-sys-label-large);
+    white-space: nowrap;
+  }
+
+  .estado-completo,
+  .estado-aprobado,
+  .estado-aprobada {
+    color: var(--at-verde);
+  }
+
+  .estado-en_curso,
+  .estado-intentado,
+  .estado-enviada {
+    color: var(--mat-sys-primary);
+  }
+
+  .estado-rechazada {
+    color: var(--mat-sys-error);
+  }
+
+  .estado-bloqueado,
+  .estado-sin_intentar,
+  .estado-sin_enviar {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  // --- Prácticas -----------------------------------------------------------
+
+  .sincronizacion {
+    margin: 0 0 12px;
+    font: var(--mat-sys-title-small);
+  }
+
+  .practicas {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .practica {
+    padding: 12px 16px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+
+    h3 {
+      margin: 0;
+      font: var(--mat-sys-title-medium);
+    }
+
+    p {
+      margin: 6px 0 0;
+    }
+  }
+
+  .practica-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+
+  .practica-datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-medium);
+    overflow-wrap: anywhere;
+  }
+
+  .error-carga {
+    margin-top: 16px;
+  }
+}
