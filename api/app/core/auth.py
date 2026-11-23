@@ -8,12 +8,19 @@ revisa tests/test_roles.py):
     @router.post("/auth/refresh", **con_refresh())          # usa la cookie rt
     @router.get("/me", **con_roles(*ROLES, cambio_pendiente=True))
     @router.get("/panel/resumen", **con_roles("instructor", "admin"))
+    @router.post("/internal/labs", **con_servicio())        # la VM de práctica
 
 Dentro de la función, `UsuarioDep` (o `SesionActualDep`) da el usuario: FastAPI
 resuelve la dependencia una sola vez por petición, así que no repite la
 consulta. Todo lo que no sea GET exige además el token CSRF.
+
+Las rutas internas (/internal/*) no tienen sesión: las llama la VM de
+práctica con el token de servicio. La IP de la 116 la filtra el nginx de la
+117, no la API (decisión del 20-nov, B-07): detrás de nginx, la API solo ve la
+IP de nginx.
 """
 
+import secrets
 from dataclasses import dataclass
 from typing import Annotated, Any
 
@@ -137,3 +144,36 @@ def con_roles(*roles: str, cambio_pendiente: bool = False) -> dict[str, Any]:
     else:
         dependencia = Depends(_exigir_rol(*roles))
     return {"dependencies": [dependencia], "openapi_extra": {"x-roles": list(roles)}}
+
+
+def verificar_token_servicio(request: Request) -> None:
+    """`Authorization: Bearer <token>` igual a `API_TOKEN_SERVICIO`.
+
+    Sin token configurado en la API, sin cabecera, con otro esquema o con otro
+    token: el mismo 401, para no dar pistas. La comparación tarda lo mismo
+    acierte o no (`compare_digest`).
+    """
+    esperado = request.app.state.settings.token_servicio
+    esquema, _, token = request.headers.get("authorization", "").partition(" ")
+    if (
+        esperado is None
+        or esquema.lower() != "bearer"
+        or not secrets.compare_digest(
+            token.encode(), esperado.get_secret_value().encode()
+        )
+    ):
+        raise ErrorApi(
+            401,
+            "token_servicio_invalido",
+            "Falta el token de servicio o no coincide",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+def con_servicio() -> dict[str, Any]:
+    """Ruta interna de la VM de práctica (x-roles: [servicio]): exige el token
+    de servicio, no una sesión."""
+    return {
+        "dependencies": [Depends(verificar_token_servicio)],
+        "openapi_extra": {"x-roles": ["servicio"]},
+    }

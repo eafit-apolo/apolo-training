@@ -909,13 +909,20 @@ async def test_mi_progreso_sin_un_curso_publicado(
 
     progreso = (await cliente_bd.get(MI)).json()
 
-    assert progreso == {
+    assert {clave: progreso[clave] for clave in list(progreso)[:6]} == {
         "curso": None,
         "avance_pct": 0,
         "lecciones_total": 0,
         "lecciones_completas": 0,
         "modulos": [],
         "fallback": False,
+    }
+    # Lo de la B-07 sigue saliendo (tests/test_mi_progreso.py).
+    assert progreso["aprobado"] is False
+    assert progreso["siguiente_paso"] == {
+        "tipo": "laboratorio",
+        "leccion": None,
+        "lab": "conexion",
     }
 
 

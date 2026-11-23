@@ -1,5 +1,5 @@
 """Progreso de las lecciones: «Marcar como completada» (F-04), el avance del
-video (F-05) y Mi progreso (B-06).
+video (F-05) y Mi progreso (B-06 y B-07).
 
 Cuándo se completa una lección (docs/diseno/modelo-datos.md):
 
@@ -18,22 +18,45 @@ Cuándo se completa una lección (docs/diseno/modelo-datos.md):
   pero no avanzar en él).
 
 `completada_en` se llena una sola vez: nada de esto vuelve atrás.
+
+Mi progreso suma, desde la B-07, las siete prácticas (las sincroniza la VM,
+`app/services/labs.py`), la última sincronización, la graduación
+(`app/services/graduaciones.py`), si aprobó y el siguiente paso.
 """
 
 import math
+from datetime import timedelta
+from typing import Literal
 
 from sqlalchemy import and_, case, func, or_, select, true
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errores import ErrorApi
-from app.models import Curso, Intento, ProgresoLeccion, Usuario
+from app.core.seguridad import ahora
+from app.models import (
+    Curso,
+    Graduacion,
+    Intento,
+    Practica,
+    ProgresoLeccion,
+    Sincronizacion,
+    Usuario,
+)
+from app.models.valores import PRACTICAS
 from app.schemas import contenido as esquemas
+from app.schemas import labs as esquemas_labs
 from app.schemas.contenido import Idioma
-from app.services import contenido
+from app.services import contenido, graduaciones
 
 # El video cuenta como visto al llegar a esta parte de su duración.
 PARTE_VISTA = 0.9
+# La VM reporta cada 5 minutos: con 15 sin reporte, Mi progreso avisa.
+SINCRONIZACION_ATRASADA = timedelta(minutes=15)
+
+# Un paso del curso para el «siguiente paso»: una lección sin completar o una
+# práctica que nombra alguna lección.
+Paso = tuple[Literal["leccion"], esquemas.LeccionRef] | tuple[Literal["practica"], str]
 
 
 def segundos_para_ver(duracion_seg: int) -> int:
@@ -155,12 +178,14 @@ async def reportar_video(
     )
 
 
-async def mi_progreso(
+async def _avance(
     bd: AsyncSession, usuario: Usuario, idioma: Idioma
-) -> esquemas.MiProgreso:
-    """`GET /api/me/progreso`, la parte de la B-06: el avance del curso de
-    inducción (el primero publicado) por módulo y por lección. Laboratorios,
-    sincronización, graduación y siguiente paso llegan con la B-07.
+) -> tuple[esquemas.AvanceCurso, list[Paso]]:
+    """La parte de la B-06: el avance del curso de inducción (el primero
+    publicado) por módulo y por lección. Devuelve además, en el orden del
+    curso, los pasos de lecciones y prácticas: ("leccion", id) o
+    ("practica", nombre), con las lecciones de cada módulo antes que sus
+    prácticas.
 
     Una lección de un módulo bloqueado no cuenta como completa, igual que en
     el resto de las rutas de contenido.
@@ -172,7 +197,7 @@ async def mi_progreso(
         .limit(1)
     )
     if curso is None:
-        return esquemas.MiProgreso(
+        vacio = esquemas.AvanceCurso(
             curso=None,
             avance_pct=0,
             lecciones_total=0,
@@ -180,6 +205,7 @@ async def mi_progreso(
             modulos=[],
             fallback=False,
         )
+        return vacio, []
     datos = await contenido.armar_curso(bd, curso, usuario)
     quiz_ids = [quiz_id for quiz_id, _ in datos.quizzes.values()]
     mejores = dict(
@@ -193,24 +219,33 @@ async def mi_progreso(
     )
     t = contenido.Textos(idioma)
     modulos = []
+    pasos: list[Paso] = []
     for armado in datos.modulos:
         lecciones = []
+        practicas: list[str] = []
         for leccion in armado.lecciones:
             fila = datos.progreso.get(leccion.id)
             quiz = datos.quizzes.get(leccion.id)
             mejor = mejores.get(quiz[0]) if quiz else None
+            completada = leccion.id in armado.completas
             lecciones.append(
                 esquemas.LeccionProgreso(
                     id=leccion.id,
                     slug=leccion.slug,
                     titulo=t(leccion.titulo_es, leccion.titulo_en),
-                    completada=leccion.id in armado.completas,
+                    completada=completada,
                     video_completo=fila.video_completo if fila else False,
                     tiene_quiz=quiz is not None,
                     quiz_aprobado=fila.quiz_aprobado if fila else False,
                     quiz_mejor_puntaje=float(mejor) if mejor is not None else None,
                 )
             )
+            if not completada:
+                pasos.append(
+                    ("leccion", contenido._ref_leccion(armado.modulo, leccion, t))
+                )
+            practicas += [p for p in leccion.practicas if p not in practicas]
+        pasos += [("practica", practica) for practica in practicas]
         modulos.append(
             esquemas.ModuloProgreso(
                 id=armado.modulo.id,
@@ -225,11 +260,96 @@ async def mi_progreso(
         )
     total = sum(m.lecciones_total for m in modulos)
     completas = sum(m.lecciones_completas for m in modulos)
-    return esquemas.MiProgreso(
+    avance = esquemas.AvanceCurso(
         curso=curso.slug,
         avance_pct=round(100 * completas / total) if total else 0,
         lecciones_total=total,
         lecciones_completas=completas,
         modulos=modulos,
         fallback=t.fallback,
+    )
+    return avance, pasos
+
+
+def _paso(
+    tipo: str,
+    leccion: esquemas.LeccionRef | None = None,
+    lab: str | None = None,
+) -> esquemas_labs.SiguientePaso:
+    return esquemas_labs.SiguientePaso(tipo=tipo, leccion=leccion, lab=lab)
+
+
+def _siguiente_paso(
+    pasos: list[Paso],
+    labs: dict[str, esquemas_labs.LabEstadoUsuario],
+    graduacion: Graduacion | None,
+) -> esquemas_labs.SiguientePaso:
+    """Lo primero pendiente, en el orden del curso (decisión del 20-nov):
+    módulo por módulo, sus lecciones y luego sus prácticas; después las
+    prácticas que ninguna lección nombra, la graduación, la revisión y la QOS.
+    """
+    vistas: set[str] = set()
+    for tipo, valor in pasos:
+        if tipo == "leccion":
+            return _paso("leccion", leccion=valor)
+        vistas.add(valor)
+        if labs[valor].estado != "aprobado":
+            return _paso("laboratorio", lab=valor)
+    for practica in PRACTICAS:
+        if practica not in vistas and labs[practica].estado != "aprobado":
+            return _paso("laboratorio", lab=practica)
+    if graduacion is None or graduacion.estado == "rechazada":
+        return _paso("graduacion")
+    if graduacion.estado == "enviada":
+        return _paso("esperar_revision")
+    if graduacion.qos_aplicada_en is None:
+        return _paso("esperar_qos")
+    return _paso("terminado")
+
+
+async def mi_progreso(
+    bd: AsyncSession, usuario: Usuario, idioma: Idioma
+) -> esquemas_labs.MiProgreso:
+    """`GET /api/me/progreso`: el avance del curso (B-06) más las prácticas,
+    la sincronización, la graduación, si aprobó y el siguiente paso (B-07)."""
+    avance, pasos = await _avance(bd, usuario, idioma)
+
+    filas = {
+        p.practica: p
+        for p in await bd.scalars(
+            select(Practica).where(Practica.usuario_id == usuario.id)
+        )
+    }
+    labs = {
+        practica: esquemas_labs.LabEstadoUsuario(
+            lab=practica,
+            estado=fila.estado if fila else "sin_intentar",
+            jobid=fila.jobid if fila else None,
+            fecha=fila.fecha if fila else None,
+            detalle=fila.detalle if fila else None,
+        )
+        for practica in PRACTICAS
+        for fila in [filas.get(practica)]
+    }
+    ultima = await bd.scalar(select(func.max(Sincronizacion.recibida_en)))
+    graduacion = await bd.get(Graduacion, usuario.id, populate_existing=True)
+
+    completo = avance.lecciones_total > 0 and (
+        avance.lecciones_completas == avance.lecciones_total
+    )
+    aprobado = (
+        completo
+        and all(lab.estado == "aprobado" for lab in labs.values())
+        and graduacion is not None
+        and graduacion.estado == "aprobada"
+    )
+    return esquemas_labs.MiProgreso(
+        **avance.model_dump(),
+        labs=list(labs.values()),
+        ultima_sincronizacion=ultima,
+        sincronizacion_atrasada=ultima is not None
+        and ahora() - ultima > SINCRONIZACION_ATRASADA,
+        graduacion=graduaciones.a_esquema(graduacion) if graduacion else None,
+        aprobado=aprobado,
+        siguiente_paso=_siguiente_paso(pasos, labs, graduacion),
     )

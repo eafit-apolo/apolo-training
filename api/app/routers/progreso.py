@@ -1,17 +1,21 @@
-"""Rutas de progreso: completarLeccion (F-04), reportarVideo (F-05) y
-obtenerMiProgreso (B-06) del contrato. Los quizzes están en `quizzes.py`.
+"""Rutas de progreso: completarLeccion (F-04), reportarVideo (F-05),
+obtenerMiProgreso (B-06, completa desde la B-07) y enviarGraduacion (B-07) del
+contrato. Los quizzes están en `quizzes.py`; la revisión de la graduación, en
+`panel.py`.
 """
 
 from typing import Annotated
 
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path, Request
 
 from app.core.auth import UsuarioDep, con_roles
 from app.core.db import SesionDep
 from app.models.valores import ROLES
 from app.routers.contenido import LangDep
-from app.schemas.contenido import MiProgreso, ProgresoLeccion, ProgresoVideoEntrada
-from app.services import progreso
+from app.schemas.contenido import ProgresoLeccion, ProgresoVideoEntrada
+from app.schemas.labs import Graduacion, GraduacionEntrada, MiProgreso
+from app.services import graduaciones, progreso
+from app.services.auditoria import ip_de
 
 router = APIRouter(tags=["progreso"])
 
@@ -53,3 +57,15 @@ async def obtener_mi_progreso(
     usuario: UsuarioDep, bd: SesionDep, lang: LangDep = None
 ) -> MiProgreso:
     return await progreso.mi_progreso(bd, usuario, lang or usuario.idioma)
+
+
+@router.post(
+    "/me/graduacion",
+    operation_id="enviarGraduacion",
+    summary="Enviar el JobID y la salida del verificador de la graduación",
+    **con_roles(*ROLES),
+)
+async def enviar_graduacion(
+    entrada: GraduacionEntrada, usuario: UsuarioDep, bd: SesionDep, request: Request
+) -> Graduacion:
+    return await graduaciones.enviar(bd, usuario, entrada, ip_de(request))

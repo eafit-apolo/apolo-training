@@ -11,6 +11,14 @@ cubren solas las que lleguen después (panel en la B-05, admin en la B-08):
 
 Mientras no haya rutas de admin (B-08), las dos rutas de prueba de abajo
 demuestran que el mecanismo funciona; las de panel existen desde la B-05.
+
+Las rutas internas (`x-roles: [servicio]`, B-07) no tienen sesión: sin token
+responden 401 como las demás, pero una sesión no les sirve de nada (ni 403 ni
+`debe_cambiar_clave`); sus pruebas están en test_labs.py.
+
+Las rutas se leen del OpenAPI que genera la app, no de `app.routes`: desde
+FastAPI 0.143, `app.routes` trae un `_IncludedRouter` por router, no sus rutas
+(visto el 20-nov: hasta entonces estas pruebas solo veían las dos de prueba).
 """
 
 import re
@@ -19,7 +27,6 @@ from pathlib import Path
 import pytest
 import yaml
 from fastapi import FastAPI
-from fastapi.routing import APIRoute
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,24 +47,33 @@ CON_CAMBIO_PENDIENTE = {
 }
 
 
-def operaciones(app: FastAPI) -> dict[tuple[str, str], APIRoute]:
+def operaciones(app: FastAPI) -> dict[tuple[str, str], dict]:
+    """(MÉTODO, ruta) → operación del OpenAPI generado (con `x-roles`)."""
+    app.openapi_schema = None  # que incluya las rutas agregadas después
     return {
-        (metodo, ruta.path): ruta
-        for ruta in app.routes
-        if isinstance(ruta, APIRoute)
-        for metodo in ruta.methods
+        (metodo.upper(), ruta): op
+        for ruta, ops in app.openapi()["paths"].items()
+        for metodo, op in ops.items()
+        if metodo in METODOS
     }
 
 
-def roles(ruta: APIRoute) -> list[str] | None:
-    return (ruta.openapi_extra or {}).get("x-roles")
+def roles(op: dict) -> list[str] | None:
+    return op.get("x-roles")
 
 
-def protegidas(app: FastAPI) -> dict[tuple[str, str], APIRoute]:
+def protegidas(app: FastAPI) -> dict[tuple[str, str], dict]:
     return {
-        clave: ruta
-        for clave, ruta in operaciones(app).items()
-        if roles(ruta) != ["publico"] and clave not in CON_REFRESH
+        clave: op
+        for clave, op in operaciones(app).items()
+        if roles(op) != ["publico"] and clave not in CON_REFRESH
+    }
+
+
+def de_sesion(app: FastAPI) -> dict[tuple[str, str], dict]:
+    """Las protegidas que se usan con sesión (no las internas)."""
+    return {
+        clave: op for clave, op in protegidas(app).items() if roles(op) != ["servicio"]
     }
 
 
@@ -91,10 +107,17 @@ def app_con_pruebas(app_bd: FastAPI) -> FastAPI:
     return app_bd
 
 
+def test_se_ven_todas_las_rutas(app_real: FastAPI) -> None:
+    # Que nunca más queden vacías (ver el docstring).
+    claves = operaciones(app_real)
+
+    assert ("GET", "/api/me/progreso") in claves
+    assert ("POST", "/api/internal/labs") in claves
+    assert len(claves) >= 25
+
+
 def test_toda_ruta_declara_roles(app_real: FastAPI) -> None:
-    sin_roles = [
-        clave for clave, ruta in operaciones(app_real).items() if not roles(ruta)
-    ]
+    sin_roles = [clave for clave, op in operaciones(app_real).items() if not roles(op)]
 
     assert sin_roles == []
 
@@ -108,10 +131,10 @@ def test_rutas_iguales_al_contrato(app_real: FastAPI) -> None:
         if metodo in METODOS
     }
 
-    for clave, ruta in operaciones(app_real).items():
+    for clave, op in operaciones(app_real).items():
         assert clave in esperadas, f"{clave} no está en api/openapi.yaml"
-        assert ruta.operation_id == esperadas[clave]["operationId"], clave
-        assert set(roles(ruta)) == set(esperadas[clave]["x-roles"]), clave
+        assert op["operationId"] == esperadas[clave]["operationId"], clave
+        assert set(roles(op)) == set(esperadas[clave]["x-roles"]), clave
 
 
 async def test_sin_sesion_toda_ruta_protegida_responde_401(
@@ -130,9 +153,9 @@ async def test_estudiante_recibe_403_donde_no_le_toca(
     await crear_usuario(sesion_bd, rol="estudiante")
     await ingresar(cliente)
     restringidas = {
-        clave: ruta
-        for clave, ruta in protegidas(app_con_pruebas).items()
-        if "estudiante" not in roles(ruta)
+        clave: op
+        for clave, op in de_sesion(app_con_pruebas).items()
+        if "estudiante" not in roles(op)
     }
 
     assert len(restringidas) >= 2
@@ -173,7 +196,7 @@ async def test_con_cambio_pendiente_solo_auth_y_me(
     await ingresar(cliente)
     bloqueadas = {
         clave
-        for clave in protegidas(app_con_pruebas)
+        for clave in de_sesion(app_con_pruebas)
         if clave not in CON_CAMBIO_PENDIENTE
     }
 

@@ -26,7 +26,9 @@ info:
     el `codigo`; `detail` es solo para quien depura.
 
     **Rutas internas.** `/internal/*` solo las usa la VM de práctica, con
-    token de servicio y desde su IP (nginx y la API lo comprueban).
+    el token de servicio (`Authorization: Bearer`). La API revisa el token
+    (401 `token_servicio_invalido` si falta o no coincide) y el nginx de la
+    plataforma deja pasar solo la IP de la VM (403 desde otra IP).
 servers:
   - url: /api
     description: Misma URL de la plataforma, detrás de nginx
@@ -262,8 +264,9 @@ paths:
       description: |
         El avance en el curso de inducción (el primero publicado) por módulo
         y por lección (B-06). Una lección de un módulo bloqueado no cuenta
-        como completa. Laboratorios, sincronización, graduación, `aprobado` y
-        `siguiente_paso` llegan con la B-07.
+        como completa. Además (B-07): las siete prácticas como las sincronizó
+        la VM, la última sincronización, la graduación, si aprobó el curso y
+        el siguiente paso.
       security:
         - cookieAcceso: []
       x-roles: [estudiante, instructor, admin]
@@ -288,8 +291,10 @@ paths:
       summary: Enviar el JobID y la salida del verificador de la graduación
       description: |
         El usuario hace la graduación en su clúster real y pega aquí el
-        resultado. Se puede reenviar mientras no esté aprobada; un reenvío
-        reemplaza el anterior y vuelve a `enviada`.
+        resultado. Se puede enviar en cualquier momento (aprobar el curso igual
+        exige todo) y reenviar mientras no esté aprobada: un reenvío reemplaza
+        el anterior, vuelve a `enviada` y borra la revisión. El clúster es el
+        del perfil del usuario.
       security:
         - cookieAcceso: []
           csrf: []
@@ -873,6 +878,7 @@ paths:
       tags: [panel]
       operationId: listarGraduaciones
       summary: Graduaciones enviadas, por estado
+      description: Las más viejas primero (el orden en que se revisan).
       security:
         - cookieAcceso: []
       x-roles: [instructor, admin]
@@ -932,7 +938,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
         "422":
-          $ref: "#/components/responses/ErrorValidacion"
+          description: |
+            Datos inválidos (`datos_invalidos`), o rechazo sin comentario
+            (`comentario_obligatorio`)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /panel/export/progreso.csv:
     get:
@@ -1103,8 +1115,8 @@ paths:
       operationId: listarAprobadosPendientes
       summary: Quienes aprobaron el curso y esperan su QOS normal
       description: |
-        Usuarios con todas las lecciones completas, los cuatro laboratorios
-        aprobados y la graduación aprobada, que todavía no tienen
+        Usuarios con todas las lecciones completas, las siete prácticas
+        aprobadas y la graduación aprobada, que todavía no tienen
         `qos_aplicada_en`.
       security:
         - cookieAcceso: []
@@ -1223,12 +1235,17 @@ paths:
     post:
       tags: [internal]
       operationId: sincronizarLabs
-      summary: Recibir el reporte de laboratorios de la VM de práctica
+      summary: Recibir el reporte de prácticas de la VM de práctica
       description: |
-        Lo envía el timer de la VM de práctica cada 5 minutos. El reporte es
-        completo (no incremental): upsert por usuario y laboratorio, y un
-        `aprobado` nunca se reemplaza por `intentado`. Cada envío queda en
-        `sincronizaciones`.
+        Lo envía el timer de la VM de práctica cada 5 minutos (V-05). El
+        reporte es completo (no incremental): upsert por usuario y práctica,
+        así que enviar el mismo reporte dos veces no cambia nada. Un `aprobado`
+        nunca se reemplaza (se queda el primer JobID que lo aprobó); un
+        `intentado` sobre un aprobado vuelve en `ignorados` con
+        `no_retrocede`. Un usuario desconocido o dado de baja también vuelve en
+        `ignorados`, sin romper el resto. El mismo usuario y práctica dos
+        veces en un envío es un 422 (`registro_repetido`) y no se guarda nada.
+        Cada envío queda en `sincronizaciones`, aunque no traiga cambios.
       security:
         - tokenServicio: []
       x-roles: [servicio]
@@ -1246,11 +1263,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResultadoSincronizacion"
         "401":
-          $ref: "#/components/responses/NoAutenticado"
+          $ref: "#/components/responses/TokenServicioInvalido"
         "403":
-          $ref: "#/components/responses/Prohibido"
+          description: Desde otra IP (lo responde el nginx de la plataforma)
         "422":
-          $ref: "#/components/responses/ErrorValidacion"
+          description: |
+            Reporte mal armado (`datos_invalidos`), o el mismo usuario y
+            práctica dos veces (`registro_repetido`)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   securitySchemes:
@@ -1367,8 +1390,19 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+    TokenServicioInvalido:
+      description: "Falta el token de servicio, no es `Bearer` o no coincide (`token_servicio_invalido`)"
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+            const: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
     Prohibido:
-      description: "Sin permiso para esta acción (`sin_permiso`, `debe_cambiar_clave`, `csrf_invalido`, `ip_no_permitida`)"
+      description: "Sin permiso para esta acción (`sin_permiso`, `debe_cambiar_clave`, `csrf_invalido`)"
       content:
         application/json:
           schema:
@@ -1453,7 +1487,11 @@ components:
       enum: [estudiante, instructor, admin]
     LabId:
       type: string
-      enum: [modulos, memoria, nucleos, paralelo]
+      description: |
+        Las siete prácticas del verificador (`apolo-training verificar
+        <práctica>`), en el orden del curso. En la API se llaman `lab`; en la
+        base, `practicas`.
+      enum: [conexion, terminal, archivos, modulos, memoria, nucleos, paralelo]
     EstadoGraduacion:
       type: string
       enum: [enviada, aprobada, rechazada]
@@ -2057,7 +2095,7 @@ components:
 
     LabEstadoUsuario:
       type: object
-      required: [lab, estado]
+      required: [lab, estado, jobid, fecha, detalle]
       properties:
         lab:
           $ref: "#/components/schemas/LabId"
@@ -2077,8 +2115,12 @@ components:
       required:
         - cluster
         - jobid
+        - salida_verificador
         - estado
         - enviada_en
+        - revisada_en
+        - comentario
+        - qos_aplicada_en
       properties:
         cluster:
           $ref: "#/components/schemas/Cluster"
@@ -2110,15 +2152,15 @@ components:
           examples: ["98765"]
         salida:
           type: string
-          description: Salida de `apolo-training verificar ondemand JOBID`, pegada tal cual
+          description: Salida de `apolo-training verificar graduacion JOBID`, pegada tal cual
+          minLength: 1
           maxLength: 4000
     MiProgreso:
       type: object
       description: |
-        La B-06 entrega el avance por módulo y por lección del curso de
-        inducción. `labs`, `ultima_sincronizacion`, `sincronizacion_atrasada`,
-        `graduacion`, `aprobado` y `siguiente_paso` llegan con la B-07, que
-        ajusta también sus esquemas (siete prácticas y graduación por lotes).
+        El avance por módulo y por lección del curso de inducción (B-06), las
+        siete prácticas, la sincronización, la graduación, si aprobó y el
+        siguiente paso (B-07).
       required:
         - curso
         - avance_pct
@@ -2126,6 +2168,12 @@ components:
         - lecciones_completas
         - modulos
         - fallback
+        - labs
+        - ultima_sincronizacion
+        - sincronizacion_atrasada
+        - graduacion
+        - aprobado
+        - siguiente_paso
       properties:
         curso:
           type: [string, "null"]
@@ -2202,32 +2250,36 @@ components:
                       type: [number, "null"]
                       description: Mejor puntaje (0 a 100); null sin quiz o sin intentos
         labs:
-          description: "B-07. Siempre todas las prácticas, aunque no se hayan intentado"
+          description: Siempre las siete prácticas, en el orden de `LabId`, aunque no se hayan intentado
           type: array
           items:
             $ref: "#/components/schemas/LabEstadoUsuario"
         ultima_sincronizacion:
-          description: B-07
+          description: Último reporte de la VM de práctica (el mismo para todos); null si nunca llegó uno
           oneOf:
             - $ref: "#/components/schemas/FechaHora"
             - type: "null"
         sincronizacion_atrasada:
           type: boolean
-          description: B-07. true si la última sincronización tiene más de 15 minutos
+          description: true si el último reporte tiene más de 15 minutos; false si nunca llegó uno
         graduacion:
-          description: B-07
           oneOf:
             - $ref: "#/components/schemas/Graduacion"
             - type: "null"
         aprobado:
           type: boolean
-          description: B-07. Lecciones, laboratorios y graduación completos
+          description: Todas las lecciones completas, las siete prácticas aprobadas y la graduación aprobada (la QOS no cuenta)
         siguiente_paso:
-          description: B-07
           $ref: "#/components/schemas/SiguientePaso"
     SiguientePaso:
       type: object
-      required: [tipo]
+      description: |
+        Lo primero pendiente, en el orden del curso: módulo por módulo, sus
+        lecciones y luego sus prácticas; después las prácticas que ninguna
+        lección nombra, la graduación (sin enviar o rechazada), la revisión,
+        la QOS y `terminado`. `leccion` solo con `tipo: leccion` y `lab` solo
+        con `tipo: laboratorio`.
+      required: [tipo, leccion, lab]
       properties:
         tipo:
           type: string
@@ -2309,7 +2361,7 @@ components:
             labs_aprobados:
               type: integer
               minimum: 0
-              maximum: 4
+              maximum: 7
             graduacion_estado:
               oneOf:
                 - $ref: "#/components/schemas/EstadoGraduacion"
@@ -2400,7 +2452,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/Graduacion"
         - type: object
-          required: [username, nombre]
+          required: [username, nombre, revisada_por, labs_aprobados]
           properties:
             username:
               $ref: "#/components/schemas/Username"
@@ -2413,7 +2465,7 @@ components:
             labs_aprobados:
               type: integer
               minimum: 0
-              maximum: 4
+              maximum: 7
     RevisionGraduacion:
       type: object
       required: [decision]
@@ -2424,7 +2476,9 @@ components:
         comentario:
           type: string
           maxLength: 1000
-          description: Obligatorio al rechazar; el usuario lo ve en Mi progreso
+          description: |
+            Obligatorio al rechazar (422 `comentario_obligatorio` si falta o
+            está en blanco); el usuario lo ve en Mi progreso
     AprobadoPendiente:
       type: object
       required:
@@ -2490,11 +2544,11 @@ components:
             $ref: "#/components/schemas/RegistroLab"
     RegistroLab:
       type: object
+      description: El mejor estado de una práctica de un usuario
       required:
         - usuario
         - lab
         - estado
-        - jobid
         - fecha
       properties:
         usuario:
@@ -2505,12 +2559,16 @@ components:
           type: string
           enum: [intentado, aprobado]
         jobid:
-          type: string
+          description: Solo las prácticas de Slurm; `conexion`, `terminal` y `archivos` no tienen trabajo
+          type: [string, "null"]
+          pattern: "^[0-9]+(_[0-9]+)?$"
           examples: ["1042"]
         fecha:
+          description: Fin del trabajo, o cuándo se verificó si no hay trabajo. Con zona horaria
           $ref: "#/components/schemas/FechaHora"
         detalle:
-          type: string
+          description: Mensaje del verificador
+          type: [string, "null"]
           maxLength: 200
     ResultadoSincronizacion:
       type: object

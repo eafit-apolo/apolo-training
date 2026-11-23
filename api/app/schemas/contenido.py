@@ -151,14 +151,11 @@ class ModuloProgreso(BaseModel):
     lecciones: list[LeccionProgreso]
 
 
-class MiProgreso(BaseModel):
-    """Mi progreso (B-06): el curso de inducción por módulo y por lección.
-
-    Laboratorios, sincronización, graduación y siguiente paso llegan con la
-    B-07.
+class AvanceCurso(BaseModel):
+    """La parte de Mi progreso que sale del curso (B-06): el curso de
+    inducción por módulo y por lección. Mi progreso completo, con prácticas,
+    sincronización y graduación (B-07), es `labs.MiProgreso`.
     """
-
-    model_config = ConfigDict(title="MiProgreso")
 
     # El slug del curso; null si todavía no hay un curso publicado.
     curso: str | None

@@ -15,6 +15,7 @@ from app.core.errores import registrar_manejadores
 from app.routers import (
     auth,
     contenido,
+    internal,
     medios,
     panel,
     perfil,
@@ -59,4 +60,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(quizzes.router, prefix=PREFIJO)
     app.include_router(medios.router, prefix=PREFIJO)
     app.include_router(panel.router, prefix=PREFIJO)
+    app.include_router(internal.router, prefix=PREFIJO)
     return app

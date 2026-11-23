@@ -1,5 +1,6 @@
-"""Rutas del panel de instructor (instructor y admin): por ahora los videos
-(B-05): listarVideos, subirVideo y subirSubtitulos del contrato.
+"""Rutas del panel de instructor (instructor y admin): los videos (B-05:
+listarVideos, subirVideo y subirSubtitulos) y las graduaciones (B-07:
+listarGraduaciones y revisarGraduacion) del contrato.
 
 La subida manda el archivo como cuerpo del PUT, no como formulario
 (`curl -T video.mp4`, o el archivo tal cual desde la F-08), así se escribe una
@@ -15,16 +16,18 @@ from starlette.requests import ClientDisconnect
 from app.core.auth import UsuarioDep, con_roles
 from app.core.db import SesionDep
 from app.core.errores import ErrorApi
-from app.models.valores import PATRON_CLAVE_VIDEO
+from app.models.valores import PATRON_CLAVE_VIDEO, PATRON_USERNAME
 from app.schemas.contenido import Idioma
+from app.schemas.labs import EstadoGraduacion, GraduacionAdmin, RevisionGraduacion
 from app.schemas.medios import VideoAdmin
-from app.services import medios
+from app.services import graduaciones, medios
 from app.services.auditoria import ip_de
 
 router = APIRouter(prefix="/panel", tags=["panel"])
 
 PANEL = con_roles("instructor", "admin")
 ClaveVideo = Annotated[str, Path(pattern=PATRON_CLAVE_VIDEO)]
+Username = Annotated[str, Path(pattern=PATRON_USERNAME)]
 
 
 def _con_cuerpo(tipo: str, esquema: dict[str, Any]) -> dict[str, Any]:
@@ -103,3 +106,31 @@ async def subir_subtitulos(
         usuario,
         ip_de(request),
     )
+
+
+@router.get(
+    "/graduaciones",
+    operation_id="listarGraduaciones",
+    summary="Graduaciones enviadas, por estado (las más viejas primero)",
+    **PANEL,
+)
+async def listar_graduaciones(
+    bd: SesionDep, estado: EstadoGraduacion | None = None
+) -> list[GraduacionAdmin]:
+    return await graduaciones.listar(bd, estado)
+
+
+@router.post(
+    "/graduaciones/{username}/revision",
+    operation_id="revisarGraduacion",
+    summary="Aprobar o rechazar una graduación",
+    **PANEL,
+)
+async def revisar_graduacion(
+    username: Username,
+    revision: RevisionGraduacion,
+    revisor: UsuarioDep,
+    bd: SesionDep,
+    request: Request,
+) -> GraduacionAdmin:
+    return await graduaciones.revisar(bd, username, revision, revisor, ip_de(request))
