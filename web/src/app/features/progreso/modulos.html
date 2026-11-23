@@ -1,0 +1,75 @@
+<ul class="modulos">
+  @for (m of modulos(); track m.id) {
+    <li>
+      <details class="modulo" [class]="'modulo-' + m.estado">
+        <summary>
+          <span class="modulo-nombre">{{ m.numero }} · {{ m.titulo }}</span>
+          <span class="modulo-lecciones">{{
+            'progreso.modulos.lecciones'
+              | transloco: { n: m.lecciones_completas, total: m.lecciones_total }
+          }}</span>
+          <span class="estado" [class]="'estado-' + m.estado">
+            <at-icono
+              [nombre]="
+                m.estado === 'completo'
+                  ? 'completo'
+                  : m.estado === 'bloqueado'
+                    ? 'bloqueado'
+                    : 'pendiente'
+              "
+            />
+            {{ 'estado.' + (m.estado === 'en_curso' ? 'en-curso' : m.estado) | transloco }}
+          </span>
+        </summary>
+        <ul class="lecciones">
+          @for (l of m.lecciones; track l.id; let i = $index) {
+            <li>
+              <span class="leccion-nombre">
+                @if (abre(m.estado) && curso()) {
+                  <a class="enlace" [routerLink]="['/cursos', curso(), m.slug, l.slug]"
+                    >{{ m.numero }}.{{ i + 1 }} · {{ l.titulo }}</a
+                  >
+                } @else {
+                  {{ m.numero }}.{{ i + 1 }} · {{ l.titulo }}
+                }
+              </span>
+              <ul class="at-etiquetas">
+                <li [class.hecho]="l.completada">
+                  {{
+                    (l.completada ? 'estado.leccionCompleta' : 'estado.leccionPendiente')
+                      | transloco
+                  }}
+                </li>
+                @if (l.video_completo) {
+                  <li>{{ 'progreso.modulos.videoVisto' | transloco }}</li>
+                }
+                @if (l.tiene_quiz) {
+                  <li [class.hecho]="l.quiz_aprobado">
+                    @if (l.quiz_mejor_puntaje === null) {
+                      {{ 'progreso.modulos.quizSinIntentar' | transloco }}
+                    } @else {
+                      {{
+                        (l.quiz_aprobado
+                          ? 'progreso.modulos.quizAprobado'
+                          : 'progreso.modulos.quizNoAprobado'
+                        ) | transloco: { n: l.quiz_mejor_puntaje }
+                      }}
+                    }
+                  </li>
+                }
+                @for (pr of l.practicas; track pr) {
+                  <li>
+                    {{
+                      'progreso.modulos.practica'
+                        | transloco: { nombre: ('progreso.practicas.nombres.' + pr | transloco) }
+                    }}
+                  </li>
+                }
+              </ul>
+            </li>
+          }
+        </ul>
+      </details>
+    </li>
+  }
+</ul>

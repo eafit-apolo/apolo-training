@@ -1,5 +1,10 @@
 import type { Routes } from '@angular/router';
-import { pendiente } from '../../shared/pendiente';
 
-// Pantalla 04.
-export default [pendiente('', 'paginas.miProgreso')] satisfies Routes;
+// Pantalla 04 (F-07).
+export default [
+  {
+    path: '',
+    title: 'paginas.miProgreso',
+    loadComponent: () => import('./progreso').then((m) => m.MiProgreso),
+  },
+] satisfies Routes;

@@ -1,0 +1,262 @@
+<div class="at-contenedor at-progreso">
+  <div class="cabecera">
+    <div>
+      <h1>{{ 'paginas.miProgreso' | transloco }}</h1>
+      @if (usuario(); as u) {
+        <p class="perfil">
+          {{ 'progreso.perfil' | transloco }}
+          <strong class="perfil-cluster">{{ 'cluster.' + u.cluster | transloco }}</strong>
+        </p>
+      }
+    </div>
+    @if (datos()) {
+      <button
+        mat-stroked-button
+        type="button"
+        [attr.aria-disabled]="cargando() || null"
+        (click)="cargando() || actualizar()"
+      >
+        <at-icono nombre="reintentar" />
+        {{ (cargando() ? 'progreso.actualizando' : 'progreso.actualizar') | transloco }}
+      </button>
+    }
+  </div>
+  <p class="at-oculto" aria-live="polite">{{ anuncio() ? (anuncio() | transloco) : '' }}</p>
+
+  @if (datos(); as d) {
+    @if (fallo()) {
+      <p class="aviso aviso-error" role="alert">
+        <at-icono nombre="error" />
+        {{ 'progreso.noActualizado' | transloco }}
+      </p>
+    }
+    @if (d.fallback) {
+      <p class="aviso">
+        <at-icono nombre="traducir" />
+        {{ 'progreso.sinTraduccion' | transloco }}
+      </p>
+    }
+
+    @if (cifras(); as c) {
+      <ul class="cifras" [attr.aria-label]="'progreso.cifras.titulo' | transloco">
+        <li>
+          <span class="cifra-nombre">{{ 'progreso.cifras.avance' | transloco }}</span>
+          <span class="cifra-valor">{{ 'cursos.porcentaje' | transloco: { n: c.avance } }}</span>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="c.avance"
+            [attr.aria-label]="'cursos.avanceCurso' | transloco: { n: c.avance }"
+          />
+        </li>
+        <li>
+          <span class="cifra-nombre">{{ 'progreso.cifras.modulos' | transloco }}</span>
+          <span class="cifra-valor">{{
+            'progreso.cifras.deTotal' | transloco: { n: c.modulosCompletos, total: c.modulos }
+          }}</span>
+        </li>
+        <li>
+          <span class="cifra-nombre">{{ 'progreso.cifras.practicas' | transloco }}</span>
+          <span class="cifra-valor">{{
+            'progreso.cifras.deTotal' | transloco: { n: c.practicasAprobadas, total: c.practicas }
+          }}</span>
+        </li>
+        <li>
+          <span class="cifra-nombre">{{ 'progreso.cifras.graduacion' | transloco }}</span>
+          <span class="cifra-valor">{{
+            'progreso.graduacion.estados.' + c.graduacion | transloco
+          }}</span>
+        </li>
+      </ul>
+    }
+
+    @if (paso(); as p) {
+      <section class="paso" aria-labelledby="paso-titulo">
+        <div class="paso-texto">
+          <h2 id="paso-titulo">{{ 'progreso.paso.titulo' | transloco }}</h2>
+          @switch (p.tipo) {
+            @case ('leccion') {
+              <p class="paso-principal">
+                {{ 'progreso.paso.leccion' | transloco: { numero: p.numero, titulo: p.titulo } }}
+              </p>
+            }
+            @case ('laboratorio') {
+              <p class="paso-principal">
+                {{
+                  'progreso.paso.laboratorio'
+                    | transloco: { nombre: (nombreLab(p.lab!) | transloco) }
+                }}
+              </p>
+              @if (p.titulo) {
+                <p>
+                  {{
+                    'progreso.paso.laboratorioLeccion'
+                      | transloco: { numero: p.numero, titulo: p.titulo }
+                  }}
+                </p>
+              } @else {
+                <p>
+                  {{ 'progreso.paso.laboratorioSinLeccion' | transloco }}
+                  <code>apolo-training verificar {{ p.lab }}</code>
+                </p>
+              }
+            }
+            @case ('graduacion') {
+              <p class="paso-principal">{{ 'progreso.paso.graduacion' | transloco }}</p>
+              <p>
+                {{
+                  (d.graduacion?.estado === 'rechazada'
+                    ? 'progreso.paso.graduacionRechazada'
+                    : 'progreso.paso.graduacionTexto'
+                  ) | transloco: { cluster: ('cluster.' + usuario()?.cluster | transloco) }
+                }}
+              </p>
+            }
+            @case ('esperar_revision') {
+              <p class="paso-principal">{{ 'progreso.paso.esperarRevision' | transloco }}</p>
+              <p>{{ 'progreso.paso.esperarRevisionTexto' | transloco }}</p>
+            }
+            @case ('esperar_qos') {
+              <p class="paso-principal">{{ 'progreso.paso.esperarQos' | transloco }}</p>
+              <p>
+                {{
+                  'progreso.paso.esperarQosTexto'
+                    | transloco: { cluster: ('cluster.' + usuario()?.cluster | transloco) }
+                }}
+              </p>
+            }
+            @case ('terminado') {
+              @if (d.curso) {
+                <p class="paso-principal">{{ 'progreso.paso.terminado' | transloco }}</p>
+                <p>
+                  {{
+                    'progreso.paso.terminadoTexto'
+                      | transloco: { cluster: ('cluster.' + usuario()?.cluster | transloco) }
+                  }}
+                </p>
+              } @else {
+                <p class="paso-principal">{{ 'progreso.sinCurso' | transloco }}</p>
+              }
+            }
+          }
+        </div>
+        @if (p.ruta) {
+          <a mat-flat-button [routerLink]="p.ruta">
+            <at-icono nombre="continuar" />
+            {{ 'progreso.paso.irALeccion' | transloco }}
+          </a>
+        } @else if (p.tipo === 'graduacion') {
+          <button mat-flat-button type="button" (click)="irAGraduacion()">
+            <at-icono nombre="avanzar" />
+            {{ 'progreso.paso.irAGraduacion' | transloco }}
+          </button>
+        }
+      </section>
+    }
+
+    @if (d.modulos.length) {
+      <section aria-labelledby="modulos-titulo">
+        <h2 id="modulos-titulo">{{ 'progreso.modulos.titulo' | transloco }}</h2>
+        <at-modulos-progreso
+          [modulos]="d.modulos"
+          [curso]="d.curso"
+          [abreBloqueados]="abreBloqueados()"
+        />
+      </section>
+    }
+
+    <section aria-labelledby="practicas-titulo">
+      <h2 id="practicas-titulo">{{ 'progreso.practicas.titulo' | transloco }}</h2>
+      <p class="explicacion">{{ 'progreso.practicas.explicacion' | transloco }}</p>
+      @if (d.ultima_sincronizacion; as ultima) {
+        <p class="sincronizacion">
+          {{ 'progreso.practicas.ultima' | transloco: { hora: hora(ultima), hace: hace(ultima) } }}
+        </p>
+        @if (atrasada()) {
+          <p class="aviso aviso-atraso">
+            <at-icono nombre="info" />
+            {{ 'progreso.practicas.atrasada' | transloco: { hora: hora(ultima) } }}
+          </p>
+        }
+      } @else {
+        <p class="aviso">
+          <at-icono nombre="info" />
+          {{ 'progreso.practicas.nunca' | transloco }}
+        </p>
+      }
+      <ul class="practicas">
+        @for (lab of d.labs; track lab.lab) {
+          <li class="practica">
+            <div class="practica-cabecera">
+              <h3>{{ nombreLab(lab.lab) | transloco }}</h3>
+              <span class="estado" [class]="'estado-' + lab.estado">
+                <at-icono
+                  [nombre]="
+                    lab.estado === 'aprobado'
+                      ? 'completo'
+                      : lab.estado === 'intentado'
+                        ? 'reintentar'
+                        : 'pendiente'
+                  "
+                />
+                {{ 'progreso.practicas.estados.' + lab.estado | transloco }}
+              </span>
+            </div>
+            @if (lab.jobid || lab.fecha || lab.detalle) {
+              <p class="practica-datos">
+                @if (lab.jobid) {
+                  <span>{{ 'progreso.practicas.jobid' | transloco: { jobid: lab.jobid } }}</span>
+                }
+                @if (lab.fecha) {
+                  <span>{{ fecha(lab.fecha) }}</span>
+                }
+                @if (lab.detalle) {
+                  <span>{{ lab.detalle }}</span>
+                }
+              </p>
+            }
+            @if (leccionDe(lab); as donde) {
+              <p class="practica-leccion">
+                @if (rutaDe(donde); as ruta) {
+                  <a class="enlace" [routerLink]="ruta">{{
+                    'progreso.practicas.leccion'
+                      | transloco: { numero: donde.numero, titulo: donde.titulo }
+                  }}</a>
+                } @else {
+                  {{
+                    'progreso.practicas.leccion'
+                      | transloco: { numero: donde.numero, titulo: donde.titulo }
+                  }}
+                }
+              </p>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="graduacion-titulo">
+      <h2 id="graduacion-titulo" tabindex="-1" #graduacionTitulo>
+        {{ 'progreso.graduacion.titulo' | transloco }}
+      </h2>
+      @if (usuario(); as u) {
+        <at-graduacion
+          [graduacion]="d.graduacion"
+          [cluster]="u.cluster"
+          (enviada)="alEnviarGraduacion($event)"
+        />
+      }
+      <p class="explicacion">{{ 'progreso.alTerminar' | transloco }}</p>
+    </section>
+  } @else if (fallo()) {
+    <section class="error-carga" role="alert">
+      <h2>{{ 'progreso.errorCarga' | transloco }}</h2>
+      <p>{{ 'progreso.errorMensaje' | transloco }}</p>
+      <button mat-flat-button type="button" (click)="reintentar()">
+        <at-icono nombre="reintentar" />
+        {{ 'progreso.reintentar' | transloco }}
+      </button>
+    </section>
+  } @else {
+    <mat-progress-bar mode="indeterminate" [attr.aria-label]="'progreso.cargando' | transloco" />
+  }
+</div>

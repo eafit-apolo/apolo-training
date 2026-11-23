@@ -1,0 +1,95 @@
+// La graduación de Mi progreso (F-07). Sin encapsulación, como Mi progreso:
+// los avisos, los estados y el código vienen de progreso.scss.
+
+at-graduacion {
+  display: block;
+
+  .at-graduacion {
+    padding: 16px 20px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+
+    > p {
+      margin: 0 0 12px;
+    }
+
+    form {
+      display: grid;
+      gap: 8px;
+      max-width: 44rem;
+    }
+
+    // El contador no se parte en dos líneas en el celular.
+    .mat-mdc-form-field-hint-end {
+      white-space: nowrap;
+    }
+
+    textarea {
+      font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    }
+  }
+
+  .graduacion-estado .estado {
+    font: var(--mat-sys-title-medium);
+  }
+
+  .pasos {
+    margin: 0 0 8px;
+    padding-left: 24px;
+
+    li {
+      margin: 0 0 6px;
+    }
+  }
+
+  .comentario {
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    border-left: 4px solid var(--mat-sys-primary);
+    border-radius: 4px;
+    background: var(--mat-sys-surface-container);
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .comentario-rechazo {
+    border-left-color: var(--mat-sys-error);
+  }
+
+  .comentario-titulo {
+    font: var(--mat-sys-label-large);
+  }
+
+  .comentario-texto {
+    white-space: pre-wrap;
+  }
+
+  .enviado {
+    margin: 0 0 12px;
+
+    summary {
+      min-height: 32px;
+      cursor: pointer;
+    }
+
+    pre {
+      max-height: 20rem;
+      margin: 8px 0 0;
+      padding: 12px;
+      overflow: auto;
+      border-radius: 8px;
+      background: var(--mat-sys-surface-container-high);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+}
