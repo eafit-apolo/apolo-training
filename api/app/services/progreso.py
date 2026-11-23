@@ -238,6 +238,7 @@ async def _avance(
                     tiene_quiz=quiz is not None,
                     quiz_aprobado=fila.quiz_aprobado if fila else False,
                     quiz_mejor_puntaje=float(mejor) if mejor is not None else None,
+                    practicas=list(leccion.practicas),
                 )
             )
             if not completada:

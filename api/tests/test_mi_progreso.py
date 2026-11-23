@@ -165,6 +165,25 @@ async def test_muestra_cada_practica_como_la_sincronizo_la_vm(
     assert labs["paralelo"]["estado"] == "sin_intentar"
 
 
+async def test_cada_leccion_dice_que_practicas_explica(
+    cliente_bd: AsyncClient, ana: Usuario
+) -> None:
+    # F-07: con esto la web enlaza cada práctica con su lección.
+    progreso = await mi(cliente_bd)
+
+    practicas = {
+        f"{m['slug']}/{lec['slug']}": lec["practicas"]
+        for m in progreso["modulos"]
+        for lec in m["lecciones"]
+    }
+    assert practicas == {
+        "m00/bienvenida": [],
+        "m01/vpn": [],
+        "m01/ssh": ["conexion"],
+        "m02/lectura": [],
+    }
+
+
 async def test_las_practicas_son_de_cada_usuario(
     cliente_bd: AsyncClient, sesion_bd: AsyncSession, ana: Usuario
 ) -> None:

@@ -799,6 +799,7 @@ async def test_mi_progreso_al_empezar(
         "tiene_quiz": True,
         "quiz_aprobado": False,
         "quiz_mejor_puntaje": None,
+        "practicas": [],
     }
     assert leccion(progreso, "vpn")["tiene_quiz"] is False
     assert leccion(progreso, "ssh")["tiene_quiz"] is True

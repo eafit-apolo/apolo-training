@@ -2230,6 +2230,7 @@ components:
                     - tiene_quiz
                     - quiz_aprobado
                     - quiz_mejor_puntaje
+                    - practicas
                   properties:
                     id:
                       type: integer
@@ -2249,6 +2250,12 @@ components:
                     quiz_mejor_puntaje:
                       type: [number, "null"]
                       description: Mejor puntaje (0 a 100); null sin quiz o sin intentos
+                    practicas:
+                      description: Las prácticas que explica esta lección (F-07), para enlazar cada una y el siguiente paso de tipo laboratorio con su lección
+                      type: array
+                      maxItems: 7
+                      items:
+                        $ref: "#/components/schemas/Practica"
         labs:
           description: Siempre las siete prácticas, en el orden de `LabId`, aunque no se hayan intentado
           type: array
