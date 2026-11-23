@@ -224,6 +224,33 @@ capturas usan un video de prueba de 2 minutos en `m00/bienvenida`.
 **Estados:** sin laboratorios intentados, graduación enviada, rechazada con
 comentario, aprobada; curso aprobado esperando QOS; todo terminado.
 
+**Desde la F-07, las capturas `capturas/f07-*.png` reemplazan a este
+wireframe** (que todavía muestra cuatro laboratorios, OnDemand y diez módulos).
+Salen de la API real con el contenido de `content/` y la VM simulada con
+`POST /api/internal/labs`:
+
+- Cuatro cifras (avance, módulos completos, prácticas aprobadas de siete y
+  graduación) y el **siguiente paso** como acción principal: «Ir a la lección»
+  para una lección o para la lección que explica una práctica (por el campo
+  `practicas` de cada lección, F-07); «Ir a la graduación» lleva el foco a esa
+  sección.
+- **Módulos** como filas desplegables (`<details>`): lecciones completas y
+  estado; adentro, cada lección con completa, video visto, el mejor puntaje del
+  quiz y sus prácticas. Un estudiante no tiene enlace a las lecciones de un
+  módulo bloqueado; instructores y admins sí.
+- **Las siete prácticas** con estado, JobID, fecha, detalle y su lección. Arriba,
+  la hora de la última sincronización y hace cuánto; con más de 15 minutos, el
+  aviso de que el retraso no es del usuario. Si la VM nunca reportó, «todavía no
+  ha enviado resultados», sin alarma.
+- **Graduación:** sin enviar o rechazada, los pasos cortos para el clúster del
+  perfil (`learning` en Apolo II, `bigmem` en Apolo III) y el formulario (JobID
+  y salida, hasta 4000 caracteres), sin `@angular/forms`. Enviada, lo enviado y
+  «Corregir envío»; rechazada, el comentario del instructor; aprobada, si falta
+  la QOS. Un 409 `graduacion_aprobada` recarga y lo anuncia.
+- La pantalla se recarga al cambiar el idioma, al volver a la pestaña, con
+  «Actualizar» y tras enviar la graduación; «hace N min» y el aviso de los 15
+  minutos se recalculan cada minuto.
+
 ## 05 Panel de instructor
 
 ![Wireframe del panel de instructor](wireframes/05-panel-instructor.svg)
