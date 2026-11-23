@@ -312,8 +312,10 @@ mide con la duración de ese video. `video_completo`, `quiz_aprobado` y
 **practicas.** El último estado conocido de cada una de las siete prácticas del
 verificador por usuario, tal como lo envía la VM de práctica (V-05). Solo las
 de Slurm (`modulos`, `memoria`, `nucleos`, `paralelo`) traen `jobid`. Regla del
-upsert: un `aprobado` nunca se reemplaza por un `intentado` posterior. Si no
-hay fila, la pantalla muestra «sin intentar».
+upsert (B-07): un `aprobado` nunca se reemplaza (ni por un `intentado`
+posterior ni por otro JobID: se queda el primero que lo aprobó); un
+`intentado` sí se actualiza con el último intento. `sincronizado_en` dice
+cuándo cambió la fila. Si no hay fila, la pantalla muestra «sin intentar».
 
 **sincronizaciones.** Un registro por cada envío de la VM, aunque no traiga
 cambios. Si el último tiene más de 15 minutos, Mi progreso avisa (F-07).
@@ -321,7 +323,8 @@ cambios. Si el último tiene más de 15 minutos, Mi progreso avisa (F-07).
 **graduaciones.** Una por usuario. La graduación es un trabajo por lotes en su
 clúster real (`m07/graduacion`, V-07): el estudiante envía el JobID y la salida
 de `apolo-training verificar graduacion JOBID`; un instructor la aprueba o la
-rechaza con un comentario. Si la rechaza, el siguiente envío reemplaza la fila.
+rechaza con un comentario. Mientras no esté aprobada, cada envío reemplaza la
+fila y borra la revisión (B-07).
 Cuando un admin aplica la QOS normal en el clúster real, marca
 `qos_aplicada_en`.
 
@@ -340,13 +343,13 @@ guarda lo que se escribió (podría ser la clave en el campo equivocado).
 Un usuario aparece en «aprobados pendientes de QOS» cuando cumple las tres
 condiciones:
 
-1. Todas las lecciones de los nueve módulos completas (incluye el quiz final
+1. Todas las lecciones de todos los módulos completas (incluye el quiz final
    con 80 % o más).
 2. Las siete prácticas en `aprobado`.
 3. La graduación en `aprobada`.
 
 Es una consulta, no una columna: no hay un estado «aprobado» guardado que se
-pueda desincronizar.
+pueda desincronizar. Mi progreso lo calcula en `aprobado` (B-07).
 
 ## Índices y restricciones
 

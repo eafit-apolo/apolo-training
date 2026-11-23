@@ -24,22 +24,24 @@ se corrige el contrato en el mismo PR.
 
 Todas llevan el prefijo `API_`. No hay archivo `.env`: se leen del entorno.
 
-En la 117 (W-05), `API_DATABASE_URL` y `API_SECRETO` llegan como secretos de
-Compose: los archivos `/run/secrets/api_database_url` y
-`/run/secrets/api_secreto`. La API los lee solo si `/run/secrets` existe, y una
+En la 117 (W-05), `API_DATABASE_URL`, `API_SECRETO` y `API_TOKEN_SERVICIO`
+llegan como secretos de Compose: los archivos `/run/secrets/api_database_url`,
+`/run/secrets/api_secreto` y `/run/secrets/api_token_servicio` (este último,
+de la V-04). La API los lee solo si `/run/secrets` existe, y una
 variable de entorno con el mismo nombre gana sobre el archivo.
 
-| Variable              | Obligatoria                      | Qué es                                                                             |
-| --------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
-| `API_DATABASE_URL`    | sí                               | `postgresql+asyncpg://usuario:clave@host:puerto/base`                              |
-| `API_DB_TIMEOUT`      | no (3)                           | Segundos que `/api/health` espera a PostgreSQL                                     |
-| `API_VERSION`         | no (`dev`)                       | Versión que informa `/api/health`; la imagen la recibe del build                   |
-| `API_DOCS`            | no (`false`)                     | Publica `/api/docs` y `/api/openapi.json` (solo desarrollo)                        |
-| `API_DATOS_EJEMPLO`   | no (`false`)                     | Deja correr `python -m app.datos_ejemplo` (solo desarrollo)                        |
-| `API_SECRETO`         | sí, para la API                  | 32 caracteres o más; firma la sesión. Cambiarlo cierra todas                       |
-| `API_COOKIES_SEGURAS` | no (`true`)                      | Cookies con `Secure`; `false` solo para probar por http desde otro equipo          |
-| `API_MEDIA_DIR`       | no (`/srv/apolo-training/media`) | Carpeta de los videos y subtítulos subidos (B-05)                                  |
-| `API_MEDIA_ENTREGA`   | no (`nginx`)                     | `nginx` (`X-Accel-Redirect`, la 117) o `api` (la API manda el archivo; desarrollo) |
+| Variable              | Obligatoria                       | Qué es                                                                             |
+| --------------------- | --------------------------------- | ---------------------------------------------------------------------------------- |
+| `API_DATABASE_URL`    | sí                                | `postgresql+asyncpg://usuario:clave@host:puerto/base`                              |
+| `API_DB_TIMEOUT`      | no (3)                            | Segundos que `/api/health` espera a PostgreSQL                                     |
+| `API_VERSION`         | no (`dev`)                        | Versión que informa `/api/health`; la imagen la recibe del build                   |
+| `API_DOCS`            | no (`false`)                      | Publica `/api/docs` y `/api/openapi.json` (solo desarrollo)                        |
+| `API_DATOS_EJEMPLO`   | no (`false`)                      | Deja correr `python -m app.datos_ejemplo` (solo desarrollo)                        |
+| `API_SECRETO`         | sí, para la API                   | 32 caracteres o más; firma la sesión. Cambiarlo cierra todas                       |
+| `API_COOKIES_SEGURAS` | no (`true`)                       | Cookies con `Secure`; `false` solo para probar por http desde otro equipo          |
+| `API_MEDIA_DIR`       | no (`/srv/apolo-training/media`)  | Carpeta de los videos y subtítulos subidos (B-05)                                  |
+| `API_MEDIA_ENTREGA`   | no (`nginx`)                      | `nginx` (`X-Accel-Redirect`, la 117) o `api` (la API manda el archivo; desarrollo) |
+| `API_TOKEN_SERVICIO`  | no (sin él, `/internal/*` da 401) | 32 caracteres o más; el token de la VM de práctica para `/api/internal/*` (B-07)   |
 
 En la imagen además: `WEB_CONCURRENCY` (workers de gunicorn, 2 por defecto) y
 `GUNICORN_CMD_ARGS` para opciones extra.
@@ -170,9 +172,57 @@ leerlo.
   a todos los roles, como completar.
 
 `GET /api/me/progreso` da el avance del curso de inducción por módulo y por
-lección: completada, video visto, quiz aprobado y mejor puntaje. Los
-laboratorios, la sincronización, la graduación y el siguiente paso llegan con
-la B-07.
+lección: completada, video visto, quiz aprobado y mejor puntaje. Desde la B-07
+trae también las prácticas, la sincronización, la graduación, `aprobado` y el
+siguiente paso (ver abajo).
+
+## Prácticas, graduación y siguiente paso (B-07)
+
+**Sincronización.** `POST /api/internal/labs` lo llama la VM de práctica cada
+5 minutos (V-05) con `Authorization: Bearer <token>`. La API compara el token
+con `API_TOKEN_SERVICIO` (`secrets.compare_digest`) y responde 401
+`token_servicio_invalido` si falta, no es `Bearer` o no coincide; una sesión
+de usuario no sirve. La IP de la 116 la filtra el nginx de la 117, no la API.
+El reporte es completo (`app/services/labs.py`):
+
+- upsert por usuario y práctica: el mismo reporte dos veces no cambia nada;
+- un `aprobado` no retrocede ni cambia de JobID; un `intentado` sobre un
+  aprobado vuelve en `ignorados` con `no_retrocede`;
+- un usuario desconocido o dado de baja vuelve en `ignorados` (el resto se
+  guarda); el mismo usuario y práctica dos veces → 422 `registro_repetido`;
+- cada envío deja una fila en `sincronizaciones`.
+
+**Graduación** (`app/services/graduaciones.py`). `POST /api/me/graduacion`
+guarda el JobID y la salida del verificador con el clúster del perfil. Se puede
+enviar en cualquier momento y reenviar mientras no esté aprobada (vuelve a
+`enviada` y borra la revisión); aprobada → 409 `graduacion_aprobada`.
+`GET /api/panel/graduaciones?estado=` las lista, las más viejas primero, con
+las prácticas aprobadas de cada uno. `POST
+/api/panel/graduaciones/{username}/revision` aprueba o rechaza una `enviada`
+(si no, 409 `sin_graduacion_pendiente`); rechazar exige comentario (422
+`comentario_obligatorio`). Se auditan `graduacion_enviada` y
+`graduacion_revisada` (sin la salida).
+
+**Mi progreso.** `labs` trae siempre las siete prácticas;
+`sincronizacion_atrasada` es `true` con más de 15 minutos sin reporte (`false`
+si nunca hubo uno); `aprobado` = lecciones completas + siete prácticas
+aprobadas + graduación aprobada. `siguiente_paso` sigue el orden del curso:
+módulo por módulo sus lecciones y luego sus prácticas; después las prácticas
+que ninguna lección nombra, la graduación, `esperar_revision`, `esperar_qos` y
+`terminado`.
+
+Probar la sincronización en desarrollo (el token es el valor fijo de
+`API_TOKEN_SERVICIO` en `deploy/compose.dev.yaml`):
+
+```bash
+TOKEN=$(awk '/API_TOKEN_SERVICIO:/ {print $2}' deploy/compose.dev.yaml)
+curl -s -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"generado_en": "2026-11-23T10:05:00-05:00", "registros": [
+        {"usuario": "ana", "lab": "memoria", "estado": "aprobado",
+         "jobid": "1042", "fecha": "2026-11-23T09:58:12-05:00"}]}' \
+  http://localhost:8000/api/internal/labs
+```
 
 ## Videos y subtítulos (B-05)
 

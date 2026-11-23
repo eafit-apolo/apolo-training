@@ -188,10 +188,10 @@ sequenceDiagram
   C->>S: sacct -a de las cuentas curso-*
   C->>C: verificador: estado de cada laboratorio por usuario
   C->>N: POST /api/internal/labs (Bearer)
-  N->>N: solo acepta la IP de la VM de práctica
-  N->>API: proxy con X-Real-IP
-  API->>API: valida token e IP otra vez
-  API->>DB: upsert labs (un aprobado no retrocede)
+  N->>N: solo acepta la IP de la VM de práctica (si no, 403)
+  N->>API: proxy
+  API->>API: valida el token (si no, 401)
+  API->>DB: upsert practicas (un aprobado no retrocede)
   API->>DB: INSERT sincronizaciones
   API-->>C: 200 {aceptados, ignorados}
   Note over C: si la plataforma no responde, lo registra en el journal y el siguiente envío pone todo al día
@@ -215,13 +215,21 @@ sequenceDiagram
 }
 ```
 
-- `lab`: `modulos`, `memoria`, `nucleos` o `paralelo`. `estado`: `intentado` o
-  `aprobado`.
+- `lab`: una de las siete prácticas (`conexion`, `terminal`, `archivos`,
+  `modulos`, `memoria`, `nucleos` o `paralelo`). `estado`: `intentado` o
+  `aprobado`. `jobid` solo en las de Slurm (las tres primeras no tienen
+  trabajo); `detalle`, opcional, hasta 200 caracteres.
+- La IP la filtra el nginx de la plataforma; la API revisa solo el token
+  (decisión del 20-nov, B-07: detrás de nginx, la API ve la IP de nginx).
 - El reporte es **completo**, no incremental: trae el mejor estado de cada
   laboratorio de cada usuario. Así, si un envío se pierde, el siguiente lo
   corrige, y enviar el mismo reporte dos veces no cambia nada.
-- Un usuario que no existe en la plataforma se devuelve en `ignorados` con el
-  motivo; no rompe el resto del envío.
+- Un usuario que no existe en la plataforma, o dado de baja, se devuelve en
+  `ignorados` con el motivo; no rompe el resto del envío. Un `intentado` sobre
+  una práctica ya aprobada también (`no_retrocede`), y un aprobado conserva el
+  primer JobID que lo aprobó.
+- El mismo usuario y práctica dos veces en un envío es un error del reporte:
+  422 `registro_repetido`, y no se guarda nada.
 
 ## 5. Graduación y QOS
 
@@ -238,8 +246,9 @@ sequenceDiagram
   actor I as Instructor
   actor A as Admin del clúster
 
-  U->>R: abre y cierra una sesión de OnDemand
-  U->>R: module load apolo-training y apolo-training verificar ondemand JOBID
+  U->>R: module load apolo-training y apolo-training preparar
+  U->>R: sbatch graduacion.sh (learning en Apolo II, bigmem en Apolo III)
+  U->>R: apolo-training verificar graduacion JOBID
   R-->>U: [APROBADO]
   U->>W: Mi progreso: JobID y salida del verificador
   W->>API: POST /api/me/graduacion
@@ -247,7 +256,7 @@ sequenceDiagram
   I->>R: (opcional) sacct -j JOBID en ese clúster
   I->>W: Aprobar o rechazar con comentario
   W->>API: POST /api/panel/graduaciones/ana/revision
-  Note over API: con módulos, laboratorios y graduación completos, aparece en aprobados pendientes
+  Note over API: con lecciones, prácticas y graduación completas, aparece en aprobados pendientes
   A->>W: Administración: aprobados pendientes de QOS
   A->>R: sacctmgr modify user ana set qos=(QOS normal)
   A->>W: Marcar QOS aplicada
