@@ -58,8 +58,13 @@ class Settings(BaseSettings):
     # manda el archivo; `api` lo manda la API misma, con Range (desarrollo, donde
     # no hay nginx delante).
     media_entrega: Literal["nginx", "api"] = "nginx"
+    # Token de servicio de /api/internal/* (B-07, B-08): el que manda la VM de
+    # práctica en `Authorization: Bearer`. En la 117 llega como secreto de
+    # Compose (/run/secrets/api_token_servicio, V-04 de Byron). Sin él, toda
+    # ruta interna responde 401.
+    token_servicio: SecretStr | None = None
 
-    @field_validator("secreto")
+    @field_validator("secreto", "token_servicio")
     @classmethod
     def _secreto_largo(cls, valor: SecretStr | None) -> SecretStr | None:
         if valor is not None and len(valor.get_secret_value()) < 32:
