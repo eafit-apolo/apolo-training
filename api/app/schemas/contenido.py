@@ -138,6 +138,9 @@ class LeccionProgreso(BaseModel):
     quiz_aprobado: bool
     # El mejor puntaje (0 a 100) de sus intentos; null sin quiz o sin intentos.
     quiz_mejor_puntaje: float | None
+    # Las prácticas que esta lección explica (F-07): con ellas Mi progreso
+    # enlaza cada práctica y el siguiente paso de tipo laboratorio a su lección.
+    practicas: list[Practica]
 
 
 class ModuloProgreso(BaseModel):

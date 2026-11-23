@@ -172,9 +172,10 @@ leerlo.
   a todos los roles, como completar.
 
 `GET /api/me/progreso` da el avance del curso de inducción por módulo y por
-lección: completada, video visto, quiz aprobado y mejor puntaje. Desde la B-07
-trae también las prácticas, la sincronización, la graduación, `aprobado` y el
-siguiente paso (ver abajo).
+lección: completada, video visto, quiz aprobado, mejor puntaje y, desde la
+F-07, las prácticas que explica (`practicas`, para que la web enlace cada
+práctica con su lección). Desde la B-07 trae también las prácticas, la
+sincronización, la graduación, `aprobado` y el siguiente paso (ver abajo).
 
 ## Prácticas, graduación y siguiente paso (B-07)
 
