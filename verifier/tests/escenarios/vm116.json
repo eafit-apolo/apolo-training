@@ -1,0 +1,122 @@
+[
+  {
+    "JobID": "18",
+    "JobName": "curso-modulos",
+    "State": "FAILED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:01",
+    "TotalCPU": "00:00.050",
+    "MaxRSS": "",
+    "ReqMem": "1024M"
+  },
+  {
+    "JobID": "18.batch",
+    "JobName": "batch",
+    "State": "FAILED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:01",
+    "TotalCPU": "00:00.050",
+    "MaxRSS": "5.07M",
+    "ReqMem": ""
+  },
+  {
+    "JobID": "19",
+    "JobName": "curso-modulos",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:01",
+    "TotalCPU": "00:00.280",
+    "MaxRSS": "",
+    "ReqMem": "1024M"
+  },
+  {
+    "JobID": "19.batch",
+    "JobName": "batch",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:01",
+    "TotalCPU": "00:00.280",
+    "MaxRSS": "34.77M",
+    "ReqMem": ""
+  },
+  {
+    "JobID": "23",
+    "JobName": "curso-memoria",
+    "State": "OUT_OF_MEMORY",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:00",
+    "TotalCPU": "00:00.742",
+    "MaxRSS": "",
+    "ReqMem": "1024M"
+  },
+  {
+    "JobID": "23.batch",
+    "JobName": "batch",
+    "State": "OUT_OF_MEMORY",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:00",
+    "TotalCPU": "00:00.742",
+    "MaxRSS": "1024.91M",
+    "ReqMem": ""
+  },
+  {
+    "JobID": "24",
+    "JobName": "curso-memoria",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:02",
+    "TotalCPU": "00:01.398",
+    "MaxRSS": "",
+    "ReqMem": "4096M"
+  },
+  {
+    "JobID": "24.batch",
+    "JobName": "batch",
+    "State": "COMPLETED",
+    "AllocCPUS": "1",
+    "Elapsed": "00:00:02",
+    "TotalCPU": "00:01.398",
+    "MaxRSS": "1642.25M",
+    "ReqMem": ""
+  },
+  {
+    "JobID": "26",
+    "JobName": "curso-nucleos",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:00:45",
+    "TotalCPU": "00:44.606",
+    "MaxRSS": "",
+    "ReqMem": "1024M"
+  },
+  {
+    "JobID": "26.batch",
+    "JobName": "batch",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:00:45",
+    "TotalCPU": "00:44.606",
+    "MaxRSS": "185.03M",
+    "ReqMem": ""
+  },
+  {
+    "JobID": "27",
+    "JobName": "curso-paralelo",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:00:13",
+    "TotalCPU": "00:48.681",
+    "MaxRSS": "",
+    "ReqMem": "1024M"
+  },
+  {
+    "JobID": "27.batch",
+    "JobName": "batch",
+    "State": "COMPLETED",
+    "AllocCPUS": "4",
+    "Elapsed": "00:00:13",
+    "TotalCPU": "00:48.681",
+    "MaxRSS": "680.27M",
+    "ReqMem": ""
+  }
+]

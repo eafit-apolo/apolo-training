@@ -23,6 +23,12 @@ ESPERADO = {
     ("como_apolo3", "memoria"): (False, "memoria_sin_limite"),
     ("como_apolo3", "nucleos"): (False, "sin_datos"),
     ("como_apolo3", "paralelo"): (False, "sin_datos"),
+    # Salida real de sacct en la VM 116 (V-03): sin fila .extern, ReqMem solo en
+    # la fila del trabajo y MaxRSS solo en la del paso batch
+    ("vm116", "modulos"): (True, "modulos_ok"),
+    ("vm116", "memoria"): (True, "memoria_ok"),
+    ("vm116", "nucleos"): (True, "nucleos_ok"),
+    ("vm116", "paralelo"): (True, "paralelo_ok"),
 }
 
 
@@ -37,6 +43,13 @@ def test_paralelo_informa_la_eficiencia(contexto):
     ok, _, params = at.practica_paralelo(contexto("todo_hecho"))
     assert ok
     assert params["mejor"] == pytest.approx(75 / (20 * 4))
+
+
+def test_paralelo_en_la_vm(contexto):
+    """curso-paralelo de la 116: 48,681 s de CPU en 13 s con 4 núcleos."""
+    ok, _, params = at.practica_paralelo(contexto("vm116"))
+    assert ok
+    assert params["mejor"] == pytest.approx(48.681 / (13 * 4))
 
 
 def test_sacct_pide_solo_los_trabajos_del_usuario(contexto, llamadas_sacct):
@@ -64,6 +77,24 @@ def test_eficiencia_de_un_trabajo(correr):
     assert "Eficiencia de núcleos: 25%" in r.salida
     assert "1.0 de 4 núcleos" in r.salida
     assert "Memoria máxima usada: 210 MB" in r.salida
+
+
+@pytest.mark.parametrize(
+    "jobid, esperado",
+    [
+        # curso-nucleos: 4 núcleos y un solo proceso
+        ("26", ["Eficiencia de núcleos: 25%", "1.0 de 4 núcleos", "185 MB"]),
+        # curso-paralelo: 4 núcleos y 4 procesos
+        ("27", ["Eficiencia de núcleos: 94%", "3.7 de 4 núcleos", "680 MB"]),
+        # curso-memoria con --mem=1G: Slurm lo detuvo antes del primer segundo
+        ("23", ["OUT_OF_MEMORY", "menos de 2 segundos"]),
+    ],
+)
+def test_eficiencia_en_la_vm(correr, jobid, esperado):
+    r = correr("eficiencia", jobid, escenario="vm116")
+    assert r.codigo == 0
+    for texto in esperado:
+        assert texto in r.salida
 
 
 def test_eficiencia_de_un_trabajo_en_curso(correr):

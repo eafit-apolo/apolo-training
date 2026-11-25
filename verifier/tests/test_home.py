@@ -2,6 +2,7 @@
 
 import os
 import re
+import shutil
 
 import apolo_training as at
 from conftest import REPO
@@ -85,6 +86,16 @@ def test_conexion_sin_ssh(contexto):
 def test_terminal_sin_preparar(correr):
     r = correr("verificar", "terminal")
     assert r.codigo == 1
+    assert "apolo-training preparar" in r.salida
+
+
+def test_terminal_sin_su_carpeta(correr, home):
+    """Si falta solo la carpeta de la práctica, el mensaje la nombra a ella."""
+    correr("preparar")
+    shutil.rmtree(os.path.join(home, "apolo-training", "terminal"))
+    r = correr("verificar", "terminal")
+    assert r.codigo == 1
+    assert "~/apolo-training/terminal" in r.salida
     assert "apolo-training preparar" in r.salida
 
 

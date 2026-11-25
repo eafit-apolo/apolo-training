@@ -8,6 +8,6 @@
 #SBATCH --time=00:10:00
 #SBATCH --output=%x-%j.out               # queda como nombre-del-trabajo-JobID.out
 
-# module load <python-con-numpy>         # laboratorio de módulos: descomenta esta línea
+# module load py3-numpy/1.26.4           # laboratorio de módulos: descomenta esta línea
 
 python3 pi.py simple 1000000
