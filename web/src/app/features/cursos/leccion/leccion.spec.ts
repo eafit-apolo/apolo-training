@@ -381,6 +381,29 @@ describe('Lección (F-04)', () => {
     });
   });
 
+  describe('terminal real (T-06)', () => {
+    it('la tarjeta de la práctica la trae, sin conectarse sola', async () => {
+      const raiz = await abrir(TRABAJOS);
+      const tarjeta = raiz.querySelector('.tarjeta');
+      const terminal = tarjeta?.querySelector('at-terminal-real');
+
+      expect(terminal).not.toBeNull();
+      expect(terminal?.querySelector('[role="status"]')?.textContent?.trim()).toBe('Sin conectar');
+      expect(botonCon(terminal as HTMLElement, 'Abrir terminal')).toBeTruthy();
+      expect(botonCon(terminal as HTMLElement, 'Abrir en otra pestaña').getAttribute('href')).toBe(
+        '/terminal',
+      );
+      expect(tarjeta?.textContent).toContain(
+        'con la terminal de abajo o con tu propio cliente SSH',
+      );
+    });
+
+    it('una lección sin práctica no la trae', async () => {
+      const raiz = await abrir('/cursos/induccion/m00/bienvenida');
+      expect(raiz.querySelector('at-terminal-real')).toBeNull();
+    });
+  });
+
   describe('completar y avanzar', () => {
     it('la siguiente lección de un módulo bloqueado no es un enlace', async () => {
       const raiz = await abrir(TRABAJOS);

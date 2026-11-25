@@ -30,7 +30,8 @@
     "videos": "Videos",
     "usuarios": "Usuarios",
     "qos": "Aprobados pendientes de QOS",
-    "noEncontrada": "Página no encontrada"
+    "noEncontrada": "Página no encontrada",
+    "terminal": "Terminal de la VM de práctica"
   },
   "pendiente": {
     "mensaje": "Esta pantalla todavía está en construcción."
@@ -163,7 +164,7 @@
     },
     "practica": {
       "titulo": "Verifica tu práctica",
-      "texto": "Sigue los pasos de la sección Práctica en una terminal conectada por SSH a la VM de práctica. Al terminar, verifica:",
+      "texto": "Sigue los pasos de la sección Práctica en la VM de práctica, con la terminal de abajo o con tu propio cliente SSH. Al terminar, verifica:",
       "resultado": "El resultado aparecerá en Mi progreso."
     },
     "quiz": {
@@ -324,6 +325,31 @@
         "otro": "No pudimos enviarla. Inténtalo de nuevo; si sigue fallando, escribe a {{correo}}."
       }
     }
+  },
+  "terminal": {
+    "abrir": "Abrir terminal",
+    "reconectar": "Reconectar",
+    "otraPestana": "Abrir en otra pestaña",
+    "etiqueta": "Terminal de la VM de práctica",
+    "estado": {
+      "inactiva": "Sin conectar",
+      "conectando": "Conectando a la VM de práctica…",
+      "conectada": "Conectada a la VM de práctica · perfil {{ cluster }}"
+    },
+    "cierre": {
+      "inactividad": "Se cerró después de 15 minutos sin escribir.",
+      "tiempo_maximo": "Se cerró porque llevaba 2 horas abierta.",
+      "otra_sesion": "Se cerró porque abriste la terminal en otra pestaña o ventana.",
+      "ssh_rechazado": "La VM de práctica no aceptó la contraseña.",
+      "sesion_invalida": "Tu sesión en la plataforma terminó o te falta cambiar la contraseña. Reconecta para revisarlo.",
+      "error": "No se pudo conectar con la VM de práctica. Intenta de nuevo en un momento.",
+      "salida": "Saliste de la sesión (exit).",
+      "conexion": "Se perdió la conexión con la terminal.",
+      "carga": "No se pudo cargar la terminal. Recarga la página."
+    },
+    "aviso": "Esta es la VM de práctica del curso, no {{ cluster }}: tu clúster real es {{ login }}.",
+    "avisoSinPerfil": "Esta es la VM de práctica del curso, no un clúster real.",
+    "nota": "Te pide la contraseña de la VM de práctica y se cierra tras 15 minutos sin escribir o a las 2 horas."
   },
   "cuenta": {
     "mostrarClave": "Mostrar la contraseña",

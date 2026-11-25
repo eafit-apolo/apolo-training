@@ -57,6 +57,7 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
     ['/cursos/induccion/m99', 'Página no encontrada'],
     ['/cursos/induccion/m05/no-existe', 'Página no encontrada'],
     ['/mi-progreso', 'Mi progreso'],
+    ['/terminal', 'Terminal de la VM de práctica'],
     ['/panel', 'Panel del curso'],
     ['/panel/graduaciones', 'Graduaciones'],
     ['/panel/videos', 'Videos'],

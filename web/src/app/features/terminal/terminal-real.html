@@ -1,0 +1,63 @@
+<div class="barra">
+  <p class="estado" role="status">
+    <at-icono
+      [nombre]="icono()"
+      [class.conectada]="fase() === 'conectada'"
+      [class.cerrada]="fase() === 'cerrada'"
+    />
+    <span>
+      @switch (fase()) {
+        @case ('conectada') {
+          {{
+            'terminal.estado.conectada'
+              | transloco: { cluster: ('cluster.' + cluster() | transloco) }
+          }}
+        }
+        @case ('cerrada') {
+          {{ 'terminal.cierre.' + motivo() | transloco }}
+        }
+        @default {
+          {{ 'terminal.estado.' + fase() | transloco }}
+        }
+      }
+    </span>
+  </p>
+  <div class="acciones">
+    @if (fase() === 'inactiva') {
+      <button type="button" mat-flat-button (click)="abrir()">
+        <at-icono nombre="terminal" /> {{ 'terminal.abrir' | transloco }}
+      </button>
+    } @else if (fase() === 'cerrada') {
+      <button type="button" mat-flat-button (click)="abrir()">
+        <at-icono nombre="reintentar" /> {{ 'terminal.reconectar' | transloco }}
+      </button>
+    }
+    @if (!completa()) {
+      <a mat-stroked-button routerLink="/terminal" target="_blank" rel="noopener">
+        <at-icono nombre="abrir" /> {{ 'terminal.otraPestana' | transloco }}
+      </a>
+    }
+  </div>
+</div>
+
+<div
+  #pantalla
+  class="pantalla"
+  role="group"
+  [attr.aria-label]="'terminal.etiqueta' | transloco"
+  [hidden]="!visible()"
+></div>
+
+<p class="aviso">
+  <at-icono nombre="info" />
+  <span>
+    @if (login(); as l) {
+      {{
+        'terminal.aviso' | transloco: { cluster: ('cluster.' + cluster() | transloco), login: l }
+      }}
+    } @else {
+      {{ 'terminal.avisoSinPerfil' | transloco }}
+    }
+    {{ 'terminal.nota' | transloco }}
+  </span>
+</p>

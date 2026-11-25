@@ -11,14 +11,14 @@ Las rutas de la API van sin el prefijo `/api`, igual que en
 Estado de ejemplo en todas las pantallas: Ana, perfil Apolo III, terminó los
 módulos 0 a 4, va en el 5 y aprobó el laboratorio de módulos.
 
-| #   | Pantalla                                                     | Ruta en la app                                   | Rol                |
-| --- | ------------------------------------------------------------ | ------------------------------------------------ | ------------------ |
-| 01  | [Inicio de sesión y primer ingreso](#01-inicio-de-sesión)    | `/ingresar`, `/cambiar-clave`                    | todos              |
-| 02  | [Catálogo](#02-catálogo)                                     | `/cursos`, `/cursos/:curso`                      | todos              |
-| 03  | [Lección](#03-lección)                                       | `/cursos/:curso/:modulo`, `…/:leccion`           | todos              |
-| 04  | [Mi progreso](#04-mi-progreso)                               | `/mi-progreso`                                   | todos              |
-| 05  | [Panel de instructor](#05-panel-de-instructor)               | `/panel`, `/panel/graduaciones`, `/panel/videos` | instructor y admin |
-| 06  | [Administración de usuarios](#06-administración-de-usuarios) | `/admin/usuarios`, `/admin/qos`                  | solo admin         |
+| #   | Pantalla                                                     | Ruta en la app                                      | Rol                |
+| --- | ------------------------------------------------------------ | --------------------------------------------------- | ------------------ |
+| 01  | [Inicio de sesión y primer ingreso](#01-inicio-de-sesión)    | `/ingresar`, `/cambiar-clave`                       | todos              |
+| 02  | [Catálogo](#02-catálogo)                                     | `/cursos`, `/cursos/:curso`                         | todos              |
+| 03  | [Lección](#03-lección)                                       | `/cursos/:curso/:modulo`, `…/:leccion`, `/terminal` | todos              |
+| 04  | [Mi progreso](#04-mi-progreso)                               | `/mi-progreso`                                      | todos              |
+| 05  | [Panel de instructor](#05-panel-de-instructor)               | `/panel`, `/panel/graduaciones`, `/panel/videos`    | instructor y admin |
+| 06  | [Administración de usuarios](#06-administración-de-usuarios) | `/admin/usuarios`, `/admin/qos`                     | solo admin         |
 
 **Desde la F-02, las capturas de [`capturas/`](capturas/) reemplazan a los
 wireframes 02 y 03** (que todavía muestran 10 módulos, OnDemand y la terminal
@@ -194,7 +194,9 @@ capturas usan un video de prueba de 2 minutos en `m00/bienvenida`.
 11. **Terminal real** hacia la VM de práctica, al lado de las instrucciones. Pide
     la contraseña de la VM (no la de la plataforma), muestra si está conectada,
     se puede abrir en otra pestaña y se cierra a los 15 min sin actividad o a las
-    2 h (T-05, T-06).
+    2 h (T-05, T-06). Va en la tarjeta «Verifica tu práctica» y no se conecta
+    sola: «Abrir terminal». En otra pestaña es `/terminal`, la misma terminal a
+    pantalla completa, que sí se conecta al entrar.
 
 **API:** `GET /cursos/{curso}/lecciones/{modulo}/{leccion}`, `GET /media/{id}`, `GET /media/{id}/subtitulos/{idioma}`,
 `POST /progreso/video`, `GET /quizzes/{id}`, `POST /quizzes/{id}/intentos`,
