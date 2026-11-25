@@ -88,7 +88,8 @@ python3 -m venv .venv
 
 - `tests/bin/sacct` es un sacct simulado que responde con los trabajos de
   `tests/escenarios/` (todo hecho, solo el fallo de memoria, nada hecho, un
-  clúster como Apolo III y un contador de JobID reiniciado con fantasmas).
+  clúster como Apolo III, un contador de JobID reiniciado con fantasmas y la
+  salida real de la VM 116, `vm116.json`, tomada en la V-03).
 - `tests/bin/squeue` es un squeue simulado: da los trabajos `RUNNING` y
   `PENDING` del mismo escenario, menos los marcados con `"Fantasma": true`.
 - Cada prueba usa un `HOME` temporal, así que no toca tu carpeta.

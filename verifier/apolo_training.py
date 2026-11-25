@@ -651,7 +651,7 @@ def clave_original(ctx):
 def practica_terminal(ctx):
     carpeta = os.path.join(ctx.carpeta, "terminal")
     if not os.path.isdir(carpeta):
-        return False, "sin_carpeta", {"carpeta": ctx.corta(ctx.carpeta)}
+        return False, "sin_carpeta", {"carpeta": ctx.corta(carpeta)}
     respuesta = os.path.join(carpeta, "respuesta.txt")
     params = {
         "respuesta": ctx.corta(respuesta),
