@@ -241,6 +241,23 @@ imagen (uid 10001) puede escribir ahí. Puertos: `API_IMAGEN_PUERTO` (8001),
 la VPN y la llave revisada de la VM; los pasos están en
 [`terminal/README.md`](../terminal/README.md).
 
+### Probar la terminal real (T-06)
+
+`ng serve` pasa `/ws` a `terminal-imagen` (`TERMINAL_URL` en el servicio `web`),
+así que la terminal de la lección funciona en `localhost:4200` como en la 117:
+
+```bash
+# known_hosts con el mismo nombre o IP que TERMINAL_SSH_HOST (terminal/README.md)
+docker compose -f deploy/compose.dev.yaml up -d --build terminal-imagen
+docker compose -f deploy/compose.dev.yaml logs -f terminal-imagen   # inicio/fin de cada sesión
+```
+
+El gateway abre SSH con el `username` de la sesión de la plataforma: para
+probar, ese usuario tiene que existir en tu base local y en la VM de práctica
+(con su contraseña de la VM). Los usuarios de ejemplo (`ana`, `carla`…) no
+existen en la VM. Si el nombre de la VM no resuelve dentro del contenedor, pon
+la IP en `TERMINAL_SSH_HOST` en tu terminal (nunca en el repositorio).
+
 ### Si algo falla
 
 - **`Cannot connect to the Docker daemon` o `no such file or directory` en

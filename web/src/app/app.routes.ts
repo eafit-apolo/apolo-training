@@ -18,6 +18,7 @@ export const routes: Routes = [
     children: [
       { path: 'cursos', loadChildren: () => import('./features/cursos/cursos.routes') },
       { path: 'mi-progreso', loadChildren: () => import('./features/progreso/progreso.routes') },
+      { path: 'terminal', loadChildren: () => import('./features/terminal/terminal.routes') },
       {
         path: 'panel',
         canMatch: [conRol('instructor', 'admin')],

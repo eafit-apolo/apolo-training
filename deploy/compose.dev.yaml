@@ -100,8 +100,10 @@ services:
       target: dev
     user: "${UID_LOCAL:-1000}:${GID_LOCAL:-1000}"
     environment:
-      # ng serve envía /api a la API (mismo origen, como en producción).
+      # ng serve envía /api a la API (mismo origen, como en producción) y /ws
+      # al gateway de terminal (T-06; hay que levantar terminal-imagen).
       API_URL: http://api:8000
+      TERMINAL_URL: http://terminal-imagen:8001
     volumes:
       - ../web:/app:z
       # node_modules sale de la imagen (compilado para Alpine), no de tu equipo.

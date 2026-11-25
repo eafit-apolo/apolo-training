@@ -1,0 +1,67 @@
+// La terminal real (T-06): estado y botones, la pantalla de xterm y el aviso.
+:host {
+  display: block;
+  margin: 16px 0;
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font: var(--mat-sys-body-medium);
+  --at-icono: 20px;
+
+  .conectada {
+    color: var(--at-verde);
+  }
+
+  .cerrada {
+    color: var(--mat-sys-error);
+  }
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// xterm necesita medidas fijas para calcular filas y columnas. En la lección,
+// 26rem (unas 24 filas), o menos en una ventana baja; el ancho lo da la columna
+// de la lección (52rem como máximo). El fondo es el de los bloques de código
+// (codigo.ts).
+.pantalla {
+  box-sizing: border-box;
+  height: 26rem;
+  height: min(26rem, 60dvh);
+  min-height: 12rem;
+  padding: 8px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #1e1f2a;
+}
+
+:host(.completa) .pantalla {
+  height: calc(100dvh - 16rem);
+  min-height: 20rem;
+}
+
+.aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+  --at-icono: 18px;
+}

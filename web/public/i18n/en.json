@@ -30,7 +30,8 @@
     "videos": "Videos",
     "usuarios": "Users",
     "qos": "Approved users pending QOS",
-    "noEncontrada": "Page not found"
+    "noEncontrada": "Page not found",
+    "terminal": "Practice VM terminal"
   },
   "pendiente": {
     "mensaje": "This screen is still under construction."
@@ -163,7 +164,7 @@
     },
     "practica": {
       "titulo": "Check your practice",
-      "texto": "Follow the steps in the Practice section in a terminal connected over SSH to the practice VM. When you finish, check it:",
+      "texto": "Follow the steps in the Practice section on the practice VM, with the terminal below or your own SSH client. When you finish, check it:",
       "resultado": "The result will show up in My progress."
     },
     "quiz": {
@@ -324,6 +325,31 @@
         "otro": "We couldn't submit it. Try again; if it keeps failing, write to {{correo}}."
       }
     }
+  },
+  "terminal": {
+    "abrir": "Open terminal",
+    "reconectar": "Reconnect",
+    "otraPestana": "Open in a new tab",
+    "etiqueta": "Practice VM terminal",
+    "estado": {
+      "inactiva": "Not connected",
+      "conectando": "Connecting to the practice VM…",
+      "conectada": "Connected to the practice VM · {{ cluster }} profile"
+    },
+    "cierre": {
+      "inactividad": "It closed after 15 minutes without typing.",
+      "tiempo_maximo": "It closed because it had been open for 2 hours.",
+      "otra_sesion": "It closed because you opened the terminal in another tab or window.",
+      "ssh_rechazado": "The practice VM did not accept the password.",
+      "sesion_invalida": "Your platform session ended or you still need to change your password. Reconnect to check.",
+      "error": "Could not connect to the practice VM. Try again in a moment.",
+      "salida": "You left the session (exit).",
+      "conexion": "The connection to the terminal was lost.",
+      "carga": "Could not load the terminal. Reload the page."
+    },
+    "aviso": "This is the course practice VM, not {{ cluster }}: your real cluster is {{ login }}.",
+    "avisoSinPerfil": "This is the course practice VM, not a real cluster.",
+    "nota": "It asks for your practice VM password and closes after 15 minutes without typing or after 2 hours."
   },
   "cuenta": {
     "mostrarClave": "Show password",

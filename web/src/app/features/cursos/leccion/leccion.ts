@@ -25,6 +25,7 @@ import { Icono } from '../../../shared/icono';
 import type { Miga } from '../../../shared/migas';
 import { Migas } from '../../../shared/migas';
 import { PaginaPendiente } from '../../../shared/pagina-pendiente';
+import { TerminalReal } from '../../terminal/terminal-real';
 import type {
   IntentoResultadoApi,
   LeccionApi,
@@ -61,7 +62,8 @@ const mismoPedido = (a: Pedido | undefined, b: Pedido | undefined) =>
  * Pantalla 03: la lección (F-04). El marco (migas, título, estado) sale del
  * catálogo; el cuerpo, de `GET /api/cursos/{curso}/lecciones/{modulo}/{leccion}`:
  * video, texto con pestañas Apolo II / Apolo III y botones de copiar, la
- * práctica, el quiz, «Marcar como completada» y anterior / siguiente.
+ * práctica con la terminal real (T-06), el quiz, «Marcar como completada» y
+ * anterior / siguiente.
  */
 @Component({
   selector: 'at-leccion',
@@ -77,6 +79,7 @@ const mismoPedido = (a: Pedido | undefined, b: Pedido | undefined) =>
     Bloques,
     Codigo,
     Quiz,
+    TerminalReal,
     Videos,
   ],
   templateUrl: './leccion.html',

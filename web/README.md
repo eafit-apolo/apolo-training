@@ -61,6 +61,7 @@ src/
         ├── cursos/        # 02 catálogo y curso; 03 módulo y lección, con la barra lateral
         │   └── datos/     # API de contenido, CatalogoService, armarCurso() y tipos
         ├── progreso/      # 04 mi progreso
+        ├── terminal/      # 03 terminal real hacia la VM de práctica (T-06) y /terminal
         ├── panel/         # 05 panel de instructor
         └── admin/         # 06 administración de usuarios
 ```

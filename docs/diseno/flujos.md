@@ -173,6 +173,22 @@ Lo que decidió la implementación (T-05, ver [`terminal/`](../../terminal/READM
   teclear nada también se cierra a los 15 minutos.
 - La sesión de la plataforma se valida solo al conectar.
 
+Lo que decidió la app (T-06, ver `web/src/app/features/terminal/`):
+
+- La terminal no se conecta sola: cada conexión pide la contraseña de la VM y
+  abrir otra cierra la anterior (`otra_sesion`). En la lección se abre con
+  «Abrir terminal»; en `/terminal` (otra pestaña), al entrar.
+- Antes de abrir el WebSocket, `GET /api/me` renueva `at` si venció (el
+  interceptor hace `refresh`). Un WebSocket que se cierra sin `estado` (red,
+  gateway caído, `Origin` rechazado) se muestra como conexión perdida.
+- Reconectar es manual, con un mensaje por motivo; reconectar limpia la
+  pantalla. `cerrado` sin motivo se muestra como «Saliste de la sesión (exit)».
+- Lo que se pega va en trozos de 16 K caracteres (el gateway acepta 64 KiB por
+  mensaje), sin partir un emoji. `tamano` se manda al abrir y cada vez que
+  cambian las filas o las columnas.
+- xterm.js 6 se descarga solo al abrir la terminal por primera vez (paquete
+  aparte de unos 345 kB); sus estilos van con los de la app.
+
 ## 4. Sincronización de laboratorios
 
 ```mermaid

@@ -55,6 +55,7 @@
           @for (p of practicas(); track p.codigo) {
             <at-codigo [bloque]="p" />
           }
+          <at-terminal-real />
           <p>{{ 'leccion.practica.resultado' | transloco }}</p>
         </section>
       }
