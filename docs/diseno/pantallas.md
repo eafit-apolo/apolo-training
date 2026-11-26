@@ -261,7 +261,7 @@ Salen de la API real con el contenido de `content/` y la VM simulada con
    «Videos» muestran lo mismo completo y con filtros. El panel es para el
    trabajo del curso; la gestión de cuentas está aparte, en «Administración»
    (pantalla 06), y un instructor no la ve. «Exportar CSV» baja el progreso de
-   todos para la medición.
+   los estudiantes para la medición, también los dados de baja (B-08).
 2. **Dónde se atascan:** cuántos estudiantes activos completaron cada módulo.
    Es el insumo de la medición del piloto (Q-06), junto con el CSV.
 3. **Revisar una graduación:** salida del verificador, laboratorios aprobados y
@@ -290,7 +290,9 @@ bajo `/api/admin` responde 403 a un instructor.
    `apolo-training-admin` para la VM de práctica. Así la cuenta existe en los
    dos lados o en ninguno.
 3. **Estado** de la cuenta en la plataforma, para atender «no puedo entrar» sin
-   abrir la base de datos.
+   abrir la base de datos. Es uno solo (dado de baja, bloqueado, debe cambiar
+   la clave o activo, el primero que se cumpla) y la API lo da en `estado`
+   (B-08). Reiniciar la clave también desbloquea la cuenta.
 4. **Acciones por usuario:** ver su progreso (la pantalla 04 en modo lectura),
    reiniciar la clave de la plataforma y cambiar el rol. La baja se hace con
    `apolo-training-admin`.

@@ -42,10 +42,18 @@ sequenceDiagram
   end
 ```
 
+- La alta en la plataforma siempre crea un **estudiante**; si el usuario ya
+  existe, aunque esté de baja, la API responde 409 `usuario_existe` y la VM
+  revierte (B-08).
 - La **baja** sigue el mismo camino: `apolo-training-admin baja ana` bloquea la
   cuenta Unix, quita la asociación de Slurm y llama a
   `PATCH /api/internal/usuarios/ana` con `{"activo": false}`, que revoca sus
-  sesiones. El home se archiva a los 30 días (V-04).
+  sesiones. Se puede repetir sin cambiar nada, y `{"activo": true}` la
+  reactiva. El home se archiva a los 30 días (V-04).
+- **El primer admin** se pone desde la consola de la plataforma
+  (`docker compose exec api python -m app.rol USUARIO admin`, auditado como
+  `consola`); los demás roles, desde Administración. La plataforma nunca se
+  queda sin admin activo (409 `ultimo_admin`).
 - Desde el panel web **no** se crean ni se borran cuentas: el botón «Nuevo
   usuario» muestra la orden para copiar. Si se crearan desde la web, quedaría
   un usuario en la plataforma sin cuenta en la VM y la terminal real fallaría.

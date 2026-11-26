@@ -197,7 +197,7 @@ erDiagram
   auditoria {
     bigint id PK
     bigint actor_id FK "null si fue un servicio"
-    text actor_servicio "vm-practica, null si fue una persona"
+    text actor_servicio "vm-practica o consola, null si fue una persona"
     text accion
     text objetivo "username u objeto afectado"
     jsonb detalle
@@ -326,15 +326,18 @@ de `apolo-training verificar graduacion JOBID`; un instructor la aprueba o la
 rechaza con un comentario. Mientras no esté aprobada, cada envío reemplaza la
 fila y borra la revisión (B-07).
 Cuando un admin aplica la QOS normal en el clúster real, marca
-`qos_aplicada_en`.
+`qos_aplicada_en` (y `qos_aplicada_por`) desde los aprobados pendientes (B-08).
 
 ### Auditoría
 
 **auditoria.** Solo agrega filas. Acciones previstas: `login_ok`,
 `login_fallido`, `cuenta_bloqueada`, `cambio_clave`, `reuso_refresh`, `alta`,
-`baja`, `reinicio_clave`, `cambio_rol`, `video_subido`, `subtitulos_subidos`,
-`graduacion_enviada`, `graduacion_revisada`, `qos_aplicada`,
-`sincronizacion_rechazada`. Nunca guarda contraseñas, tokens ni lo que se
+`baja`, `reactivacion`, `reinicio_clave`, `cambio_rol`, `video_subido`,
+`subtitulos_subidos`, `graduacion_enviada`, `graduacion_revisada`,
+`qos_aplicada`, `export_progreso`, `sincronizacion_rechazada`. `alta`, `baja` y
+`reactivacion` las firma la VM de práctica (`actor_servicio = vm-practica`);
+un cambio de rol desde la consola de la plataforma (`python -m app.rol`, el
+primer admin), `consola` (B-08). Nunca guarda contraseñas, tokens ni lo que se
 escribe en una terminal. Un `login_fallido` con un usuario que no existe no
 guarda lo que se escribió (podría ser la clave en el campo equivocado).
 
@@ -349,7 +352,11 @@ condiciones:
 3. La graduación en `aprobada`.
 
 Es una consulta, no una columna: no hay un estado «aprobado» guardado que se
-pueda desincronizar. Mi progreso lo calcula en `aprobado` (B-07).
+pueda desincronizar. Mi progreso lo calcula en `aprobado` (B-07); la lista de
+aprobados pendientes, la administración y el CSV, con la misma regla en
+`app/services/resumen.py` (B-08). Los aprobados pendientes son solo
+estudiantes activos, y su `aprobado_en` es cuándo se cumplió la última de las
+tres condiciones.
 
 ## Índices y restricciones
 

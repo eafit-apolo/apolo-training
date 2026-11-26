@@ -16,6 +16,7 @@ se corrige el contrato en el mismo PR.
 | `app/models/`          | Modelos SQLAlchemy; cada modelo nuevo se importa en `__init__`; valores de los `CHECK` en `valores.py` |
 | `app/datos_ejemplo.py` | Usuarios de ejemplo del entorno de desarrollo                                                          |
 | `app/importar.py`      | Importador de `content/` (B-04): `python -m app.importar`                                              |
+| `app/rol.py`           | Cambiar un rol desde la consola (el primer admin, B-08): `python -m app.rol USUARIO admin`             |
 | `app/schemas/`         | Esquemas pydantic de entrada y salida                                                                  |
 | `migrations/`          | Migraciones de Alembic                                                                                 |
 | `tests/`               | Pruebas (pytest + httpx, contra PostgreSQL real)                                                       |
@@ -223,6 +224,65 @@ curl -s -H "Authorization: Bearer $TOKEN" \
         {"usuario": "ana", "lab": "memoria", "estado": "aprobado",
          "jobid": "1042", "fecha": "2026-11-23T09:58:12-05:00"}]}' \
   http://localhost:8000/api/internal/labs
+```
+
+## Cuentas, administración y medición (B-08)
+
+**Altas y bajas solo desde la VM de práctica.** `apolo-training-admin` (V-04)
+llama, con el mismo token de servicio de la B-07, a:
+
+- `POST /api/internal/usuarios` (alta): crea un **estudiante** con la clave
+  temporal de la VM (solo el hash) y `debe_cambiar_clave`. Si el username ya
+  existe, aunque esté de baja, 409 `usuario_existe` y la 116 revierte su alta.
+  Un campo de más (por ejemplo `rol`) es un 422.
+- `PATCH /api/internal/usuarios/{username}` con `{"activo": false}` (baja): no
+  vuelve a entrar y se cierran todas sus sesiones; con `true` se reactiva. Se
+  puede repetir sin cambiar nada; 404 si no existe (la baja lo tolera).
+
+Lógica en `app/services/usuarios.py`; se auditan `alta`, `baja` y
+`reactivacion` con `actor_servicio = vm-practica`.
+
+**Administración (solo admin, `/api/admin`).** La lista (`?q=`, `cluster`,
+`rol`, `estado`, `pagina`, `por_pagina`) con un `estado` por cuenta (`baja`,
+`bloqueado`, `debe_cambiar_clave` o `activo`, el primero que se cumpla), el
+detalle con el Mi progreso del usuario, el cambio de rol (409 `ultimo_admin`
+si quitaría al último admin activo) y el reinicio de la clave de la plataforma
+(no la de la VM): una clave temporal de 14 caracteres que se ve una sola vez
+(`Cache-Control: no-store`), `debe_cambiar_clave`, la cuenta desbloqueada y
+sus sesiones cerradas (409 `usuario_inactivo` con una baja). Los aprobados
+pendientes de QOS y «QOS aplicada» están en `app/services/aprobados.py`. Se
+auditan `cambio_rol`, `reinicio_clave` y `qos_aplicada` (nunca la clave).
+
+**El primer admin.** Sin admin no hay quién cambie roles desde la web: tras
+la alta desde la 116, en la plataforma:
+
+```bash
+docker compose exec api python -m app.rol USUARIO admin
+```
+
+Sigue la misma regla (`ultimo_admin`) y queda en la auditoría con
+`actor_servicio = consola`. En desarrollo, `diego` ya es admin.
+
+**CSV de la medición.** `GET /api/panel/export/progreso.csv[?cluster=]`
+(instructor y admin): una fila por estudiante, también las bajas (columna
+`activo`); coma, UTF-8 y fechas ISO 8601 en UTC. Se audita `export_progreso`.
+
+**El avance de muchos a la vez** (`app/services/resumen.py`): la lista, los
+aprobados y el CSV leen la estructura del curso una vez y lo de todos en
+cuatro consultas, con la misma regla de Mi progreso (una lección de un módulo
+bloqueado no cuenta); `tests/test_admin_usuarios.py` lo compara con Mi
+progreso. Si cambia la regla del avance o de `aprobado` en
+`app/services/progreso.py`, hay que cambiarla también ahí.
+
+Probar el alta en desarrollo:
+
+```bash
+TOKEN=$(awk '/API_TOKEN_SERVICIO:/ {print $2}' deploy/compose.dev.yaml)
+curl -s -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"username": "fabio", "nombre": "Fabio Prueba", "correo": "fabio@example.com",
+       "cluster": "apolo2", "clave_temporal": "Kx7pQm2vRt9wNa"}' \
+  http://localhost:8000/api/internal/usuarios
 ```
 
 ## Videos y subtítulos (B-05)
