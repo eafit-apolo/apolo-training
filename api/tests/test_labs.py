@@ -10,39 +10,19 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
-from pydantic import SecretStr
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
-from app.core.db import obtener_sesion
 from app.core.seguridad import ahora
 from app.main import create_app
 from app.models import Practica, Sincronizacion, Usuario
 from app.services import labs
+from tests.ayuda_servicio import TOKEN
 from tests.ayuda_sesion import con_csrf, crear_usuario, ingresar
 
 URL = "/api/internal/labs"
-TOKEN = "t" * 64
 FECHA = "2026-11-23T09:58:12-05:00"
-
-
-@pytest.fixture
-def settings_con_token(settings_con_base: Settings) -> Settings:
-    # model_copy no valida: el token va ya como SecretStr.
-    return settings_con_base.model_copy(update={"token_servicio": SecretStr(TOKEN)})
-
-
-@pytest.fixture
-def vm(crear_cliente, settings_con_token: Settings, sesion_bd: AsyncSession):
-    """Cliente con la app que tiene token, sobre la sesión de la prueba."""
-    app = create_app(settings_con_token)
-
-    async def _misma_sesion():
-        yield sesion_bd
-
-    app.dependency_overrides[obtener_sesion] = _misma_sesion
-    return crear_cliente(app)
 
 
 def registro(usuario: str = "ana", lab: str = "memoria", **campos) -> dict:

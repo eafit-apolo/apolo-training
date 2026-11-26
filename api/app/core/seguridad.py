@@ -84,6 +84,30 @@ def necesita_rehash(clave_hash: str) -> bool:
     return _hasher.check_needs_rehash(clave_hash)
 
 
+# Clave temporal del reinicio (B-08): igual que la de apolo-training-admin en
+# la 116 (V-04), sin los caracteres que se confunden al dictarla o copiarla.
+LARGO_CLAVE_TEMPORAL = 14
+ALFABETO_CLAVE_TEMPORAL = "".join(
+    c
+    for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    if c not in "0O1lI"
+)
+
+
+def clave_temporal() -> str:
+    """Aleatoria, con al menos una minúscula, una mayúscula y un dígito."""
+    while True:
+        clave = "".join(
+            secrets.choice(ALFABETO_CLAVE_TEMPORAL) for _ in range(LARGO_CLAVE_TEMPORAL)
+        )
+        if (
+            any(c.islower() for c in clave)
+            and any(c.isupper() for c in clave)
+            and any(c.isdigit() for c in clave)
+        ):
+            return clave
+
+
 # --- Tokens ------------------------------------------------------------------
 
 

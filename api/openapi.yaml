@@ -48,7 +48,11 @@ tags:
   - name: panel
     description: Panel de instructor (instructor y admin)
   - name: admin
-    description: Administración de usuarios y QOS (solo admin)
+    description: |
+      Administración de usuarios y QOS (solo admin). El primer admin se pone
+      desde la consola de la plataforma con `python -m app.rol USUARIO admin`
+      (B-08); las altas y bajas, con `apolo-training-admin` en la VM de
+      práctica.
   - name: internal
     description: Solo para la VM de práctica (token de servicio)
   - name: salud
@@ -951,6 +955,14 @@ paths:
       tags: [panel]
       operationId: exportarProgreso
       summary: Exportar el progreso de todos los usuarios para la medición
+      description: |
+        Una fila por **estudiante**, también los dados de baja (cuentan como
+        abandono; `activo = false`). Instructores y admins no entran. Ordenado
+        por username, con el mismo avance que Mi progreso. Coma como
+        separador, UTF-8 sin BOM, fin de línea `\r\n` y fechas ISO 8601 en
+        UTC; vacío = sin dato. Se descarga como
+        `progreso-<cluster|todos>-AAAA-MM-DD.csv` y queda en la auditoría
+        (`export_progreso`).
       security:
         - cookieAcceso: []
       x-roles: [instructor, admin]
@@ -962,9 +974,19 @@ paths:
       responses:
         "200":
           description: |
-            Una fila por usuario: username, cluster, creado_en, ultimo_ingreso,
-            avance_pct, modulos_completos, labs_aprobados, graduacion_estado,
-            qos_aplicada_en.
+            Columnas: username, cluster, activo (`true`/`false`), creado_en,
+            ultimo_ingreso, avance_pct, modulos_completos, labs_aprobados,
+            graduacion_estado, qos_aplicada_en.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                examples:
+                  - 'attachment; filename="progreso-todos-2026-11-26.csv"'
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
           content:
             text/csv:
               schema:
@@ -973,19 +995,28 @@ paths:
           $ref: "#/components/responses/NoAutenticado"
         "403":
           $ref: "#/components/responses/Prohibido"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /admin/usuarios:
     get:
       tags: [admin]
       operationId: listarUsuarios
       summary: Usuarios con su avance, con búsqueda y filtros
+      description: |
+        Ordenados por username. `estado` es uno solo por usuario y gana el
+        primero que se cumple: `baja`, `bloqueado` (`bloqueado_hasta` en el
+        futuro), `debe_cambiar_clave` y `activo`; el filtro usa ese mismo
+        valor. El avance es el de Mi progreso.
       security:
         - cookieAcceso: []
       x-roles: [admin]
       parameters:
         - name: q
           in: query
-          description: Busca en username, nombre y correo
+          description: |
+            Busca en username, nombre y correo, sin distinguir mayúsculas;
+            `%` y `_` se buscan tal cual
           schema:
             type: string
             maxLength: 100
@@ -1000,8 +1031,7 @@ paths:
         - name: estado
           in: query
           schema:
-            type: string
-            enum: [activo, debe_cambiar_clave, bloqueado, baja]
+            $ref: "#/components/schemas/EstadoCuenta"
         - $ref: "#/components/parameters/Pagina"
         - $ref: "#/components/parameters/PorPagina"
       responses:
@@ -1015,12 +1045,17 @@ paths:
           $ref: "#/components/responses/NoAutenticado"
         "403":
           $ref: "#/components/responses/Prohibido"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /admin/usuarios/{username}:
     get:
       tags: [admin]
       operationId: obtenerUsuario
       summary: Detalle de un usuario con su progreso
+      description: |
+        `progreso` es su Mi progreso (la pantalla 04 en modo lectura), en el
+        idioma de quien lo mira.
       security:
         - cookieAcceso: []
       x-roles: [admin]
@@ -1046,7 +1081,10 @@ paths:
       description: |
         Las altas y bajas no se hacen aquí sino con `apolo-training-admin` en
         la VM de práctica, para que la cuenta exista o deje de existir en los
-        dos lados (ver docs/diseno/flujos.md).
+        dos lados (ver docs/diseno/flujos.md). El rol nuevo vale desde la
+        siguiente petición (se lee de la base en cada una). El mismo rol no
+        cambia nada. Queda en la auditoría (`cambio_rol`, con el rol de antes
+        y el de ahora).
       security:
         - cookieAcceso: []
           csrf: []
@@ -1073,11 +1111,13 @@ paths:
         "404":
           $ref: "#/components/responses/NoEncontrado"
         "409":
-          description: "No se puede quitar el último admin (`ultimo_admin`)"
+          description: "No se puede quitar el rol al último admin activo (`ultimo_admin`)"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /admin/usuarios/{username}/reiniciar-clave:
     post:
@@ -1086,9 +1126,11 @@ paths:
       summary: Generar una clave temporal de la plataforma
       description: |
         Solo cambia la contraseña de la plataforma; la de la VM de práctica se
-        reinicia con `apolo-training-admin`. La clave temporal se devuelve una
-        sola vez, el usuario debe cambiarla al entrar y sus sesiones se
-        revocan.
+        reinicia con `apolo-training-admin`. La clave temporal (14 caracteres,
+        sin `0 O 1 l I`, como la de la VM) se devuelve una sola vez con
+        `Cache-Control: no-store`; el usuario debe cambiarla al entrar, la
+        cuenta se desbloquea (intentos a 0) y todas sus sesiones se revocan.
+        Queda en la auditoría (`reinicio_clave`), sin la clave.
       security:
         - cookieAcceso: []
           csrf: []
@@ -1098,6 +1140,11 @@ paths:
       responses:
         "200":
           description: Clave temporal
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
           content:
             application/json:
               schema:
@@ -1108,6 +1155,12 @@ paths:
           $ref: "#/components/responses/Prohibido"
         "404":
           $ref: "#/components/responses/NoEncontrado"
+        "409":
+          description: "La cuenta está dada de baja (`usuario_inactivo`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /admin/aprobados-pendientes:
     get:
@@ -1115,9 +1168,10 @@ paths:
       operationId: listarAprobadosPendientes
       summary: Quienes aprobaron el curso y esperan su QOS normal
       description: |
-        Usuarios con todas las lecciones completas, las siete prácticas
-        aprobadas y la graduación aprobada, que todavía no tienen
-        `qos_aplicada_en`.
+        Estudiantes activos con todas las lecciones completas, las siete
+        prácticas aprobadas y la graduación aprobada (el `aprobado` de Mi
+        progreso), que todavía no tienen `qos_aplicada_en`. `aprobado_en` es
+        cuándo se cumplió la última de las tres; los más viejos primero.
       security:
         - cookieAcceso: []
       x-roles: [admin]
@@ -1140,6 +1194,10 @@ paths:
       tags: [admin]
       operationId: marcarQosAplicada
       summary: Registrar que ya se aplicó la QOS normal en el clúster real
+      description: |
+        Solo para quien está en los aprobados pendientes. Llena
+        `qos_aplicada_en` (el siguiente paso de su Mi progreso pasa a
+        `terminado`) y queda en la auditoría (`qos_aplicada`).
       security:
         - cookieAcceso: []
           csrf: []
@@ -1170,7 +1228,9 @@ paths:
       description: |
         La llama `apolo-training-admin` después de crear la cuenta en la VM de
         práctica. Si responde con error, el script revierte lo que hizo en la
-        VM.
+        VM. Siempre crea un estudiante con `debe_cambiar_clave` (la API solo
+        guarda el hash de la clave). Queda en la auditoría (`alta`, con
+        `actor_servicio = vm-practica`).
       security:
         - tokenServicio: []
       x-roles: [servicio]
@@ -1188,11 +1248,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Usuario"
         "401":
-          $ref: "#/components/responses/NoAutenticado"
+          $ref: "#/components/responses/TokenServicioInvalido"
         "403":
-          $ref: "#/components/responses/Prohibido"
+          description: Desde otra IP (lo responde el nginx de la plataforma)
         "409":
-          description: "Ya existe un usuario con ese username (`usuario_existe`)"
+          description: |
+            Ya existe un usuario con ese username, aunque esté de baja
+            (`usuario_existe`); se reactiva con `PATCH`
           content:
             application/json:
               schema:
@@ -1205,7 +1267,12 @@ paths:
       tags: [internal]
       operationId: cambiarEstadoUsuario
       summary: Dar de baja o reactivar (apolo-training-admin baja)
-      description: Con `activo = false` se revocan todas sus sesiones.
+      description: |
+        Con `activo = false` no vuelve a entrar y se revocan todas sus
+        sesiones; con `true` se reactiva (la clave sigue siendo la que
+        tenía). Se puede repetir: si ya estaba así, no cambia nada (tampoco
+        la fecha de la baja). Queda en la auditoría (`baja` o `reactivacion`,
+        con `actor_servicio = vm-practica`).
       security:
         - tokenServicio: []
       x-roles: [servicio]
@@ -1225,11 +1292,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Usuario"
         "401":
-          $ref: "#/components/responses/NoAutenticado"
+          $ref: "#/components/responses/TokenServicioInvalido"
         "403":
-          $ref: "#/components/responses/Prohibido"
+          description: Desde otra IP (lo responde el nginx de la plataforma)
         "404":
           $ref: "#/components/responses/NoEncontrado"
+        "422":
+          $ref: "#/components/responses/ErrorValidacion"
 
   /internal/labs:
     post:
@@ -1373,6 +1442,7 @@ components:
       schema:
         type: integer
         minimum: 1
+        maximum: 100000
         default: 1
     PorPagina:
       name: por_pagina
@@ -1495,6 +1565,12 @@ components:
     EstadoGraduacion:
       type: string
       enum: [enviada, aprobada, rechazada]
+    EstadoCuenta:
+      type: string
+      description: |
+        Uno solo por usuario; gana el primero que se cumple: `baja`,
+        `bloqueado`, `debe_cambiar_clave`, `activo`
+      enum: [baja, bloqueado, debe_cambiar_clave, activo]
     Username:
       type: string
       description: El mismo usuario de su clúster (y de la VM de práctica)
@@ -2352,7 +2428,22 @@ components:
       allOf:
         - $ref: "#/components/schemas/Usuario"
         - type: object
+          required:
+            - estado
+            - bloqueado_hasta
+            - creado_en
+            - ultimo_ingreso
+            - baja_en
+            - avance_pct
+            - labs_aprobados
+            - graduacion_estado
           properties:
+            estado:
+              $ref: "#/components/schemas/EstadoCuenta"
+            baja_en:
+              oneOf:
+                - $ref: "#/components/schemas/FechaHora"
+                - type: "null"
             bloqueado_hasta:
               oneOf:
                 - $ref: "#/components/schemas/FechaHora"
@@ -2505,6 +2596,11 @@ components:
 
     AltaUsuario:
       type: object
+      description: |
+        Sin `rol`: la VM de práctica solo crea estudiantes (B-08). Un campo de
+        más es un 422, para que la VM revierta la alta en vez de crear algo
+        distinto de lo que pidió.
+      additionalProperties: false
       required:
         - username
         - nombre
@@ -2516,16 +2612,20 @@ components:
           $ref: "#/components/schemas/Username"
         nombre:
           type: string
+          description: Se guarda sin los espacios de los extremos
+          minLength: 1
           maxLength: 120
         correo:
           type: string
           format: email
+          description: Validado como `apolo-training-admin`, con `algo@dominio.tld`
+          pattern: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+          maxLength: 254
         cluster:
           $ref: "#/components/schemas/Cluster"
-        rol:
-          $ref: "#/components/schemas/Rol"
         idioma:
           $ref: "#/components/schemas/Idioma"
+          default: es
         clave_temporal:
           type: string
           format: password

@@ -29,14 +29,20 @@ def registrar(
     accion: str,
     *,
     actor_id: int | None = None,
+    actor_servicio: str | None = None,
     objetivo: str | None = None,
     detalle: dict[str, Any] | None = None,
     ip: str | None = None,
 ) -> None:
-    """Agrega la fila a la transacción en curso; la confirma quien llama."""
+    """Agrega la fila a la transacción en curso; la confirma quien llama.
+
+    `actor_servicio` cuando no fue una persona: `vm-practica` (las rutas
+    internas, B-08) o `consola` (`python -m app.rol` en la plataforma).
+    """
     bd.add(
         Auditoria(
             actor_id=actor_id,
+            actor_servicio=actor_servicio,
             accion=accion,
             objetivo=objetivo,
             detalle=detalle,

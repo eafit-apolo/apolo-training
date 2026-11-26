@@ -9,8 +9,9 @@ cubren solas las que lleguen después (panel en la B-05, admin en la B-08):
 - un estudiante recibe 403 en toda ruta cuyos roles no lo incluyen;
 - quien debe cambiar la clave recibe 403 en todo menos /auth/*, GET y PATCH /me.
 
-Mientras no haya rutas de admin (B-08), las dos rutas de prueba de abajo
-demuestran que el mecanismo funciona; las de panel existen desde la B-05.
+Las dos rutas de prueba de abajo demuestran el mecanismo con un rol de cada
+lado; las de panel existen desde la B-05 y las de admin desde la B-08 (DoD 3
+de la B-08: un instructor recibe 403 en todo /api/admin).
 
 Las rutas internas (`x-roles: [servicio]`, B-07) no tienen sesión: sin token
 responden 401 como las demás, pero una sesión no les sirve de nada (ni 403 ni
@@ -113,7 +114,8 @@ def test_se_ven_todas_las_rutas(app_real: FastAPI) -> None:
 
     assert ("GET", "/api/me/progreso") in claves
     assert ("POST", "/api/internal/labs") in claves
-    assert len(claves) >= 25
+    assert ("PATCH", "/api/admin/usuarios/{username}") in claves
+    assert len(claves) >= 34
 
 
 def test_toda_ruta_declara_roles(app_real: FastAPI) -> None:
@@ -160,6 +162,25 @@ async def test_estudiante_recibe_403_donde_no_le_toca(
 
     assert len(restringidas) >= 2
     for metodo, ruta in restringidas:
+        respuesta = await pedir(cliente, metodo, ruta, csrf=True)
+        assert respuesta.status_code == 403, (metodo, ruta)
+        assert respuesta.json()["codigo"] == "sin_permiso", (metodo, ruta)
+
+
+async def test_instructor_recibe_403_en_todo_admin(
+    crear_cliente, app_real: FastAPI, app_bd: FastAPI, sesion_bd: AsyncSession
+) -> None:
+    """DoD 3 de la B-08: las rutas reales de /api/admin, no las de prueba."""
+    cliente = crear_cliente(app_bd)
+    await crear_usuario(sesion_bd, rol="instructor")
+    await ingresar(cliente)
+    de_admin = [
+        clave for clave in de_sesion(app_real) if clave[1].startswith("/api/admin/")
+    ]
+
+    assert len(de_admin) == 6
+    for metodo, ruta in de_admin:
+        assert roles(operaciones(app_real)[metodo, ruta]) == ["admin"], ruta
         respuesta = await pedir(cliente, metodo, ruta, csrf=True)
         assert respuesta.status_code == 403, (metodo, ruta)
         assert respuesta.json()["codigo"] == "sin_permiso", (metodo, ruta)

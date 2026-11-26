@@ -13,11 +13,13 @@ from pathlib import Path
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
+from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.core.db import crear_engine, obtener_sesion
 from app.main import create_app
+from tests.ayuda_servicio import TOKEN
 
 # Puerto 1 en localhost: nadie escucha ahí, así que la conexión falla al momento.
 URL_SIN_BASE = "postgresql+asyncpg://nadie@localhost:1/nada"
@@ -127,3 +129,23 @@ def app_bd(settings_con_base: Settings, sesion_bd: AsyncSession) -> FastAPI:
 @pytest.fixture
 def cliente_bd(crear_cliente, app_bd: FastAPI) -> AsyncClient:
     return crear_cliente(app_bd)
+
+
+@pytest.fixture
+def settings_con_token(settings_con_base: Settings) -> Settings:
+    """La configuración de pruebas con el token de servicio (B-07, B-08)."""
+    # model_copy no valida: el token va ya como SecretStr.
+    return settings_con_base.model_copy(update={"token_servicio": SecretStr(TOKEN)})
+
+
+@pytest.fixture
+def vm(crear_cliente, settings_con_token: Settings, sesion_bd: AsyncSession):
+    """Cliente de la VM de práctica: la app con token, sobre la sesión de la
+    prueba. El token se pasa en cada pedido (`tests/ayuda_servicio.py`)."""
+    app = create_app(settings_con_token)
+
+    async def _misma_sesion():
+        yield sesion_bd
+
+    app.dependency_overrides[obtener_sesion] = _misma_sesion
+    return crear_cliente(app)
