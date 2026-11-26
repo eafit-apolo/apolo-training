@@ -7,7 +7,7 @@ m01/ssh (con la práctica `conexion`); m02/lectura. Las otras seis prácticas no
 las nombra ninguna lección.
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -18,7 +18,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.seguridad import ahora
 from app.models import (
     Curso,
-    Graduacion,
     Leccion,
     Practica,
     ProgresoLeccion,
@@ -29,6 +28,7 @@ from app.models.valores import PRACTICAS
 from app.services.contenido_carga import cargar_contenido
 from app.services.contenido_lector import leer_contenido
 from tests.ayuda_contenido import armar_contenido
+from tests.ayuda_progreso import completar, graduacion, practica
 from tests.ayuda_sesion import crear_usuario, ingresar
 
 MI = "/api/me/progreso"
@@ -48,46 +48,6 @@ async def ana(
     usuario = await crear_usuario(sesion_bd, "ana")
     assert (await ingresar(cliente_bd, "ana")).status_code == 200
     return usuario
-
-
-async def completar(bd: AsyncSession, usuario: Usuario, *slugs: str) -> None:
-    for slug in slugs:
-        leccion_id = await bd.scalar(select(Leccion.id).where(Leccion.slug == slug))
-        bd.add(
-            ProgresoLeccion(
-                usuario_id=usuario.id, leccion_id=leccion_id, completada_en=ahora()
-            )
-        )
-    await bd.flush()
-
-
-async def practica(
-    bd: AsyncSession, usuario: Usuario, nombre: str, estado: str = "aprobado", **mas
-) -> None:
-    bd.add(
-        Practica(
-            usuario_id=usuario.id,
-            practica=nombre,
-            estado=estado,
-            fecha=datetime(2026, 11, 23, 15, tzinfo=UTC),
-            **mas,
-        )
-    )
-    await bd.flush()
-
-
-async def graduacion(bd: AsyncSession, usuario: Usuario, estado: str, **mas) -> None:
-    bd.add(
-        Graduacion(
-            usuario_id=usuario.id,
-            cluster="apolo2",
-            jobid="98765",
-            salida_verificador="[APROBADO] graduacion",
-            estado=estado,
-            **mas,
-        )
-    )
-    await bd.flush()
 
 
 async def todo_menos_la_graduacion(bd: AsyncSession, usuario: Usuario) -> None:

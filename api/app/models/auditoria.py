@@ -18,7 +18,7 @@ class Auditoria(Base):
     id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
     # null si fue un servicio, o un ingreso fallido con un usuario que no existe.
     actor_id: Mapped[int | None] = mapped_column(ForeignKey("usuarios.id"), index=True)
-    # vm-practica; null si fue una persona.
+    # vm-practica o consola (python -m app.rol); null si fue una persona.
     actor_servicio: Mapped[str | None] = mapped_column(Text)
     # login_ok, login_fallido, alta, baja, graduacion_revisada…
     accion: Mapped[str] = mapped_column(Text)

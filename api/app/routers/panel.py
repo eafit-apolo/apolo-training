@@ -1,6 +1,7 @@
 """Rutas del panel de instructor (instructor y admin): los videos (B-05:
-listarVideos, subirVideo y subirSubtitulos) y las graduaciones (B-07:
-listarGraduaciones y revisarGraduacion) del contrato.
+listarVideos, subirVideo y subirSubtitulos), las graduaciones (B-07:
+listarGraduaciones y revisarGraduacion) y el CSV de la medición (B-08:
+exportarProgreso) del contrato.
 
 La subida manda el archivo como cuerpo del PUT, no como formulario
 (`curl -T video.mp4`, o el archivo tal cual desde la F-08), así se escribe una
@@ -10,17 +11,19 @@ sola vez mientras llega. Ver api/README.md.
 from collections.abc import AsyncIterator
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Path, Request
+from fastapi import APIRouter, Path, Request, Response
 from starlette.requests import ClientDisconnect
 
 from app.core.auth import UsuarioDep, con_roles
 from app.core.db import SesionDep
 from app.core.errores import ErrorApi
+from app.core.seguridad import ahora
 from app.models.valores import PATRON_CLAVE_VIDEO, PATRON_USERNAME
 from app.schemas.contenido import Idioma
 from app.schemas.labs import EstadoGraduacion, GraduacionAdmin, RevisionGraduacion
 from app.schemas.medios import VideoAdmin
-from app.services import graduaciones, medios
+from app.schemas.usuario import Cluster
+from app.services import aprobados, graduaciones, medios
 from app.services.auditoria import ip_de
 
 router = APIRouter(prefix="/panel", tags=["panel"])
@@ -134,3 +137,26 @@ async def revisar_graduacion(
     request: Request,
 ) -> GraduacionAdmin:
     return await graduaciones.revisar(bd, username, revision, revisor, ip_de(request))
+
+
+@router.get(
+    "/export/progreso.csv",
+    operation_id="exportarProgreso",
+    summary="Exportar el progreso de todos los usuarios para la medición",
+    response_class=Response,
+    responses={200: {"content": {"text/csv": {"schema": {"type": "string"}}}}},
+    **PANEL,
+)
+async def exportar_progreso(
+    usuario: UsuarioDep, bd: SesionDep, request: Request, cluster: Cluster | None = None
+) -> Response:
+    texto = await aprobados.exportar_csv(bd, cluster, usuario, ip_de(request))
+    nombre = f"progreso-{cluster or 'todos'}-{ahora():%Y-%m-%d}.csv"
+    return Response(
+        texto,
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="{nombre}"',
+            "Cache-Control": "no-store",
+        },
+    )
