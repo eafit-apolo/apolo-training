@@ -1,7 +1,7 @@
-"""Rutas del panel de instructor (instructor y admin): los videos (B-05:
-listarVideos, subirVideo y subirSubtitulos), las graduaciones (B-07:
-listarGraduaciones y revisarGraduacion) y el CSV de la medición (B-08:
-exportarProgreso) del contrato.
+"""Rutas del panel de instructor (instructor y admin): el resumen (F-08:
+resumenPanel), los videos (B-05: listarVideos, subirVideo y subirSubtitulos),
+las graduaciones (B-07: listarGraduaciones y revisarGraduacion) y el CSV de la
+medición (B-08: exportarProgreso) del contrato.
 
 La subida manda el archivo como cuerpo del PUT, no como formulario
 (`curl -T video.mp4`, o el archivo tal cual desde la F-08), así se escribe una
@@ -19,11 +19,13 @@ from app.core.db import SesionDep
 from app.core.errores import ErrorApi
 from app.core.seguridad import ahora
 from app.models.valores import PATRON_CLAVE_VIDEO, PATRON_USERNAME
+from app.routers.contenido import LangDep
 from app.schemas.contenido import Idioma
 from app.schemas.labs import EstadoGraduacion, GraduacionAdmin, RevisionGraduacion
 from app.schemas.medios import VideoAdmin
+from app.schemas.panel import ResumenPanel
 from app.schemas.usuario import Cluster
-from app.services import aprobados, graduaciones, medios
+from app.services import aprobados, graduaciones, medios, panel
 from app.services.auditoria import ip_de
 
 router = APIRouter(prefix="/panel", tags=["panel"])
@@ -64,13 +66,27 @@ def _subida(request: Request) -> medios.Subida:
 
 
 @router.get(
+    "/resumen",
+    operation_id="resumenPanel",
+    summary="Cifras del panel de instructor",
+    **PANEL,
+)
+async def resumen_panel(
+    usuario: UsuarioDep, bd: SesionDep, lang: LangDep = None
+) -> ResumenPanel:
+    return await panel.resumen(bd, lang or usuario.idioma)
+
+
+@router.get(
     "/videos",
     operation_id="listarVideos",
     summary="Videos del curso con el estado de archivo y subtítulos",
     **PANEL,
 )
-async def listar_videos(usuario: UsuarioDep, bd: SesionDep) -> list[VideoAdmin]:
-    return await medios.listar_videos(bd, usuario.idioma)
+async def listar_videos(
+    usuario: UsuarioDep, bd: SesionDep, lang: LangDep = None
+) -> list[VideoAdmin]:
+    return await medios.listar_videos(bd, lang or usuario.idioma)
 
 
 @router.put(

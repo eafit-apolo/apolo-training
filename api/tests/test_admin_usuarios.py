@@ -242,6 +242,22 @@ async def test_el_detalle_va_en_el_idioma_de_quien_mira(
     assert datos["progreso"]["fallback"] is True
 
 
+async def test_el_detalle_en_el_idioma_pedido(
+    cliente_bd: AsyncClient, sesion_bd, diego, contenido
+) -> None:
+    # La web pasa ?lang= porque cambia el idioma antes de que termine el
+    # PATCH /me (F-08).
+    await crear_usuario(sesion_bd, "ana")
+    diego.idioma = "en"
+    await sesion_bd.flush()
+
+    es = (await cliente_bd.get(f"{USUARIOS}/ana", params={"lang": "es"})).json()
+    en = (await cliente_bd.get(f"{USUARIOS}/ana", params={"lang": "en"})).json()
+
+    assert es["progreso"]["fallback"] is False
+    assert en["progreso"]["fallback"] is True
+
+
 async def test_el_detalle_de_alguien_que_no_existe_da_404(
     cliente_bd: AsyncClient, diego: Usuario
 ) -> None:
