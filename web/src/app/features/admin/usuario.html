@@ -1,0 +1,237 @@
+<a class="volver" routerLink="/admin/usuarios">
+  <at-icono nombre="atras" />
+  {{ 'admin.usuario.volver' | transloco }}
+</a>
+
+@if (aviso(); as a) {
+  <p class="aviso" role="status">
+    <at-icono nombre="info" />
+    {{ a.clave | transloco: a.parametros }}
+  </p>
+}
+@if (error(); as clave) {
+  <p class="aviso aviso-error" role="alert">
+    <at-icono nombre="error" />
+    {{ clave | transloco }}
+  </p>
+}
+
+@if (datos(); as d) {
+  @if (fallo()) {
+    <p class="aviso aviso-error" role="alert">
+      <at-icono nombre="error" />
+      {{ 'panel.noActualizado' | transloco }}
+    </p>
+  }
+  <section class="tarjeta cuenta" aria-labelledby="cuenta-titulo">
+    <div class="cuenta-cabecera">
+      <h2 id="cuenta-titulo">{{ d.username }} · {{ d.nombre }}</h2>
+      @switch (d.estado) {
+        @case ('activo') {
+          <span class="chip chip-bien">{{ 'admin.estados.activo' | transloco }}</span>
+        }
+        @case ('debe_cambiar_clave') {
+          <span class="chip chip-atencion">{{
+            'admin.estados.debe_cambiar_clave' | transloco
+          }}</span>
+        }
+        @case ('bloqueado') {
+          <span class="chip chip-mal">
+            @if (d.bloqueado_hasta; as hasta) {
+              {{ 'admin.estados.bloqueadoHasta' | transloco: { hora: hora(hasta) } }}
+            } @else {
+              {{ 'admin.estados.bloqueado' | transloco }}
+            }
+          </span>
+        }
+        @case ('baja') {
+          <span class="chip">{{ 'admin.estados.baja' | transloco }}</span>
+        }
+      }
+    </div>
+    <dl class="datos">
+      <div>
+        <dt>{{ 'admin.usuario.correo' | transloco }}</dt>
+        <dd>{{ d.correo || '—' }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'panel.columnas.cluster' | transloco }}</dt>
+        <dd>{{ 'cluster.' + d.cluster | transloco }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'admin.columnas.rol' | transloco }}</dt>
+        <dd>{{ 'admin.roles.' + d.rol | transloco }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'admin.usuario.idioma' | transloco }}</dt>
+        <dd>{{ 'idioma.' + d.idioma | transloco }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'admin.usuario.creada' | transloco }}</dt>
+        <dd>{{ fecha(d.creado_en) }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'admin.columnas.ultimoIngreso' | transloco }}</dt>
+        <dd>
+          {{ d.ultimo_ingreso ? fecha(d.ultimo_ingreso) : ('admin.usuarios.nunca' | transloco) }}
+        </dd>
+      </div>
+      @if (d.baja_en) {
+        <div>
+          <dt>{{ 'admin.usuario.baja' | transloco }}</dt>
+          <dd>{{ fecha(d.baja_en) }}</dd>
+        </div>
+      }
+    </dl>
+    <div class="acciones">
+      @if (d.estado !== 'baja') {
+        <button mat-stroked-button type="button" (click)="reiniciar()">
+          <at-icono nombre="clave" />
+          {{ 'admin.acciones.reiniciarClave' | transloco }}
+        </button>
+      }
+      <button mat-stroked-button type="button" (click)="cambiarRol()">
+        {{ 'admin.acciones.cambiarRol' | transloco }}
+      </button>
+    </div>
+    <p class="explicacion nota">
+      {{ (d.estado === 'baja' ? 'admin.usuario.notaBaja' : 'admin.usuario.nota') | transloco }}
+    </p>
+  </section>
+
+  <section aria-labelledby="progreso-titulo">
+    <h2 id="progreso-titulo">{{ 'admin.usuario.progreso' | transloco }}</h2>
+    @if (cifras(); as c) {
+      <ul class="cifras" [attr.aria-label]="'progreso.cifras.titulo' | transloco">
+        <li>
+          <span class="cifra-nombre">{{ 'progreso.cifras.avance' | transloco }}</span>
+          <span class="cifra-valor">{{ 'cursos.porcentaje' | transloco: { n: c.avance } }}</span>
+        </li>
+        <li>
+          <span class="cifra-nombre">{{ 'progreso.cifras.modulos' | transloco }}</span>
+          <span class="cifra-valor">{{
+            'progreso.cifras.deTotal' | transloco: { n: c.modulosCompletos, total: c.modulos }
+          }}</span>
+        </li>
+        <li>
+          <span class="cifra-nombre">{{ 'progreso.cifras.practicas' | transloco }}</span>
+          <span class="cifra-valor">{{
+            'progreso.cifras.deTotal' | transloco: { n: c.practicasAprobadas, total: c.practicas }
+          }}</span>
+        </li>
+        <li>
+          <span class="cifra-nombre">{{ 'progreso.cifras.graduacion' | transloco }}</span>
+          <span class="cifra-valor">{{
+            'progreso.graduacion.estados.' + c.graduacion | transloco
+          }}</span>
+        </li>
+      </ul>
+    }
+
+    @if (d.progreso.modulos.length) {
+      <h3>{{ 'progreso.modulos.titulo' | transloco }}</h3>
+      <at-modulos-progreso
+        [modulos]="d.progreso.modulos"
+        [curso]="d.progreso.curso"
+        [abreBloqueados]="true"
+      />
+    }
+
+    <h3>{{ 'progreso.practicas.titulo' | transloco }}</h3>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <caption class="at-oculto">
+          {{
+            'progreso.practicas.titulo' | transloco
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.usuario.practica' | transloco }}</th>
+            <th scope="col">{{ 'panel.columnas.estado' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.jobid' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'admin.usuario.fecha' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'admin.usuario.detalle' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (lab of d.progreso.labs; track lab.lab) {
+            <tr>
+              <th scope="row">{{ nombreLab(lab.lab) | transloco }}</th>
+              <td>
+                <span class="estado" [class]="'estado-' + lab.estado">
+                  {{ 'progreso.practicas.estados.' + lab.estado | transloco }}
+                </span>
+              </td>
+              <td class="secundaria">
+                @if (lab.jobid) {
+                  <code>{{ lab.jobid }}</code>
+                } @else {
+                  —
+                }
+              </td>
+              <td class="secundaria">{{ lab.fecha ? fecha(lab.fecha) : '—' }}</td>
+              <td class="secundaria">{{ lab.detalle ?? '' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="explicacion">
+      @if (d.progreso.ultima_sincronizacion; as ultima) {
+        {{ 'admin.usuario.sincronizacion' | transloco: { fecha: fecha(ultima) } }}
+      } @else {
+        {{ 'progreso.practicas.nunca' | transloco }}
+      }
+    </p>
+
+    <h3>{{ 'progreso.graduacion.titulo' | transloco }}</h3>
+    @if (d.progreso.graduacion; as g) {
+      <p>
+        <span class="estado" [class]="'estado-' + g.estado">
+          {{ 'progreso.graduacion.estados.' + g.estado | transloco }}
+        </span>
+        ·
+        {{
+          'panel.graduaciones.detalle.datos'
+            | transloco
+              : {
+                  cluster: ('cluster.' + g.cluster | transloco),
+                  jobid: g.jobid,
+                  fecha: fecha(g.enviada_en),
+                }
+        }}
+      </p>
+      @if (g.comentario) {
+        <p>{{ 'admin.usuario.comentario' | transloco: { comentario: g.comentario } }}</p>
+      }
+      @if (g.estado === 'aprobada') {
+        <p>
+          {{
+            g.qos_aplicada_en
+              ? ('admin.usuario.qosAplicada' | transloco: { fecha: fecha(g.qos_aplicada_en) })
+              : ('admin.usuario.qosPendiente' | transloco)
+          }}
+        </p>
+      }
+    } @else {
+      <p>{{ 'progreso.graduacion.estados.sin_enviar' | transloco }}</p>
+    }
+  </section>
+} @else if (noExiste()) {
+  <section class="error-carga" role="alert">
+    <h2>{{ 'admin.noExiste' | transloco }}</h2>
+    <p>{{ 'admin.usuario.noExisteTexto' | transloco: { username: usuario() } }}</p>
+  </section>
+} @else if (fallo()) {
+  <section class="error-carga" role="alert">
+    <h2>{{ 'admin.errorCarga' | transloco }}</h2>
+    <p>{{ 'errorCarga.mensaje' | transloco }}</p>
+    <button mat-flat-button type="button" (click)="reintentar()">
+      <at-icono nombre="reintentar" />
+      {{ 'panel.reintentar' | transloco }}
+    </button>
+  </section>
+} @else {
+  <mat-progress-bar mode="indeterminate" [attr.aria-label]="'admin.cargando' | transloco" />
+}

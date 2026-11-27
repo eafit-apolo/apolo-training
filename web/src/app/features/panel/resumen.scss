@@ -1,0 +1,121 @@
+// Pestaña «Resumen» del panel (F-08), bajo .at-panel.
+
+.at-panel {
+  .resumen-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .cifras {
+      flex: 1 1 600px;
+    }
+  }
+
+  .cifras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 16px;
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: 12px;
+    }
+  }
+
+  .cifra-nombre {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-label-large);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .cifra-valor {
+    font: var(--mat-sys-headline-small);
+    font-weight: 600;
+  }
+
+  .columnas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
+  .barras {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(80px, 1fr) 3ch;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  .barra {
+    height: 14px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  .barra-relleno {
+    display: block;
+    height: 100%;
+    background: var(--mat-sys-primary);
+  }
+
+  .barra-valor {
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .salto {
+    margin: 16px 0 0;
+    font-style: italic;
+  }
+
+  .por-hacer {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 16px;
+    }
+  }
+
+  .por-hacer-cifra {
+    min-width: 2ch;
+    font: var(--mat-sys-headline-small);
+    font-weight: 600;
+  }
+
+  .por-hacer-texto {
+    flex: 1 1 160px;
+  }
+
+  .por-hacer-nota {
+    display: block;
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-medium);
+  }
+}

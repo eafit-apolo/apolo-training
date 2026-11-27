@@ -1,0 +1,130 @@
+@let r = estado.resumen();
+<p class="at-oculto" aria-live="polite">{{ anuncio() ? (anuncio() | transloco) : '' }}</p>
+
+@if (r) {
+  @if (estado.fallo()) {
+    <p class="aviso aviso-error" role="alert">
+      <at-icono nombre="error" />
+      {{ 'panel.noActualizado' | transloco }}
+    </p>
+  }
+
+  <div class="resumen-cabecera">
+    <ul class="cifras" [attr.aria-label]="'panel.resumen.cifras' | transloco">
+      <li>
+        <span class="cifra-nombre">{{ 'panel.resumen.activos' | transloco }}</span>
+        <span class="cifra-valor">{{ r.estudiantes_activos }}</span>
+      </li>
+      <li>
+        <span class="cifra-nombre">{{ 'panel.resumen.sinEmpezar' | transloco }}</span>
+        <span class="cifra-valor">{{ r.sin_empezar }}</span>
+      </li>
+      <li>
+        <span class="cifra-nombre">{{ 'panel.resumen.enCurso' | transloco }}</span>
+        <span class="cifra-valor">{{ r.en_curso }}</span>
+      </li>
+      <li>
+        <span class="cifra-nombre">{{ 'panel.resumen.aprobados' | transloco }}</span>
+        <span class="cifra-valor">{{ r.aprobados }}</span>
+      </li>
+      <li>
+        <span class="cifra-nombre">{{ 'panel.resumen.sincronizacion' | transloco }}</span>
+        @if (r.ultima_sincronizacion; as ultima) {
+          <span class="cifra-valor" [title]="fecha(ultima)">{{ hace(ultima) }}</span>
+        } @else {
+          <span class="cifra-valor">{{ 'panel.resumen.nunca' | transloco }}</span>
+        }
+      </li>
+    </ul>
+    <button
+      mat-stroked-button
+      type="button"
+      [attr.aria-disabled]="cargando() || null"
+      (click)="cargando() || actualizar()"
+    >
+      <at-icono nombre="reintentar" />
+      {{ (cargando() ? 'panel.actualizando' : 'panel.actualizar') | transloco }}
+    </button>
+  </div>
+
+  <div class="columnas">
+    <section class="tarjeta" aria-labelledby="modulos-titulo">
+      <h2 id="modulos-titulo">{{ 'panel.resumen.modulos.titulo' | transloco }}</h2>
+      <p class="explicacion">
+        {{ 'panel.resumen.modulos.deActivos' | transloco: { n: r.estudiantes_activos } }}
+      </p>
+      @if (!r.avance_por_modulo.length) {
+        <p>{{ 'panel.resumen.modulos.sinCurso' | transloco }}</p>
+      } @else {
+        @if (!r.estudiantes_activos) {
+          <p class="aviso">
+            <at-icono nombre="info" />
+            {{ 'panel.resumen.modulos.sinEstudiantes' | transloco }}
+          </p>
+        }
+        <ol class="barras">
+          @for (m of r.avance_por_modulo; track m.numero) {
+            <li>
+              <span class="barra-nombre">{{ m.numero }} · {{ m.titulo }}</span>
+              <span class="barra" aria-hidden="true">
+                <span class="barra-relleno" [style.width.%]="ancho(m.completos)"></span>
+              </span>
+              <span class="barra-valor" aria-hidden="true">{{ m.completos }}</span>
+              <span class="at-oculto">{{
+                'panel.resumen.modulos.valor'
+                  | transloco: { n: m.completos, total: r.estudiantes_activos }
+              }}</span>
+            </li>
+          }
+        </ol>
+        @if (salto(); as s) {
+          <p class="salto">{{ 'panel.resumen.modulos.salto' | transloco: s }}</p>
+        }
+      }
+    </section>
+
+    <section class="tarjeta" aria-labelledby="pendientes-titulo">
+      <h2 id="pendientes-titulo">{{ 'panel.resumen.porHacer.titulo' | transloco }}</h2>
+      <ul class="por-hacer">
+        <li>
+          <span class="por-hacer-cifra">{{ r.graduaciones_por_revisar }}</span>
+          <span class="por-hacer-texto">{{
+            'panel.resumen.porHacer.graduaciones' | transloco
+          }}</span>
+          @if (r.graduaciones_por_revisar) {
+            <a mat-flat-button routerLink="/panel/graduaciones">
+              {{ 'panel.resumen.porHacer.revisar' | transloco }}
+            </a>
+          }
+        </li>
+        <li>
+          <span class="por-hacer-cifra">{{ r.aprobados_pendientes_qos }}</span>
+          <span class="por-hacer-texto">
+            {{ 'panel.resumen.porHacer.qos' | transloco }}
+            @if (!esAdmin()) {
+              <span class="por-hacer-nota">{{
+                'panel.resumen.porHacer.qosInstructor' | transloco
+              }}</span>
+            }
+          </span>
+          @if (esAdmin() && r.aprobados_pendientes_qos) {
+            <a mat-stroked-button routerLink="/admin/qos">
+              {{ 'panel.resumen.porHacer.irQos' | transloco }}
+            </a>
+          }
+        </li>
+      </ul>
+    </section>
+  </div>
+} @else if (estado.fallo()) {
+  <section class="error-carga" role="alert">
+    <h2>{{ 'panel.errorCarga' | transloco }}</h2>
+    <p>{{ 'errorCarga.mensaje' | transloco }}</p>
+    <button mat-flat-button type="button" (click)="actualizar()">
+      <at-icono nombre="reintentar" />
+      {{ 'panel.reintentar' | transloco }}
+    </button>
+  </section>
+} @else {
+  <mat-progress-bar mode="indeterminate" [attr.aria-label]="'panel.cargando' | transloco" />
+}

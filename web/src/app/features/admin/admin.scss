@@ -1,0 +1,20 @@
+// Administración (F-08). Sin encapsulación: todo va bajo .at-admin y llega a
+// las pestañas (usuarios, la página de cada uno y QOS).
+@use '../../shared/gestion';
+
+.at-admin {
+  @include gestion.base;
+
+  code {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  }
+
+  .vacio {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .enlace {
+    color: var(--mat-sys-primary);
+    font-weight: 500;
+  }
+}

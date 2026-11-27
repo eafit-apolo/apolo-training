@@ -1,0 +1,35 @@
+<div class="at-contenedor at-panel">
+  <div class="cabecera">
+    <h1>{{ 'paginas.panel' | transloco }}</h1>
+    <div class="exportar">
+      <label class="campo">
+        {{ 'panel.csv.de' | transloco }}
+        <select #campoCluster (change)="elegirCluster(campoCluster.value)">
+          <option value="" [selected]="cluster() === null">
+            {{ 'panel.csv.todos' | transloco }}
+          </option>
+          <option value="apolo2" [selected]="cluster() === 'apolo2'">
+            {{ 'cluster.apolo2' | transloco }}
+          </option>
+          <option value="apolo3" [selected]="cluster() === 'apolo3'">
+            {{ 'cluster.apolo3' | transloco }}
+          </option>
+        </select>
+      </label>
+      <button mat-stroked-button type="button" (click)="exportar()">
+        <at-icono nombre="descargar" />
+        {{ 'panel.csv.exportar' | transloco }}
+      </button>
+    </div>
+  </div>
+  <p class="explicacion">{{ 'panel.explicacion' | transloco }}</p>
+  @if (falloCsv()) {
+    <p class="aviso aviso-error" role="alert">
+      <at-icono nombre="error" />
+      {{ 'panel.csv.error' | transloco }}
+    </p>
+  }
+
+  <at-pestanas [pestanas]="pestanas()" etiqueta="panel.pestanas" />
+  <router-outlet />
+</div>

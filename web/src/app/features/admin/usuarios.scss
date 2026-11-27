@@ -1,0 +1,54 @@
+// Pestaña «Usuarios» de la administración (F-08), bajo .at-admin.
+
+.at-admin {
+  .barra-usuarios {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .campo-buscar {
+      flex: 1 1 260px;
+    }
+
+    .nuevo {
+      margin-left: auto;
+    }
+  }
+
+  .avance {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .avance-barra {
+    width: 80px;
+    height: 8px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  .avance-relleno {
+    display: block;
+    height: 100%;
+    background: var(--mat-sys-primary);
+  }
+
+  .paginas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px 12px;
+    margin-top: 12px;
+  }
+}
+
+// El menú de cada fila va en el overlay, fuera de .at-admin.
+.mat-mdc-menu-item.nota-baja {
+  font-style: italic;
+}

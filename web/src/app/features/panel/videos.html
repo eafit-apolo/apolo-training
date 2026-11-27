@@ -1,0 +1,185 @@
+@let anunciado = anuncio();
+<p class="at-oculto" aria-live="polite">
+  {{ anunciado ? (anunciado.clave | transloco: anunciado.parametros) : '' }}
+</p>
+<p class="explicacion">{{ 'panel.videos.explicacion' | transloco }}</p>
+
+<input
+  #selector
+  type="file"
+  class="at-oculto"
+  tabindex="-1"
+  aria-hidden="true"
+  (change)="alElegir(selector)"
+/>
+
+@if (subida(); as s) {
+  <section class="subida" aria-labelledby="subida-titulo">
+    <div class="subida-texto">
+      <p id="subida-titulo" class="subida-titulo">
+        {{ 'panel.videos.subiendo' | transloco: { archivo: s.archivo, clave: s.clave } }}
+      </p>
+      <p>
+        {{
+          'panel.videos.cuanto'
+            | transloco: { cargado: tamano(s.cargado), total: tamano(s.total), pct: porcentaje() }
+        }}
+      </p>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="porcentaje()"
+        [attr.aria-label]="'panel.videos.progreso' | transloco: { archivo: s.archivo }"
+      />
+      <p class="subida-nota">{{ 'panel.videos.noCierres' | transloco }}</p>
+    </div>
+    <button mat-stroked-button type="button" (click)="cancelar()">
+      <at-icono nombre="cerrar" />
+      {{ 'panel.videos.cancelar' | transloco }}
+    </button>
+  </section>
+}
+
+@if (error(); as e) {
+  <p class="aviso aviso-error" role="alert">
+    <at-icono nombre="error" />
+    {{ e.clave | transloco: e.parametros }}
+  </p>
+}
+
+@if (lista(); as videos) {
+  @if (fallo()) {
+    <p class="aviso aviso-error" role="alert">
+      <at-icono nombre="error" />
+      {{ 'panel.noActualizado' | transloco }}
+    </p>
+  }
+  @if (!videos.length) {
+    <p class="vacio">{{ 'panel.videos.vacia' | transloco }}</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla tabla-videos">
+        <caption class="at-oculto">
+          {{
+            'paginas.videos' | transloco
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'panel.columnas.clave' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.leccion' | transloco }}</th>
+            <th scope="col">{{ 'panel.columnas.mp4' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.duracion' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.vttEs' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.vttEn' | transloco }}</th>
+            <th scope="col">
+              <span class="at-oculto">{{ 'panel.columnas.acciones' | transloco }}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of videos; track v.id) {
+            <tr>
+              <th scope="row">
+                <code>{{ v.clave }}</code>
+              </th>
+              <td class="secundaria">
+                @for (l of v.lecciones; track l.id) {
+                  @if (curso(); as c) {
+                    <a class="enlace" [routerLink]="['/cursos', c, l.modulo, l.slug]">
+                      {{ l.modulo_numero }} · {{ l.titulo }}
+                    </a>
+                  } @else {
+                    <span>{{ l.modulo_numero }} · {{ l.titulo }}</span>
+                  }
+                } @empty {
+                  <span class="vacio">{{ 'panel.videos.sinLeccion' | transloco }}</span>
+                }
+              </td>
+              <td>
+                @if (v.disponible) {
+                  <span class="estado estado-aprobado">
+                    <at-icono nombre="completo" />
+                    {{ 'panel.videos.subido' | transloco }}
+                  </span>
+                } @else {
+                  <span class="chip">{{ 'panel.videos.pendiente' | transloco }}</span>
+                }
+              </td>
+              <td class="secundaria">
+                {{ v.duracion_seg !== null ? duracion(v.duracion_seg) : '—' }}
+              </td>
+              @for (i of idiomas; track i) {
+                <td class="secundaria">
+                  <span class="estado" [class.estado-aprobado]="v.subtitulos[i]">
+                    <at-icono [nombre]="v.subtitulos[i] ? 'completo' : 'pendiente'" />
+                    <span class="at-oculto">{{
+                      (v.subtitulos[i] ? 'panel.videos.subido' : 'panel.videos.sinSubir')
+                        | transloco
+                    }}</span>
+                  </span>
+                </td>
+              }
+              <td>
+                <div class="acciones">
+                  @if (v.disponible) {
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      [attr.aria-disabled]="subida() ? true : null"
+                      [attr.aria-label]="
+                        'panel.videos.reemplazarMp4A' | transloco: { clave: v.clave }
+                      "
+                      (click)="elegirArchivo(v, 'video')"
+                    >
+                      <at-icono nombre="subir" />
+                      {{ 'panel.videos.reemplazarMp4' | transloco }}
+                    </button>
+                  } @else {
+                    <button
+                      mat-flat-button
+                      type="button"
+                      [attr.aria-disabled]="subida() ? true : null"
+                      [attr.aria-label]="'panel.videos.subirMp4A' | transloco: { clave: v.clave }"
+                      (click)="elegirArchivo(v, 'video')"
+                    >
+                      <at-icono nombre="subir" />
+                      {{ 'panel.videos.subirMp4' | transloco }}
+                    </button>
+                  }
+                  @for (i of idiomas; track i) {
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      [attr.aria-disabled]="subida() ? true : null"
+                      [attr.aria-label]="
+                        (v.subtitulos[i] ? 'panel.videos.reemplazarVttA' : 'panel.videos.subirVttA')
+                          | transloco: { clave: v.clave, idioma: i.toUpperCase() }
+                      "
+                      (click)="elegirArchivo(v, i)"
+                    >
+                      {{
+                        (v.subtitulos[i] ? 'panel.videos.reemplazarVtt' : 'panel.videos.subirVtt')
+                          | transloco: { idioma: i.toUpperCase() }
+                      }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+} @else if (fallo()) {
+  <section class="error-carga" role="alert">
+    <h2>{{ 'panel.errorCarga' | transloco }}</h2>
+    <p>{{ 'errorCarga.mensaje' | transloco }}</p>
+    <button mat-flat-button type="button" (click)="reintentar()">
+      <at-icono nombre="reintentar" />
+      {{ 'panel.reintentar' | transloco }}
+    </button>
+  </section>
+} @else {
+  <mat-progress-bar mode="indeterminate" [attr.aria-label]="'panel.cargando' | transloco" />
+}
