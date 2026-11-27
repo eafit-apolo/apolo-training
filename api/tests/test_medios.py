@@ -23,7 +23,7 @@ from app.routers.panel import partes
 from app.services import medios
 from app.services.contenido_carga import cargar_contenido
 from app.services.contenido_lector import leer_contenido
-from tests.ayuda_contenido import armar_contenido
+from tests.ayuda_contenido import VPN, armar_contenido
 from tests.ayuda_medios import VTT_EN, VTT_ES, generar_video
 from tests.ayuda_sesion import con_csrf, crear_usuario, ingresar
 
@@ -446,6 +446,27 @@ async def test_listar_videos_con_su_estado(
             "titulo": "La VPN",
         }
     ]
+
+
+async def test_los_titulos_en_el_idioma_pedido(
+    carla: AsyncClient, tmp_path: Path, sesion_bd: AsyncSession
+) -> None:
+    ingles = VPN.replace("titulo: La VPN", "titulo: The VPN")
+    raiz = armar_contenido(tmp_path / "content-en", {"en/m01/vpn.md": ingles})
+    await cargar_contenido(sesion_bd, leer_contenido(raiz))
+
+    def titulos(respuesta: Response) -> set[str]:
+        return {
+            leccion["titulo"]
+            for video in respuesta.json()
+            if video["clave"].startswith("m01-vpn")
+            for leccion in video["lecciones"]
+        }
+
+    # Sin ?lang=, el del perfil (español); con ?lang=en, inglés (F-08).
+    assert titulos(await carla.get("/api/panel/videos")) == {"La VPN"}
+    en = await carla.get("/api/panel/videos", params={"lang": "en"})
+    assert titulos(en) == {"The VPN"}
 
 
 async def test_un_estudiante_no_ve_el_panel(ana: AsyncClient) -> None:

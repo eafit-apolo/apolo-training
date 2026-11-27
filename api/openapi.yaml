@@ -727,9 +727,19 @@ paths:
       tags: [panel]
       operationId: resumenPanel
       summary: Cifras del panel de instructor
+      description: |
+        Cuentan solo los estudiantes activos, con la regla de Mi progreso (una
+        lección de un módulo bloqueado no cuenta). Sin empezar: ninguna
+        lección completa ni práctica aprobada; aprobados: las tres condiciones
+        de `aprobado`; en curso: el resto. Las graduaciones por revisar son las
+        `enviada` y los aprobados pendientes, los de
+        `GET /admin/aprobados-pendientes`. Los títulos de los módulos van en el
+        idioma pedido (`?lang=`) o, sin él, en el del perfil (F-08).
       security:
         - cookieAcceso: []
       x-roles: [instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/Lang"
       responses:
         "200":
           description: Resumen
@@ -749,10 +759,13 @@ paths:
       summary: Videos del curso con el estado de archivo y subtítulos
       description: |
         Todos los que creó el importador, por clave, con o sin archivo. Los
-        títulos de las lecciones van en el idioma del perfil.
+        títulos de las lecciones van en el idioma pedido (`?lang=`, desde la
+        F-08) o, sin él, en el del perfil.
       security:
         - cookieAcceso: []
       x-roles: [instructor, admin]
+      parameters:
+        - $ref: "#/components/parameters/Lang"
       responses:
         "200":
           description: Videos
@@ -1055,12 +1068,14 @@ paths:
       summary: Detalle de un usuario con su progreso
       description: |
         `progreso` es su Mi progreso (la pantalla 04 en modo lectura), en el
-        idioma de quien lo mira.
+        idioma pedido (`?lang=`, desde la F-08) o, sin él, en el de quien lo
+        mira.
       security:
         - cookieAcceso: []
       x-roles: [admin]
       parameters:
         - $ref: "#/components/parameters/Username"
+        - $ref: "#/components/parameters/Lang"
       responses:
         "200":
           description: Usuario
@@ -2393,6 +2408,7 @@ components:
         - aprobados
         - graduaciones_por_revisar
         - aprobados_pendientes_qos
+        - ultima_sincronizacion
         - avance_por_modulo
       properties:
         estudiantes_activos:
@@ -2413,17 +2429,22 @@ components:
             - type: "null"
         avance_por_modulo:
           type: array
+          description: Los módulos del curso en orden («dónde se atascan»)
           items:
-            type: object
-            required: [numero, titulo, completos]
-            properties:
-              numero:
-                type: integer
-              titulo:
-                type: string
-              completos:
-                type: integer
-                description: Estudiantes activos que completaron el módulo
+            $ref: "#/components/schemas/AvanceModulo"
+
+    AvanceModulo:
+      type: object
+      required: [numero, titulo, completos]
+      properties:
+        numero:
+          type: integer
+        titulo:
+          type: string
+        completos:
+          type: integer
+          description: Estudiantes activos que completaron el módulo
+
     UsuarioAdmin:
       allOf:
         - $ref: "#/components/schemas/Usuario"

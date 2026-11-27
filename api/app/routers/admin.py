@@ -14,6 +14,7 @@ from fastapi import APIRouter, Path, Query, Request, Response
 from app.core.auth import UsuarioDep, con_roles
 from app.core.db import SesionDep
 from app.models.valores import PATRON_USERNAME
+from app.routers.contenido import LangDep
 from app.schemas.admin import (
     AprobadoPendiente,
     ClaveTemporal,
@@ -67,9 +68,9 @@ async def listar_usuarios(
     **ADMIN,
 )
 async def obtener_usuario(
-    username: Username, admin: UsuarioDep, bd: SesionDep
+    username: Username, admin: UsuarioDep, bd: SesionDep, lang: LangDep = None
 ) -> UsuarioDetalleAdmin:
-    return await usuarios.detalle(bd, username, admin.idioma)
+    return await usuarios.detalle(bd, username, lang or admin.idioma)
 
 
 @router.patch(

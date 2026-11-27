@@ -1,5 +1,6 @@
 """El avance de muchos usuarios a la vez (B-08): la lista de administración,
-los aprobados pendientes de QOS y el CSV de la medición.
+los aprobados pendientes de QOS, el CSV de la medición y, desde la F-08, el
+resumen del panel de instructor.
 
 Mi progreso (`app/services/progreso.py`) arma el curso entero para una
 persona; para una lista de 50 o un CSV de todos sería una consulta por cabeza.
@@ -70,9 +71,9 @@ class Resumen:
         return max(fecha for fecha in fechas if fecha is not None)
 
 
-async def _modulos_del_curso(bd: AsyncSession) -> list[list[int]]:
-    """Los ids de las lecciones publicadas de cada módulo, en orden. Los módulos
-    sin lecciones publicadas no cuentan (igual que `armar_curso`)."""
+async def modulos_del_curso(bd: AsyncSession) -> list[tuple[Modulo, list[int]]]:
+    """Cada módulo con los ids de sus lecciones publicadas, en orden. Los
+    módulos sin lecciones publicadas no cuentan (igual que `armar_curso`)."""
     curso_id = await bd.scalar(
         select(Curso.id)
         .where(Curso.publicado.is_(True))
@@ -81,16 +82,18 @@ async def _modulos_del_curso(bd: AsyncSession) -> list[list[int]]:
     )
     if curso_id is None:
         return []
+    modulos: dict[int, Modulo] = {}
     por_modulo: dict[int, list[int]] = defaultdict(list)
-    for modulo_id, leccion_id in await bd.execute(
-        select(Leccion.modulo_id, Leccion.id)
-        .join(Modulo, Modulo.id == Leccion.modulo_id)
+    for modulo, leccion_id in await bd.execute(
+        select(Modulo, Leccion.id)
+        .join(Leccion, Leccion.modulo_id == Modulo.id)
         .where(Modulo.curso_id == curso_id, Leccion.publicada.is_(True))
         .order_by(Modulo.numero, Leccion.orden)
     ):
-        por_modulo[modulo_id].append(leccion_id)
+        modulos[modulo.id] = modulo
+        por_modulo[modulo.id].append(leccion_id)
     # dict conserva el orden de llegada: el de Modulo.numero.
-    return list(por_modulo.values())
+    return [(modulos[i], lecciones) for i, lecciones in por_modulo.items()]
 
 
 def _avance(
@@ -117,7 +120,7 @@ async def resumenes(bd: AsyncSession, usuario_ids: Sequence[int]) -> dict[int, R
     ids = list(dict.fromkeys(usuario_ids))
     if not ids:
         return {}
-    modulos = await _modulos_del_curso(bd)
+    modulos = [lecciones for _, lecciones in await modulos_del_curso(bd)]
     todas = [i for lecciones in modulos for i in lecciones]
 
     completadas: dict[int, dict[int, datetime]] = defaultdict(dict)

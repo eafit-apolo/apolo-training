@@ -285,6 +285,22 @@ curl -s -H "Authorization: Bearer $TOKEN" \
   http://localhost:8000/api/internal/usuarios
 ```
 
+## Resumen del panel de instructor (F-08)
+
+`GET /api/panel/resumen` (instructor y admin, `app/services/panel.py`) da las
+cifras de la pantalla 05: estudiantes activos, sin empezar (ninguna lección
+completa ni práctica aprobada), en curso, aprobados, graduaciones por revisar
+(las `enviada`), aprobados pendientes de QOS (los de
+`/api/admin/aprobados-pendientes`), la última sincronización de la VM y, por
+módulo, cuántos lo completaron («dónde se atascan»). Solo cuentan los
+estudiantes activos y con la regla de Mi progreso, que calcula
+`app/services/resumen.py`.
+
+Esta ruta, `GET /api/panel/videos` y `GET /api/admin/usuarios/{username}`
+aceptan `?lang=` como las de contenido (sin él, el idioma del perfil): la web
+cambia el idioma antes de que termine el `PATCH /api/me` y con el del perfil
+recibiría los títulos en el idioma de antes.
+
 ## Videos y subtítulos (B-05)
 
 Un instructor o admin sube el MP4 y los VTT de cada video por su clave, la del
