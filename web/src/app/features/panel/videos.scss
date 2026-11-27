@@ -1,0 +1,62 @@
+// Pestaña «Videos» del panel (F-08), bajo .at-panel.
+
+.at-panel {
+  .tabla-videos {
+    th[scope='row'] {
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    td .enlace {
+      display: block;
+      min-width: 10rem;
+    }
+
+    .acciones button {
+      white-space: nowrap;
+    }
+  }
+
+  code {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  }
+
+  .vacio {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .enlace {
+    color: var(--mat-sys-primary);
+  }
+
+  .subida {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+    margin: 0 0 16px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: var(--mat-sys-primary-fixed);
+    color: var(--mat-sys-on-primary-fixed);
+
+    p {
+      margin: 0 0 8px;
+    }
+  }
+
+  .subida-texto {
+    flex: 1 1 320px;
+  }
+
+  .subida-titulo {
+    font: var(--mat-sys-title-medium);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .subida-nota {
+    margin: 8px 0 0 !important;
+    font: var(--mat-sys-body-medium);
+  }
+}

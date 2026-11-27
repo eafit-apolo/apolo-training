@@ -1,0 +1,202 @@
+// Estilos comunes del panel y la administración (F-08). Cada pantalla los
+// incluye bajo su clase raíz (`.at-panel`, `.at-admin`): las dos son lazy, así
+// que no pesan en el inicio. Las pantallas van sin encapsulación.
+
+@mixin base {
+  --at-icono: 20px;
+
+  h2 {
+    margin: 0 0 12px;
+    font: var(--mat-sys-title-large);
+  }
+
+  h2:focus-visible,
+  h3:focus-visible {
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: 4px;
+  }
+
+  .cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    margin-bottom: 8px;
+
+    h1 {
+      margin: 0;
+    }
+  }
+
+  .explicacion {
+    margin: 0 0 16px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .aviso {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 8px 12px;
+    border-left: 4px solid var(--mat-sys-tertiary);
+    border-radius: 4px;
+    background: var(--mat-sys-surface-container);
+
+    at-icono {
+      flex: none;
+      margin-top: 2px;
+    }
+  }
+
+  .aviso-error {
+    border-left-color: var(--mat-sys-error);
+  }
+
+  .tarjeta {
+    padding: 16px 20px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+  }
+
+  // Selects y campos nativos (sin @angular/forms).
+  .campo {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 4px;
+    font: var(--mat-sys-label-large);
+
+    select,
+    input,
+    textarea {
+      box-sizing: border-box;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--mat-sys-outline);
+      border-radius: 4px;
+      background: var(--mat-sys-surface);
+      color: var(--mat-sys-on-surface);
+      font: var(--mat-sys-body-large);
+    }
+
+    select:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid var(--mat-sys-primary);
+      outline-offset: 1px;
+    }
+
+    [aria-invalid='true'] {
+      border: 2px solid var(--mat-sys-error);
+    }
+  }
+
+  .error-campo {
+    margin: 4px 0 0;
+    color: var(--mat-sys-error);
+    font: var(--mat-sys-body-medium);
+  }
+
+  .tabla-contenedor {
+    overflow-x: auto;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+  }
+
+  .tabla {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--mat-sys-surface-container);
+      font: var(--mat-sys-title-small);
+      white-space: nowrap;
+    }
+
+    .sin-corte {
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+  }
+
+  // En celular, solo usuario, estado y acciones (pantallas.md).
+  @media (max-width: 599.98px) {
+    .secundaria {
+      display: none;
+    }
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--mat-sys-surface-container-high);
+    font: var(--mat-sys-label-large);
+    white-space: nowrap;
+  }
+
+  .chip-bien {
+    background: #d7f0dc;
+    color: var(--at-verde);
+  }
+
+  .chip-atencion {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+  }
+
+  .chip-mal {
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+  }
+
+  .estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font: var(--mat-sys-label-large);
+    white-space: nowrap;
+  }
+
+  .estado-completo,
+  .estado-aprobado,
+  .estado-aprobada {
+    color: var(--at-verde);
+  }
+
+  .estado-en_curso,
+  .estado-intentado,
+  .estado-enviada {
+    color: var(--mat-sys-primary);
+  }
+
+  .estado-rechazada {
+    color: var(--mat-sys-error);
+  }
+
+  .estado-bloqueado,
+  .estado-sin_intentar,
+  .estado-sin_enviar {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

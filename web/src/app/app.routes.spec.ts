@@ -59,10 +59,10 @@ describe('Rutas de la app (docs/diseno/pantallas.md)', () => {
     ['/mi-progreso', 'Mi progreso'],
     ['/terminal', 'Terminal de la VM de práctica'],
     ['/panel', 'Panel del curso'],
-    ['/panel/graduaciones', 'Graduaciones'],
-    ['/panel/videos', 'Videos'],
-    ['/admin/usuarios', 'Usuarios'],
-    ['/admin/qos', 'Aprobados pendientes de QOS'],
+    ['/panel/graduaciones', 'Panel del curso'],
+    ['/panel/videos', 'Panel del curso'],
+    ['/admin/usuarios', 'Administración'],
+    ['/admin/qos', 'Administración'],
     ['/no-existe', 'Página no encontrada'],
   ])('%s → «%s», con menú', async (url, h1) => {
     entrarComo(DIEGO);

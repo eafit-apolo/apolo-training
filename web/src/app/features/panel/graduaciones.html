@@ -1,0 +1,247 @@
+@let anunciado = anuncio();
+<p class="at-oculto" aria-live="polite">
+  {{ anunciado ? (anunciado.clave | transloco: anunciado.parametros) : '' }}
+</p>
+
+<div class="filtros">
+  <label class="campo">
+    {{ 'panel.graduaciones.mostrar' | transloco }}
+    <select #filtroCampo (change)="elegirFiltro(filtroCampo.value)">
+      @for (f of ['enviada', 'aprobada', 'rechazada', 'todas']; track f) {
+        <option [value]="f" [selected]="f === filtro()">
+          {{ 'panel.graduaciones.filtros.' + f | transloco }}
+        </option>
+      }
+    </select>
+  </label>
+</div>
+
+@if (aviso(); as clave) {
+  <p class="aviso" role="status">
+    <at-icono nombre="info" />
+    {{ clave | transloco }}
+  </p>
+}
+
+@if (lista(); as graduaciones) {
+  @if (fallo()) {
+    <p class="aviso aviso-error" role="alert">
+      <at-icono nombre="error" />
+      {{ 'panel.noActualizado' | transloco }}
+    </p>
+  }
+  @if (!graduaciones.length) {
+    <p class="vacio">
+      {{
+        (filtro() === 'enviada'
+          ? 'panel.graduaciones.vacia.enviada'
+          : 'panel.graduaciones.vacia.otras'
+        ) | transloco
+      }}
+    </p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <caption class="at-oculto">
+          {{
+            'paginas.graduaciones' | transloco
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'panel.columnas.usuario' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.nombre' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.cluster' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.jobid' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.enviada' | transloco }}</th>
+            <th scope="col" class="secundaria">{{ 'panel.columnas.practicas' | transloco }}</th>
+            <th scope="col">{{ 'panel.columnas.estado' | transloco }}</th>
+            <th scope="col">
+              <span class="at-oculto">{{ 'panel.columnas.acciones' | transloco }}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (g of graduaciones; track g.username) {
+            <tr [class.elegida]="g.username === elegida()">
+              <td>{{ g.username }}</td>
+              <td class="secundaria">{{ g.nombre }}</td>
+              <td class="secundaria sin-corte">{{ 'cluster.' + g.cluster | transloco }}</td>
+              <td class="secundaria">
+                <code>{{ g.jobid }}</code>
+              </td>
+              <td class="secundaria sin-corte">{{ fecha(g.enviada_en) }}</td>
+              <td class="secundaria">
+                <span
+                  class="chip"
+                  [class.chip-bien]="g.labs_aprobados === totalPracticas"
+                  [class.chip-atencion]="g.labs_aprobados < totalPracticas"
+                >
+                  {{
+                    'panel.graduaciones.practicasValor'
+                      | transloco: { n: g.labs_aprobados, total: totalPracticas }
+                  }}
+                </span>
+              </td>
+              <td>
+                <span class="estado" [class]="'estado-' + g.estado">
+                  {{ 'progreso.graduacion.estados.' + g.estado | transloco }}
+                </span>
+              </td>
+              <td>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  [attr.aria-label]="
+                    (g.estado === 'enviada'
+                      ? 'panel.graduaciones.revisarA'
+                      : 'panel.graduaciones.verA'
+                    ) | transloco: { username: g.username }
+                  "
+                  (click)="elegir(g)"
+                >
+                  {{
+                    (g.estado === 'enviada'
+                      ? 'panel.graduaciones.revisar'
+                      : 'panel.graduaciones.ver'
+                    ) | transloco
+                  }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (graduacion(); as g) {
+    <section class="tarjeta detalle" aria-labelledby="detalle-titulo">
+      <div class="detalle-cabecera">
+        <h2 id="detalle-titulo" tabindex="-1" #detalleTitulo>
+          {{
+            'panel.graduaciones.detalle.titulo'
+              | transloco: { username: g.username, nombre: g.nombre }
+          }}
+        </h2>
+        <button mat-button type="button" (click)="cerrar()">
+          <at-icono nombre="cerrar" />
+          {{ 'panel.graduaciones.detalle.cerrar' | transloco }}
+        </button>
+      </div>
+      <p>
+        {{
+          'panel.graduaciones.detalle.datos'
+            | transloco
+              : {
+                  cluster: ('cluster.' + g.cluster | transloco),
+                  jobid: g.jobid,
+                  fecha: fecha(g.enviada_en),
+                }
+        }}
+      </p>
+      @if (g.labs_aprobados < totalPracticas) {
+        <p class="aviso">
+          <at-icono nombre="info" />
+          {{
+            'panel.graduaciones.detalle.faltanPracticas'
+              | transloco: { n: g.labs_aprobados, total: totalPracticas }
+          }}
+        </p>
+      }
+
+      <h3>{{ 'panel.graduaciones.detalle.salida' | transloco }}</h3>
+      <pre class="salida" tabindex="0">{{ g.salida_verificador }}</pre>
+      <p>
+        {{
+          'panel.graduaciones.detalle.confirmar'
+            | transloco: { cluster: ('cluster.' + g.cluster | transloco) }
+        }}
+      </p>
+      <at-comando [texto]="comando(g)" />
+
+      @if (g.estado === 'enviada') {
+        <label class="campo campo-ancho">
+          {{ 'panel.graduaciones.detalle.comentario' | transloco }}
+          <textarea
+            #campoComentario
+            rows="3"
+            maxlength="1000"
+            [value]="comentario()"
+            [attr.aria-invalid]="faltaComentario() || null"
+            [attr.aria-describedby]="faltaComentario() ? 'comentario-error' : null"
+            (input)="escribir(campoComentario.value)"
+          ></textarea>
+        </label>
+        @if (faltaComentario()) {
+          <p id="comentario-error" class="error-campo">
+            {{ 'panel.graduaciones.detalle.comentarioError' | transloco }}
+          </p>
+        }
+        @if (errorRevision(); as clave) {
+          <p class="aviso aviso-error" role="alert">
+            <at-icono nombre="error" />
+            {{ clave | transloco }}
+          </p>
+        }
+        <div class="acciones">
+          <button
+            mat-stroked-button
+            type="button"
+            class="rechazar"
+            [attr.aria-disabled]="enviando() || null"
+            (click)="revisar('rechazar')"
+          >
+            {{
+              (enviando() === 'rechazar'
+                ? 'panel.graduaciones.detalle.rechazando'
+                : 'panel.graduaciones.detalle.rechazar'
+              ) | transloco
+            }}
+          </button>
+          <button
+            mat-flat-button
+            type="button"
+            class="aprobar"
+            [attr.aria-disabled]="enviando() || null"
+            (click)="revisar('aprobar')"
+          >
+            {{
+              (enviando() === 'aprobar'
+                ? 'panel.graduaciones.detalle.aprobando'
+                : 'panel.graduaciones.detalle.aprobar'
+              ) | transloco
+            }}
+          </button>
+        </div>
+      } @else {
+        <p>
+          {{
+            'panel.graduaciones.detalle.revisada'
+              | transloco
+                : { quien: g.revisada_por ?? '—', fecha: fecha(g.revisada_en ?? g.enviada_en) }
+          }}
+        </p>
+        @if (g.comentario) {
+          <div class="comentario">
+            <p class="comentario-titulo">
+              {{ 'panel.graduaciones.detalle.comentarioDado' | transloco }}
+            </p>
+            <p>{{ g.comentario }}</p>
+          </div>
+        }
+      }
+    </section>
+  }
+} @else if (fallo()) {
+  <section class="error-carga" role="alert">
+    <h2>{{ 'panel.errorCarga' | transloco }}</h2>
+    <p>{{ 'errorCarga.mensaje' | transloco }}</p>
+    <button mat-flat-button type="button" (click)="reintentar()">
+      <at-icono nombre="reintentar" />
+      {{ 'panel.reintentar' | transloco }}
+    </button>
+  </section>
+} @else {
+  <mat-progress-bar mode="indeterminate" [attr.aria-label]="'panel.cargando' | transloco" />
+}

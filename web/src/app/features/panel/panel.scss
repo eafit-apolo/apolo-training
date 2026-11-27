@@ -1,0 +1,14 @@
+// Panel de instructor (F-08). Sin encapsulación: todo va bajo .at-panel y
+// llega a las pestañas (resumen, graduaciones y videos).
+@use '../../shared/gestion';
+
+.at-panel {
+  @include gestion.base;
+
+  .exportar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px 12px;
+  }
+}

@@ -416,5 +416,281 @@
     "clave_debil": "La nueva contraseña debe tener 8 caracteres o más y ser distinta de tu usuario.",
     "clave_repetida": "La nueva contraseña debe ser distinta de la actual.",
     "clave_larga": "La contraseña puede tener 128 caracteres como máximo."
+  },
+  "comando": {
+    "etiqueta": "Comando",
+    "copiar": "Copiar",
+    "copiado": "Copiado",
+    "noCopiado": "No se pudo copiar",
+    "avisoCopiado": "Comando copiado al portapapeles."
+  },
+  "confirmar": {
+    "cancelar": "Cancelar"
+  },
+  "panel": {
+    "explicacion": "El trabajo del curso: cifras, graduaciones por revisar y videos. Las cuentas se manejan en Administración.",
+    "pestanas": "Secciones del panel",
+    "porRevisar": "{{n}} por revisar",
+    "actualizar": "Actualizar",
+    "actualizando": "Actualizando…",
+    "actualizado": "Panel actualizado.",
+    "noActualizado": "No pudimos actualizar: lo que ves puede estar desactualizado.",
+    "errorCarga": "No pudimos cargar el panel",
+    "reintentar": "Reintentar",
+    "cargando": "Cargando el panel",
+    "csv": {
+      "de": "CSV de",
+      "todos": "Todos los clústeres",
+      "exportar": "Exportar CSV",
+      "error": "No pudimos preparar el CSV. Revisa tu conexión (fuera de EAFIT, la VPN) e inténtalo de nuevo."
+    },
+    "columnas": {
+      "usuario": "Usuario",
+      "nombre": "Nombre",
+      "cluster": "Clúster",
+      "jobid": "JobID",
+      "enviada": "Enviada",
+      "practicas": "Prácticas",
+      "estado": "Estado",
+      "acciones": "Acciones",
+      "clave": "Clave",
+      "leccion": "Lección",
+      "mp4": "MP4",
+      "duracion": "Duración",
+      "vttEs": "VTT ES",
+      "vttEn": "VTT EN"
+    },
+    "resumen": {
+      "titulo": "Resumen",
+      "cifras": "Cifras de los estudiantes",
+      "activos": "Activos",
+      "sinEmpezar": "Sin empezar",
+      "enCurso": "En curso",
+      "aprobados": "Aprobados",
+      "sincronizacion": "Sincronización",
+      "nunca": "Nunca",
+      "modulos": {
+        "titulo": "Estudiantes que completaron cada módulo",
+        "deActivos": "De {{n}} estudiantes activos.",
+        "valor": "{{n}} de {{total}} estudiantes activos",
+        "sinEstudiantes": "Todavía no hay estudiantes activos: las barras se llenan cuando empiecen.",
+        "sinCurso": "Todavía no hay un curso publicado.",
+        "salto": "Dónde se atascan: el mayor salto está en el módulo {{numero}} · {{titulo}} (de {{antes}} a {{despues}})."
+      },
+      "porHacer": {
+        "titulo": "Por hacer",
+        "graduaciones": "Graduaciones por revisar",
+        "revisar": "Revisar",
+        "qos": "Aprobados esperando su QOS",
+        "qosInstructor": "La QOS la aplica un admin en el clúster real.",
+        "irQos": "Ir a Administración"
+      }
+    },
+    "graduaciones": {
+      "mostrar": "Mostrar",
+      "filtros": {
+        "enviada": "Por revisar",
+        "aprobada": "Aprobadas",
+        "rechazada": "Rechazadas",
+        "todas": "Todas"
+      },
+      "vacia": {
+        "enviada": "No hay graduaciones por revisar.",
+        "otras": "No hay graduaciones con ese estado."
+      },
+      "practicasValor": "{{n}} de {{total}}",
+      "revisar": "Revisar",
+      "ver": "Ver",
+      "revisarA": "Revisar la graduación de {{username}}",
+      "verA": "Ver la graduación de {{username}}",
+      "detalle": {
+        "titulo": "Graduación de {{username}} · {{nombre}}",
+        "cerrar": "Cerrar",
+        "datos": "{{cluster}} · JobID {{jobid}} · enviada el {{fecha}}",
+        "faltanPracticas": "Tiene {{n}} de {{total}} prácticas aprobadas en la VM. Puedes revisar la graduación, pero no aprobará el curso hasta tenerlas todas.",
+        "salida": "Salida del verificador",
+        "confirmar": "Para confirmarla, corre esto en el login de {{cluster}}:",
+        "comentario": "Comentario (obligatorio si la rechazas; lo verá en Mi progreso)",
+        "comentarioError": "Para rechazarla, escribe qué le falta.",
+        "aprobar": "Aprobar",
+        "aprobando": "Aprobando…",
+        "rechazar": "Rechazar",
+        "rechazando": "Rechazando…",
+        "revisada": "Revisada por {{quien}} el {{fecha}}.",
+        "comentarioDado": "Comentario"
+      },
+      "avisos": {
+        "aprobada": "Aprobaste la graduación de {{username}}.",
+        "rechazada": "Rechazaste la graduación de {{username}}. Verá tu comentario en Mi progreso.",
+        "yaRevisada": "Esa graduación ya no está por revisar: otra persona la revisó o el usuario la volvió a enviar. La lista está actualizada."
+      }
+    },
+    "videos": {
+      "explicacion": "MP4 con H.264 y AAC, hasta 2 GB, y subtítulos WebVTT. La clave sale del front matter de cada lección: aquí solo se suben los archivos.",
+      "vacia": "Todavía no hay videos: el importador los crea desde el front matter de las lecciones.",
+      "sinLeccion": "Ninguna lección publicada lo usa",
+      "subido": "Subido",
+      "sinSubir": "Sin subir",
+      "pendiente": "Pendiente",
+      "subirMp4": "Subir MP4",
+      "reemplazarMp4": "Reemplazar MP4",
+      "subirMp4A": "Subir el MP4 de {{clave}}",
+      "reemplazarMp4A": "Reemplazar el MP4 de {{clave}}",
+      "subirVtt": "Subir VTT {{idioma}}",
+      "reemplazarVtt": "Reemplazar VTT {{idioma}}",
+      "subirVttA": "Subir los subtítulos {{idioma}} de {{clave}}",
+      "reemplazarVttA": "Reemplazar los subtítulos {{idioma}} de {{clave}}",
+      "ocupado": "Espera a que termine la subida en curso (o cancélala) antes de subir otro archivo.",
+      "subiendo": "Subiendo {{archivo}} a {{clave}}",
+      "cuanto": "{{cargado}} de {{total}} · {{pct}} %",
+      "progreso": "Progreso de la subida de {{archivo}}",
+      "noCierres": "No cierres la pestaña ni salgas del panel hasta que termine.",
+      "cancelar": "Cancelar",
+      "empieza": "Empezó la subida de {{archivo}} a {{clave}}.",
+      "listo": "Listo: {{archivo}} quedó en {{clave}}.",
+      "cancelada": "Se canceló la subida.",
+      "reemplazar": {
+        "tituloVideo": "¿Reemplazar el video de {{clave}}?",
+        "tituloVtt": "¿Reemplazar los subtítulos {{idioma}} de {{clave}}?",
+        "mensaje": "El archivo actual se borra cuando termine de subir el nuevo. Quien tenga la lección abierta verá el nuevo al recargarla.",
+        "confirmar": "Reemplazar"
+      },
+      "faltas": {
+        "noMp4": "{{archivo}} no es un MP4: el video tiene que ser un archivo .mp4.",
+        "noVtt": "{{archivo}} no es un WebVTT: los subtítulos tienen que ser un archivo .vtt.",
+        "vacio": "{{archivo}} está vacío.",
+        "muyGrande": "{{archivo}} pasa del máximo ({{maximo}})."
+      },
+      "errores": {
+        "formato": "La plataforma no aceptó el video: tiene que ser MP4 con H.264 (8 bits, 4:2:0) y audio AAC, o sin audio. Detalle: {{detalle}}",
+        "vtt": "La plataforma no aceptó los subtítulos: tienen que ser WebVTT en UTF-8 que empiece por la línea WEBVTT. Detalle: {{detalle}}",
+        "muyGrande": "El archivo pasa del máximo que acepta la plataforma.",
+        "noExiste": "Esa clave ya no existe en el contenido importado. Recarga la página."
+      }
+    }
+  },
+  "admin": {
+    "explicacion": "Cuentas, claves, roles y QOS. Aparte del panel de instructor y solo para admins.",
+    "pestanas": "Secciones de la administración",
+    "errorCarga": "No pudimos cargar la administración",
+    "cargando": "Cargando",
+    "noExiste": "No existe ese usuario",
+    "roles": {
+      "estudiante": "Estudiante",
+      "instructor": "Instructor",
+      "admin": "Admin"
+    },
+    "estados": {
+      "activo": "Activo",
+      "debe_cambiar_clave": "Debe cambiar la clave",
+      "bloqueado": "Bloqueado",
+      "bloqueadoHasta": "Bloqueado hasta {{hora}}",
+      "baja": "Dado de baja"
+    },
+    "columnas": {
+      "rol": "Rol",
+      "avance": "Avance",
+      "ultimoIngreso": "Último ingreso"
+    },
+    "usuarios": {
+      "resultados": "{{desde}}–{{hasta}} de {{total}}",
+      "ninguno": "Ningún usuario coincide.",
+      "buscar": "Buscar",
+      "buscarAyuda": "Usuario, nombre o correo",
+      "cluster": "Clúster",
+      "rol": "Rol",
+      "estado": "Estado",
+      "todos": "Todos",
+      "vacia": "Todavía no hay usuarios. Las cuentas se crean con apolo-training-admin en la VM de práctica.",
+      "vaciaFiltros": "Ningún usuario coincide con la búsqueda o los filtros.",
+      "sinAvance": "No aplica: no es estudiante",
+      "nunca": "Nunca",
+      "accionesDe": "Acciones de {{username}}",
+      "paginas": "Páginas de usuarios",
+      "anterior": "Anterior",
+      "siguiente": "Siguiente"
+    },
+    "acciones": {
+      "verProgreso": "Ver su progreso",
+      "reiniciarClave": "Reiniciar clave de la plataforma",
+      "cambiarRol": "Cambiar rol…",
+      "baja": "Dar de baja: se hace con apolo-training-admin"
+    },
+    "nuevo": {
+      "boton": "Nuevo usuario",
+      "titulo": "Nuevo usuario",
+      "explicacion": "Las cuentas se crean en la VM de práctica, para que existan a la vez en la VM y en la plataforma con la misma clave temporal. Llena los datos y corre la orden como admin en la VM de práctica.",
+      "usuario": "Usuario (el mismo de su clúster)",
+      "usuarioAyuda": "Minúsculas, números, _ y -; hasta 32 caracteres.",
+      "nombre": "Nombre completo",
+      "nombreAyuda": "Hasta 120 caracteres, sin : ni ,",
+      "correo": "Correo",
+      "correoInvalido": "Escribe un correo válido (nombre@dominio).",
+      "cluster": "Clúster",
+      "idioma": "Idioma de la plataforma",
+      "orden": "Orden para la VM de práctica",
+      "despues": "La orden muestra la clave temporal una sola vez: dásela a la persona por un canal aparte del correo de bienvenida.",
+      "completa": "Completa los datos para ver la orden.",
+      "cerrar": "Cerrar"
+    },
+    "clave": {
+      "titulo": "Clave temporal de {{username}}",
+      "etiqueta": "Clave temporal",
+      "unaVez": "Se muestra una sola vez. {{username}} tendrá que cambiarla al entrar, y sus sesiones abiertas se cerraron.",
+      "vm": "Solo cambia la contraseña de la plataforma: la de la VM de práctica se cambia allá.",
+      "listo": "Ya la copié",
+      "preguntaTitulo": "¿Reiniciar la clave de {{username}}?",
+      "pregunta": "{{nombre}} recibirá una clave temporal de la plataforma, sus sesiones se cerrarán y tendrá que cambiarla al entrar. También se desbloquea la cuenta. La contraseña de la VM no cambia.",
+      "confirmar": "Reiniciar la clave",
+      "inactivo": "Esa cuenta está dada de baja: no se le puede reiniciar la clave.",
+      "hecha": "Clave de {{username}} reiniciada."
+    },
+    "rol": {
+      "titulo": "Cambiar el rol de {{username}}",
+      "leyenda": "Rol de {{nombre}}",
+      "que": {
+        "estudiante": "Hace el curso.",
+        "instructor": "Hace el curso y usa el panel: graduaciones, videos y CSV.",
+        "admin": "Todo lo del instructor, más la administración de cuentas y QOS."
+      },
+      "propio": "Es tu propio rol: si dejas de ser admin, saldrás de la administración en cuanto guardes.",
+      "ultimoAdmin": "No se puede: es el último admin activo. Primero dale el rol de admin a otra persona.",
+      "guardar": "Guardar",
+      "guardando": "Guardando…",
+      "hecho": "{{username}} ahora es {{rol}}."
+    },
+    "usuario": {
+      "volver": "Volver a los usuarios",
+      "correo": "Correo",
+      "idioma": "Idioma",
+      "creada": "Cuenta creada",
+      "baja": "Dado de baja",
+      "nota": "La baja, y la contraseña de la VM, se manejan con apolo-training-admin en la VM de práctica.",
+      "notaBaja": "Está dado de baja: no puede entrar. Se reactiva con apolo-training-admin en la VM de práctica.",
+      "progreso": "Su progreso",
+      "practica": "Práctica",
+      "fecha": "Fecha",
+      "detalle": "Detalle",
+      "sincronizacion": "Última sincronización de la VM: {{fecha}}.",
+      "comentario": "Comentario del instructor: {{comentario}}",
+      "qosAplicada": "QOS normal aplicada el {{fecha}}.",
+      "qosPendiente": "Aprobó el curso: falta aplicarle la QOS normal (pestaña Aprobados pendientes de QOS).",
+      "noExisteTexto": "No hay ningún usuario «{{username}}» en la plataforma."
+    },
+    "qos": {
+      "esperando": "{{n}} esperando",
+      "explicacion": "Quienes terminaron las lecciones, las siete prácticas y la graduación. La plataforma no toca el clúster real: corre el comando allá y marca aquí. El nombre de la QOS normal lo define la coordinación (V-08).",
+      "vacia": "Nadie espera su QOS.",
+      "datos": "{{cluster}} · aprobó el {{fecha}}",
+      "correEn": "Corre esto en {{cluster}} como administrador:",
+      "marcar": "Marcar QOS aplicada",
+      "marcarA": "Marcar la QOS de {{username}} como aplicada",
+      "preguntaTitulo": "¿Ya aplicaste la QOS de {{username}}?",
+      "pregunta": "Marca solo cuando el comando ya corrió en {{cluster}}: la plataforma lo registra, no lo hace.",
+      "confirmar": "Sí, ya la apliqué",
+      "hecha": "QOS de {{username}} marcada como aplicada.",
+      "yaAplicada": "Esa QOS ya estaba marcada. La lista está actualizada.",
+      "noAprobado": "Ese usuario ya no está entre los aprobados pendientes. La lista está actualizada."
+    }
   }
 }

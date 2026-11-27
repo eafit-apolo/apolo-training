@@ -276,6 +276,26 @@ Salen de la API real con el contenido de `content/` y la VM simulada con
 `GET /panel/videos`, `PUT /panel/videos/{clave}`,
 `PUT /panel/videos/{clave}/subtitulos/{idioma}`, `GET /panel/export/progreso.csv`.
 
+**Cómo quedó en la F-08 (27-nov).** Las capturas `capturas/f08-panel-*.png` reemplazan a este wireframe (que todavía muestra OnDemand, cuatro laboratorios y diez módulos):
+
+- Las pestañas son rutas (`/panel`, `/panel/graduaciones`, `/panel/videos`) con
+  `aria-current`; «Graduaciones» lleva la cuenta de las que esperan revisión.
+  «Exportar CSV» elige el clúster (o todos), comprueba la sesión y baja el
+  archivo.
+- **Resumen** (`GET /panel/resumen`, F-08): activos, sin empezar (ninguna
+  lección completa ni práctica aprobada), en curso, aprobados y hace cuánto
+  sincronizó la VM; una barra por módulo con cuántos lo completaron y el
+  módulo con el mayor salto («dónde se atascan»); y lo que espera una acción.
+- **Graduaciones:** filtro por estado (por revisar, aprobadas, rechazadas o
+  todas); al elegir una, la salida del verificador, cuántas prácticas tiene y
+  el `sacct -D -j JOBID -u USUARIO` para confirmarla en su clúster. Rechazar
+  sin comentario no llama a la API; un 409 (otra persona la revisó) recarga.
+- **Videos:** una subida a la vez con barra de progreso y «Cancelar», por XHR
+  (fetch no informa el progreso de subida); antes de reemplazar un archivo se
+  pregunta; el navegador revisa la extensión y el tamaño (el formato real lo
+  revisa la API) y la sesión se comprueba antes de empezar. Cada video enlaza
+  a su lección para verlo con sus subtítulos.
+
 ## 06 Administración de usuarios
 
 ![Wireframe de la administración de usuarios](wireframes/06-admin-usuarios.svg)
@@ -306,3 +326,24 @@ bajo `/api/admin` responde 403 a un instructor.
 `POST /admin/usuarios/{username}/reiniciar-clave`,
 `GET /admin/aprobados-pendientes`,
 `POST /admin/aprobados-pendientes/{username}/qos-aplicada`.
+
+**Cómo quedó en la F-08 (27-nov).** Las capturas `capturas/f08-admin-*.png` reemplazan a este wireframe:
+
+- **Usuarios:** búsqueda (usuario, nombre o correo, tras una pausa de 300 ms),
+  filtros nativos por clúster, rol y estado, 50 por página. Cada fila enlaza
+  a la página del usuario y tiene un menú con «Ver su progreso», «Reiniciar
+  clave de la plataforma» (deshabilitado con una baja) y «Cambiar rol…».
+- **«Nuevo usuario»:** un formulario corto (usuario, nombre, correo, clúster e
+  idioma) con las reglas de `apolo-training-admin` arma la orden
+  `sudo apolo-training-admin alta …` con las comillas bien puestas; solo se
+  muestra cuando todo está bien. La web no crea la cuenta.
+- **Página del usuario** (`/admin/usuarios/:usuario`): los datos de la cuenta,
+  las acciones y su Mi progreso en modo lectura (cifras, los módulos con el
+  componente de la F-07, las siete prácticas y la graduación).
+- **Reiniciar la clave** pregunta antes y muestra la clave una sola vez, en un
+  diálogo que no se cierra con un clic afuera. **Cambiar el rol** explica el
+  409 `ultimo_admin`; si un admin se quita su propio rol, se relee su perfil y
+  sale de la administración.
+- **Aprobados pendientes de QOS:** el comando para el clúster real con el
+  marcador `<qos-normal>` (el nombre lo define la V-08; está en `QOS_NORMAL`
+  de `features/admin/datos.ts`) y «Marcar QOS aplicada» con confirmación.

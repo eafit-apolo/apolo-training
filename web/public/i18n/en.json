@@ -416,5 +416,281 @@
     "clave_debil": "The new password must have 8 characters or more and be different from your username.",
     "clave_repetida": "The new password must be different from the current one.",
     "clave_larga": "The password can have 128 characters at most."
+  },
+  "comando": {
+    "etiqueta": "Command",
+    "copiar": "Copy",
+    "copiado": "Copied",
+    "noCopiado": "Could not copy",
+    "avisoCopiado": "Command copied to the clipboard."
+  },
+  "confirmar": {
+    "cancelar": "Cancel"
+  },
+  "panel": {
+    "explicacion": "The course work: numbers, graduations to review and videos. Accounts are managed in Administration.",
+    "pestanas": "Panel sections",
+    "porRevisar": "{{n}} to review",
+    "actualizar": "Refresh",
+    "actualizando": "Refreshing…",
+    "actualizado": "Panel refreshed.",
+    "noActualizado": "We couldn't refresh: what you see may be out of date.",
+    "errorCarga": "We couldn't load the panel",
+    "reintentar": "Try again",
+    "cargando": "Loading the panel",
+    "csv": {
+      "de": "CSV for",
+      "todos": "All clusters",
+      "exportar": "Export CSV",
+      "error": "We couldn't prepare the CSV. Check your connection (outside EAFIT, the VPN) and try again."
+    },
+    "columnas": {
+      "usuario": "User",
+      "nombre": "Name",
+      "cluster": "Cluster",
+      "jobid": "JobID",
+      "enviada": "Submitted",
+      "practicas": "Practices",
+      "estado": "Status",
+      "acciones": "Actions",
+      "clave": "Key",
+      "leccion": "Lesson",
+      "mp4": "MP4",
+      "duracion": "Length",
+      "vttEs": "VTT ES",
+      "vttEn": "VTT EN"
+    },
+    "resumen": {
+      "titulo": "Summary",
+      "cifras": "Student numbers",
+      "activos": "Active",
+      "sinEmpezar": "Not started",
+      "enCurso": "In progress",
+      "aprobados": "Passed",
+      "sincronizacion": "Sync",
+      "nunca": "Never",
+      "modulos": {
+        "titulo": "Students who completed each module",
+        "deActivos": "Out of {{n}} active students.",
+        "valor": "{{n}} of {{total}} active students",
+        "sinEstudiantes": "There are no active students yet: the bars fill in once they start.",
+        "sinCurso": "No course has been published yet.",
+        "salto": "Where they get stuck: the biggest drop is in module {{numero}} · {{titulo}} (from {{antes}} to {{despues}})."
+      },
+      "porHacer": {
+        "titulo": "To do",
+        "graduaciones": "Graduations to review",
+        "revisar": "Review",
+        "qos": "Passed, waiting for their QOS",
+        "qosInstructor": "An admin applies the QOS on the real cluster.",
+        "irQos": "Go to Administration"
+      }
+    },
+    "graduaciones": {
+      "mostrar": "Show",
+      "filtros": {
+        "enviada": "To review",
+        "aprobada": "Approved",
+        "rechazada": "Rejected",
+        "todas": "All"
+      },
+      "vacia": {
+        "enviada": "There are no graduations to review.",
+        "otras": "There are no graduations with that status."
+      },
+      "practicasValor": "{{n}} of {{total}}",
+      "revisar": "Review",
+      "ver": "View",
+      "revisarA": "Review {{username}}'s graduation",
+      "verA": "View {{username}}'s graduation",
+      "detalle": {
+        "titulo": "Graduation of {{username}} · {{nombre}}",
+        "cerrar": "Close",
+        "datos": "{{cluster}} · JobID {{jobid}} · submitted on {{fecha}}",
+        "faltanPracticas": "They have {{n}} of {{total}} practices passed on the VM. You can review the graduation, but they won't pass the course until they have all of them.",
+        "salida": "Checker output",
+        "confirmar": "To confirm it, run this on the {{cluster}} login node:",
+        "comentario": "Comment (required to reject; they will see it in My progress)",
+        "comentarioError": "To reject it, write what is missing.",
+        "aprobar": "Approve",
+        "aprobando": "Approving…",
+        "rechazar": "Reject",
+        "rechazando": "Rejecting…",
+        "revisada": "Reviewed by {{quien}} on {{fecha}}.",
+        "comentarioDado": "Comment"
+      },
+      "avisos": {
+        "aprobada": "You approved {{username}}'s graduation.",
+        "rechazada": "You rejected {{username}}'s graduation. They will see your comment in My progress.",
+        "yaRevisada": "That graduation is no longer waiting for review: someone else reviewed it or the user submitted it again. The list is up to date."
+      }
+    },
+    "videos": {
+      "explicacion": "MP4 with H.264 and AAC, up to 2 GB, and WebVTT subtitles. The key comes from each lesson's front matter: here you only upload the files.",
+      "vacia": "There are no videos yet: the importer creates them from the lessons' front matter.",
+      "sinLeccion": "No published lesson uses it",
+      "subido": "Uploaded",
+      "sinSubir": "Not uploaded",
+      "pendiente": "Pending",
+      "subirMp4": "Upload MP4",
+      "reemplazarMp4": "Replace MP4",
+      "subirMp4A": "Upload the MP4 for {{clave}}",
+      "reemplazarMp4A": "Replace the MP4 for {{clave}}",
+      "subirVtt": "Upload VTT {{idioma}}",
+      "reemplazarVtt": "Replace VTT {{idioma}}",
+      "subirVttA": "Upload the {{idioma}} subtitles for {{clave}}",
+      "reemplazarVttA": "Replace the {{idioma}} subtitles for {{clave}}",
+      "ocupado": "Wait for the current upload to finish (or cancel it) before uploading another file.",
+      "subiendo": "Uploading {{archivo}} to {{clave}}",
+      "cuanto": "{{cargado}} of {{total}} · {{pct}} %",
+      "progreso": "Upload progress of {{archivo}}",
+      "noCierres": "Don't close the tab or leave the panel until it finishes.",
+      "cancelar": "Cancel",
+      "empieza": "Started uploading {{archivo}} to {{clave}}.",
+      "listo": "Done: {{archivo}} is now in {{clave}}.",
+      "cancelada": "The upload was canceled.",
+      "reemplazar": {
+        "tituloVideo": "Replace the video for {{clave}}?",
+        "tituloVtt": "Replace the {{idioma}} subtitles for {{clave}}?",
+        "mensaje": "The current file is deleted once the new one finishes uploading. Anyone with the lesson open will see the new one after reloading it.",
+        "confirmar": "Replace"
+      },
+      "faltas": {
+        "noMp4": "{{archivo}} is not an MP4: the video must be an .mp4 file.",
+        "noVtt": "{{archivo}} is not a WebVTT file: the subtitles must be a .vtt file.",
+        "vacio": "{{archivo}} is empty.",
+        "muyGrande": "{{archivo}} is over the limit ({{maximo}})."
+      },
+      "errores": {
+        "formato": "The platform didn't accept the video: it must be MP4 with H.264 (8-bit, 4:2:0) and AAC audio, or no audio. Details: {{detalle}}",
+        "vtt": "The platform didn't accept the subtitles: they must be WebVTT in UTF-8, starting with the line WEBVTT. Details: {{detalle}}",
+        "muyGrande": "The file is over the limit the platform accepts.",
+        "noExiste": "That key no longer exists in the imported content. Reload the page."
+      }
+    }
+  },
+  "admin": {
+    "explicacion": "Accounts, passwords, roles and QOS. Separate from the instructor panel and for admins only.",
+    "pestanas": "Administration sections",
+    "errorCarga": "We couldn't load the administration",
+    "cargando": "Loading",
+    "noExiste": "That user doesn't exist",
+    "roles": {
+      "estudiante": "Student",
+      "instructor": "Instructor",
+      "admin": "Admin"
+    },
+    "estados": {
+      "activo": "Active",
+      "debe_cambiar_clave": "Must change password",
+      "bloqueado": "Locked",
+      "bloqueadoHasta": "Locked until {{hora}}",
+      "baja": "Deactivated"
+    },
+    "columnas": {
+      "rol": "Role",
+      "avance": "Progress",
+      "ultimoIngreso": "Last sign-in"
+    },
+    "usuarios": {
+      "resultados": "{{desde}}–{{hasta}} of {{total}}",
+      "ninguno": "No user matches.",
+      "buscar": "Search",
+      "buscarAyuda": "Username, name or email",
+      "cluster": "Cluster",
+      "rol": "Role",
+      "estado": "Status",
+      "todos": "All",
+      "vacia": "There are no users yet. Accounts are created with apolo-training-admin on the practice VM.",
+      "vaciaFiltros": "No user matches the search or the filters.",
+      "sinAvance": "Not applicable: not a student",
+      "nunca": "Never",
+      "accionesDe": "Actions for {{username}}",
+      "paginas": "User pages",
+      "anterior": "Previous",
+      "siguiente": "Next"
+    },
+    "acciones": {
+      "verProgreso": "View their progress",
+      "reiniciarClave": "Reset platform password",
+      "cambiarRol": "Change role…",
+      "baja": "Deactivate: done with apolo-training-admin"
+    },
+    "nuevo": {
+      "boton": "New user",
+      "titulo": "New user",
+      "explicacion": "Accounts are created on the practice VM, so they exist on the VM and on the platform at the same time, with the same temporary password. Fill in the details and run the command as an admin on the practice VM.",
+      "usuario": "Username (the same as on their cluster)",
+      "usuarioAyuda": "Lowercase letters, numbers, _ and -; up to 32 characters.",
+      "nombre": "Full name",
+      "nombreAyuda": "Up to 120 characters, without : or ,",
+      "correo": "Email",
+      "correoInvalido": "Enter a valid email (name@domain).",
+      "cluster": "Cluster",
+      "idioma": "Platform language",
+      "orden": "Command for the practice VM",
+      "despues": "The command shows the temporary password only once: give it to the person through a different channel than the welcome email.",
+      "completa": "Fill in the details to see the command.",
+      "cerrar": "Close"
+    },
+    "clave": {
+      "titulo": "Temporary password for {{username}}",
+      "etiqueta": "Temporary password",
+      "unaVez": "It is shown only once. {{username}} will have to change it when signing in, and their open sessions were closed.",
+      "vm": "This only changes the platform password: the practice VM password is changed there.",
+      "listo": "I've copied it",
+      "preguntaTitulo": "Reset {{username}}'s password?",
+      "pregunta": "{{nombre}} will get a temporary platform password, their sessions will be closed and they'll have to change it when signing in. The account is also unlocked. The VM password doesn't change.",
+      "confirmar": "Reset the password",
+      "inactivo": "That account is deactivated: its password can't be reset.",
+      "hecha": "{{username}}'s password was reset."
+    },
+    "rol": {
+      "titulo": "Change {{username}}'s role",
+      "leyenda": "Role of {{nombre}}",
+      "que": {
+        "estudiante": "Takes the course.",
+        "instructor": "Takes the course and uses the panel: graduations, videos and CSV.",
+        "admin": "Everything an instructor does, plus account and QOS administration."
+      },
+      "propio": "This is your own role: if you stop being an admin, you'll leave the administration as soon as you save.",
+      "ultimoAdmin": "Not possible: this is the last active admin. First give the admin role to someone else.",
+      "guardar": "Save",
+      "guardando": "Saving…",
+      "hecho": "{{username}} is now {{rol}}."
+    },
+    "usuario": {
+      "volver": "Back to users",
+      "correo": "Email",
+      "idioma": "Language",
+      "creada": "Account created",
+      "baja": "Deactivated",
+      "nota": "Deactivation, and the VM password, are handled with apolo-training-admin on the practice VM.",
+      "notaBaja": "Deactivated: they can't sign in. It is reactivated with apolo-training-admin on the practice VM.",
+      "progreso": "Their progress",
+      "practica": "Practice",
+      "fecha": "Date",
+      "detalle": "Details",
+      "sincronizacion": "Last VM sync: {{fecha}}.",
+      "comentario": "Instructor's comment: {{comentario}}",
+      "qosAplicada": "Normal QOS applied on {{fecha}}.",
+      "qosPendiente": "Passed the course: their normal QOS is still pending (Passed, waiting for QOS tab).",
+      "noExisteTexto": "There is no user “{{username}}” on the platform."
+    },
+    "qos": {
+      "esperando": "{{n}} waiting",
+      "explicacion": "Those who finished the lessons, the seven practices and the graduation. The platform doesn't touch the real cluster: run the command there and mark it here. The name of the normal QOS is set by the coordination team (V-08).",
+      "vacia": "Nobody is waiting for their QOS.",
+      "datos": "{{cluster}} · passed on {{fecha}}",
+      "correEn": "Run this on {{cluster}} as an administrator:",
+      "marcar": "Mark QOS applied",
+      "marcarA": "Mark {{username}}'s QOS as applied",
+      "preguntaTitulo": "Did you already apply {{username}}'s QOS?",
+      "pregunta": "Only mark it once the command has run on {{cluster}}: the platform records it, it doesn't do it.",
+      "confirmar": "Yes, I applied it",
+      "hecha": "{{username}}'s QOS marked as applied.",
+      "yaAplicada": "That QOS was already marked. The list is up to date.",
+      "noAprobado": "That user is no longer among the pending approvals. The list is up to date."
+    }
   }
 }
